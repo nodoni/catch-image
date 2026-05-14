@@ -7,524 +7,182 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080810;--surface:#10101c;--surface2:#18182a;--border:rgba(255,255,255,.06);--accent:#e8ff47;--text:#f0f0ff;--muted:#6b6b88;--radius:12px}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh}
 
-:root {
-  --bg: #080810;
-  --surface: #10101c;
-  --surface2: #18182a;
-  --border: rgba(255,255,255,0.06);
-  --accent: #e8ff47;
-  --text: #f0f0ff;
-  --muted: #6b6b88;
-  --radius: 12px;
-}
+header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2.5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(8,8,16,.94);backdrop-filter:blur(14px);z-index:100}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:4px;color:var(--accent);line-height:1;cursor:pointer;user-select:none}
+.header-search{display:flex;gap:8px;flex:1;max-width:460px;margin:0 2rem}
+.header-search input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);font-size:.88rem;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .2s}
+.header-search input:focus{border-color:var(--accent)}
+.header-search input::placeholder{color:var(--muted)}
+.header-search button{background:var(--accent);border:none;color:#080810;padding:8px 20px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:opacity .15s;white-space:nowrap}
+.header-search button:hover{opacity:.85}
+.hdr-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:.8rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:all .15s}
+.hdr-btn:hover{border-color:var(--accent);color:var(--accent)}
+.source-toggle{display:flex;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:4px}
+.src-btn{padding:5px 12px;border-radius:6px;border:none;font-size:.75rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;background:none;color:var(--muted);transition:all .15s;white-space:nowrap}
+.src-btn.active{background:var(--accent);color:#080810;font-weight:700}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif;
-  min-height: 100vh;
-}
+.hero{text-align:center;padding:4rem 2rem 2.5rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:700px;height:350px;background:radial-gradient(ellipse,rgba(232,255,71,.07) 0%,transparent 70%);pointer-events:none}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,9vw,6.5rem);letter-spacing:8px;line-height:.95;color:var(--text)}
+.hero h1 span{color:var(--accent)}
+.hero p{color:var(--muted);margin-top:1rem;font-size:.88rem;letter-spacing:.06em}
+.hero-search{display:flex;gap:10px;max-width:560px;margin:2rem auto 0;background:var(--surface);border:1px solid rgba(232,255,71,.18);border-radius:14px;padding:8px 8px 8px 22px}
+.hero-search input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:1rem;font-family:'Noto Sans KR',sans-serif}
+.hero-search input::placeholder{color:var(--muted)}
+.hero-search button{background:var(--accent);border:none;color:#080810;padding:10px 26px;border-radius:10px;font-weight:700;font-size:.95rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:opacity .15s,transform .1s}
+.hero-search button:hover{opacity:.88}
+.hero-search button:active{transform:scale(.97)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:720px;margin:1.5rem auto 0;padding:0 1rem}
+.tag{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px 16px;border-radius:999px;font-size:.78rem;cursor:pointer;transition:all .15s;user-select:none}
+.tag:hover{border-color:var(--accent);color:var(--accent)}
 
-/* HEADER */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.2rem 2.5rem;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  background: rgba(8,8,16,0.94);
-  backdrop-filter: blur(14px);
-  z-index: 100;
-}
+.gallery-section{max-width:1300px;margin:3rem auto 0;padding:0 2rem}
+.gallery-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:10px}
+.gallery-title-text{font-size:.68rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.gallery-controls select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:7px;font-size:.8rem;cursor:pointer;outline:none}
+.gallery{columns:4;column-gap:14px}
+@media(max-width:1100px){.gallery{columns:3}}
+@media(max-width:720px){.gallery{columns:2}}
+@media(max-width:500px){.gallery{columns:1}header{padding:1rem}.header-search{display:none}.source-toggle{display:none}}
+.photo-card{break-inside:avoid;margin-bottom:14px;border-radius:var(--radius);overflow:hidden;position:relative;background:var(--surface)}
+.photo-card img{width:100%;display:block;transition:transform .35s ease;cursor:pointer}
+.photo-card:hover img{transform:scale(1.05)}
+.photo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,16,.92) 0%,transparent 55%);opacity:0;transition:opacity .25s;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;pointer-events:none}
+.photo-card:hover .photo-overlay{opacity:1;pointer-events:all}
+.photographer{font-size:.73rem;color:rgba(255,255,255,.6);margin-bottom:8px}
+.overlay-btns{display:flex;gap:6px;flex-wrap:wrap}
+.ov-btn{padding:5px 11px;border-radius:7px;font-size:.7rem;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:opacity .15s;white-space:nowrap}
+.ov-view{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.ov-dl{background:var(--accent);color:#080810}
+.ov-edit{background:#7c6ff7;color:#fff}
+.ov-btn:hover{opacity:.82}
+.source-badge{position:absolute;top:8px;right:8px;font-size:.6rem;font-weight:700;padding:3px 7px;border-radius:4px;opacity:0;transition:opacity .25s}
+.photo-card:hover .source-badge{opacity:1}
+.badge-pexels{background:#05a081;color:#fff}
+.badge-pixabay{background:#1e6d9c;color:#fff}
 
-.logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.9rem;
-  letter-spacing: 4px;
-  color: var(--accent);
-  line-height: 1;
-  cursor: pointer;
-}
+.status{text-align:center;padding:4rem 1rem;color:var(--muted);font-size:.9rem}
+.status.error{color:#ff6b6b}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:3rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-more{display:flex;justify-content:center;padding:2.5rem 0 6rem}
+.load-more button{background:transparent;border:1px solid rgba(232,255,71,.4);color:var(--accent);padding:.75rem 3.5rem;border-radius:var(--radius);cursor:pointer;font-size:.88rem;font-family:'Noto Sans KR',sans-serif;font-weight:500;transition:background .15s}
+.load-more button:hover{background:rgba(232,255,71,.07)}
 
-.header-search {
-  display: flex;
-  gap: 8px;
-  flex: 1;
-  max-width: 460px;
-  margin: 0 2rem;
-}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;align-items:center;justify-content:center;padding:1.5rem;flex-direction:column;gap:1rem}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:80vh;border-radius:var(--radius);object-fit:contain}
+.lb-close{position:fixed;top:1rem;right:1.5rem;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;opacity:.55;line-height:1}
+.lb-close:hover{opacity:1}
+.lb-btns{display:flex;gap:10px}
+.lb-btn{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:10px 22px;border-radius:10px;font-weight:700;font-size:.88rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
+.lb-btn.accent{background:var(--accent);color:#080810;border-color:var(--accent)}
+.lb-btn:hover{opacity:.85}
 
-.header-search input {
-  flex: 1;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 16px;
-  color: var(--text);
-  font-size: 0.88rem;
-  font-family: 'Noto Sans KR', sans-serif;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.header-search input:focus { border-color: var(--accent); }
-.header-search input::placeholder { color: var(--muted); }
+/* AD */
+#ad-widget{position:fixed;bottom:20px;left:20px;width:260px;z-index:200;border-radius:var(--radius);filter:drop-shadow(0 8px 32px rgba(0,0,0,.7))}
+#ad-widget .ad-header{display:flex;align-items:center;justify-content:space-between;background:#0e0e1e;border:1px solid var(--border);border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:5px 10px}
+.ad-label{font-size:.6rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.ad-timer{font-size:.6rem;color:var(--accent);font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.ad-controls{display:flex;align-items:center;gap:6px}
+.ad-toggle{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:2px 5px;border-radius:4px;transition:color .15s,background .15s;line-height:1}
+.ad-toggle:hover{color:var(--text);background:var(--surface2)}
+.ad-grid-wrap{background:#0e0e1e;border:1px solid var(--border);border-top:1px solid rgba(255,255,255,.04);border-radius:0 0 var(--radius) var(--radius);padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#ad-widget.collapsed .ad-grid-wrap{display:none}
+.ad-card{border-radius:8px;overflow:hidden;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:border-color .2s;position:relative}
+.ad-card:hover{border-color:rgba(232,255,71,.3)}
+.ad-card.main-card{grid-column:1/-1}
+.ad-card.active{border-color:rgba(232,255,71,.5)}
+.ad-card iframe{width:100%;aspect-ratio:16/9;display:block;border:none}
+.ad-thumb{width:100%;aspect-ratio:16/9;background:#1a1a2e;display:flex;align-items:center;justify-content:center;position:relative}
+.ad-play{width:28px;height:28px;background:rgba(232,255,71,.12);border:1px solid rgba(232,255,71,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.ad-play svg{width:10px;height:10px;fill:var(--accent);margin-left:2px}
+.ad-thumb:hover .ad-play{background:rgba(232,255,71,.25)}
+.ad-num{position:absolute;top:4px;left:5px;background:var(--accent);color:#080810;font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:3px;font-family:'Bebas Neue',sans-serif}
+.ad-progress-bar{height:2px;background:var(--surface2);overflow:hidden}
+.ad-progress-fill{height:100%;background:var(--accent);width:0%;transition:width .5s linear}
 
-.header-search button {
-  background: var(--accent);
-  border: none;
-  color: #080810;
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  font-family: 'Noto Sans KR', sans-serif;
-  transition: opacity 0.15s;
-}
-.header-search button:hover { opacity: 0.85; }
+/* ═══════════════════════════════════
+   EDITOR MODAL
+═══════════════════════════════════ */
+.editor-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:600;flex-direction:column}
+.editor-modal.open{display:flex}
+.editor-top{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.editor-top .logo-sm{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:var(--accent)}
+.editor-dim{font-size:.72rem;color:var(--muted)}
+.editor-close{background:none;border:none;color:var(--muted);font-size:1.8rem;cursor:pointer;line-height:1}
+.editor-close:hover{color:var(--text)}
+.editor-body{display:flex;flex:1;min-height:0;overflow:hidden}
 
-.source-toggle {
-  display: flex;
-  gap: 6px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 4px;
-}
-.src-btn {
-  padding: 5px 12px;
-  border-radius: 6px;
-  border: none;
-  font-size: 0.75rem;
-  font-family: 'Noto Sans KR', sans-serif;
-  cursor: pointer;
-  background: none;
-  color: var(--muted);
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.src-btn.active { background: var(--accent); color: #080810; font-weight: 700; }
-
-/* HERO */
-.hero {
-  text-align: center;
-  padding: 4rem 2rem 2.5rem;
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -80px; left: 50%;
-  transform: translateX(-50%);
-  width: 700px; height: 350px;
-  background: radial-gradient(ellipse, rgba(232,255,71,0.07) 0%, transparent 70%);
-  pointer-events: none;
-}
-.hero h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3.5rem, 9vw, 6.5rem);
-  letter-spacing: 8px;
-  line-height: 0.95;
-  color: var(--text);
-}
-.hero h1 span { color: var(--accent); }
-.hero p {
-  color: var(--muted);
-  margin-top: 1rem;
-  font-size: 0.88rem;
-  letter-spacing: 0.06em;
-}
-.hero-search {
-  display: flex;
-  gap: 10px;
-  max-width: 560px;
-  margin: 2rem auto 0;
-  background: var(--surface);
-  border: 1px solid rgba(232,255,71,0.18);
-  border-radius: 14px;
-  padding: 8px 8px 8px 22px;
-}
-.hero-search input {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-size: 1rem;
-  font-family: 'Noto Sans KR', sans-serif;
-}
-.hero-search input::placeholder { color: var(--muted); }
-.hero-search button {
-  background: var(--accent);
-  border: none;
-  color: #080810;
-  padding: 10px 26px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  font-family: 'Noto Sans KR', sans-serif;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-}
-.hero-search button:hover { opacity: 0.88; }
-.hero-search button:active { transform: scale(0.97); }
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  max-width: 720px;
-  margin: 1.5rem auto 0;
-  padding: 0 1rem;
-}
-.tag {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-}
-.tag:hover { border-color: var(--accent); color: var(--accent); }
-
-/* GALLERY */
-.gallery-section {
-  max-width: 1300px;
-  margin: 3rem auto 0;
-  padding: 0 2rem;
-}
-.gallery-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.2rem;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.gallery-title-text {
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.gallery-controls select {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 5px 10px;
-  border-radius: 7px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  outline: none;
+/* canvas area */
+.editor-canvas-area{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  background:#050508;overflow:hidden;min-width:0;position:relative;
 }
 
-.gallery {
-  columns: 4;
-  column-gap: 14px;
-}
-@media (max-width: 1100px) { .gallery { columns: 3; } }
-@media (max-width: 720px)  { .gallery { columns: 2; } }
-@media (max-width: 500px)  {
-  .gallery { columns: 1; }
-  header { padding: 1rem; }
-  .header-search { display: none; }
-  .source-toggle { display: none; }
-}
+/* The wrapper that holds canvas + crop overlay, absolutely positioned */
+#canvasWrap{position:relative;display:inline-block;line-height:0}
+#editorCanvas{display:block;border-radius:6px;max-width:100%;max-height:100%}
 
-.photo-card {
-  break-inside: avoid;
-  margin-bottom: 14px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  position: relative;
-  background: var(--surface);
+/* Crop box overlay — sits on top of canvas, same pixel dimensions */
+#cropBox{
+  position:absolute;top:0;left:0;right:0;bottom:0; /* start full canvas */
+  border:2px solid var(--accent);
+  box-shadow:0 0 0 9999px rgba(0,0,0,.55);
+  display:none;
+  cursor:move;
+  touch-action:none;
 }
-.photo-card img {
-  width: 100%;
-  display: block;
-  transition: transform 0.35s ease;
-  cursor: pointer;
+/* 8 resize handles */
+.ch{
+  position:absolute;width:14px;height:14px;background:var(--accent);border:2px solid #080810;
+  border-radius:3px;z-index:2;
 }
-.photo-card:hover img { transform: scale(1.05); }
+.ch-tl{top:-7px;left:-7px;cursor:nw-resize}
+.ch-tc{top:-7px;left:50%;transform:translateX(-50%);cursor:n-resize}
+.ch-tr{top:-7px;right:-7px;cursor:ne-resize}
+.ch-ml{top:50%;left:-7px;transform:translateY(-50%);cursor:w-resize}
+.ch-mr{top:50%;right:-7px;transform:translateY(-50%);cursor:e-resize}
+.ch-bl{bottom:-7px;left:-7px;cursor:sw-resize}
+.ch-bc{bottom:-7px;left:50%;transform:translateX(-50%);cursor:s-resize}
+.ch-br{bottom:-7px;right:-7px;cursor:se-resize}
 
-.photo-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(8,8,16,0.92) 0%, transparent 55%);
-  opacity: 0;
-  transition: opacity 0.25s;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 14px;
-  pointer-events: none;
-}
-.photo-card:hover .photo-overlay { opacity: 1; pointer-events: all; }
+/* sidebar */
+.editor-sidebar{width:220px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:1rem}
+.ed-section{margin-bottom:1.4rem}
+.ed-section-title{font-size:.65rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:.7rem}
+.ed-btn{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.8rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;margin-bottom:6px;text-align:left;display:flex;align-items:center;gap:8px}
+.ed-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ed-btn.mode-active{border-color:var(--accent);background:rgba(232,255,71,.07);color:var(--accent)}
+.ed-btn.accent{background:var(--accent);color:#080810;border-color:var(--accent);font-weight:700;justify-content:center}
+.ed-btn.accent:hover{opacity:.88}
+.ed-btn.purple{background:#7c6ff7;color:#fff;border-color:#7c6ff7;justify-content:center}
+.ed-btn.purple:hover{opacity:.88}
+.ed-row{display:flex;gap:6px;margin-bottom:6px}
+.ed-row .ed-btn{margin-bottom:0;flex:1;justify-content:center;font-size:.75rem}
+.ed-label{font-size:.72rem;color:var(--muted);margin-bottom:4px}
+.ed-slider{width:100%;accent-color:var(--accent);cursor:pointer;margin-bottom:10px}
+.ed-info{font-size:.7rem;color:var(--muted);line-height:1.6;background:var(--surface2);padding:8px 10px;border-radius:7px;margin-bottom:8px}
+.ed-q-row{display:flex;gap:6px;margin-bottom:8px}
+.ed-q-btn{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px;border-radius:7px;font-size:.7rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:center;transition:all .15s}
+.ed-q-btn.active{border-color:var(--accent);color:var(--accent)}
+.ed-file-label{display:flex;align-items:center;gap:8px;width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 12px;border-radius:8px;font-size:.8rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;margin-bottom:6px}
+.ed-file-label:hover{border-color:var(--accent);color:var(--accent)}
+#localFileInput{display:none}
 
-.photographer {
-  font-size: 0.73rem;
-  color: rgba(255,255,255,0.6);
-  margin-bottom: 8px;
-}
-.overlay-btns { display: flex; gap: 8px; }
-.view-btn, .dl-btn {
-  padding: 6px 13px;
-  border-radius: 7px;
-  font-size: 0.73rem;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  font-family: 'Noto Sans KR', sans-serif;
-  transition: opacity 0.15s;
-}
-.view-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
-.dl-btn   { background: var(--accent); color: #080810; }
-.view-btn:hover, .dl-btn:hover { opacity: 0.85; }
+/* crop size readout */
+#cropReadout{font-size:.7rem;color:var(--accent);text-align:center;margin-bottom:6px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
 
-.source-badge {
-  position: absolute;
-  top: 8px; right: 8px;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 3px 7px;
-  border-radius: 4px;
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.photo-card:hover .source-badge { opacity: 1; }
-.badge-pexels  { background: #05a081; color: #fff; }
-.badge-pixabay { background: #1e6d9c; color: #fff; }
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:10px;font-size:.82rem;z-index:700;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
 
-/* STATUS */
-.status {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-.status.error { color: #ff6b6b; }
-.spinner {
-  width: 34px; height: 34px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin: 3rem auto;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.load-more {
-  display: flex;
-  justify-content: center;
-  padding: 2.5rem 0 6rem;
-}
-.load-more button {
-  background: transparent;
-  border: 1px solid rgba(232,255,71,0.4);
-  color: var(--accent);
-  padding: 0.75rem 3.5rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 0.88rem;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 500;
-  transition: background 0.15s;
-}
-.load-more button:hover { background: rgba(232,255,71,0.07); }
-
-/* LIGHTBOX */
-.lightbox {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.95);
-  z-index: 999;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  flex-direction: column;
-  gap: 1rem;
-}
-.lightbox.open { display: flex; }
-.lightbox img {
-  max-width: 90vw;
-  max-height: 80vh;
-  border-radius: var(--radius);
-  object-fit: contain;
-}
-.lb-close {
-  position: fixed;
-  top: 1rem; right: 1.5rem;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 2.2rem;
-  cursor: pointer;
-  opacity: 0.55;
-  line-height: 1;
-}
-.lb-close:hover { opacity: 1; }
-.lb-dl {
-  background: var(--accent);
-  color: #080810;
-  border: none;
-  padding: 10px 28px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  font-family: 'Noto Sans KR', sans-serif;
-  cursor: pointer;
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-.lb-dl:hover { opacity: 0.85; }
-
-/* ── 광고 영상: 좌측 하단 고정 ── */
-#ad-widget {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 260px;
-  z-index: 200;
-  border-radius: var(--radius);
-  overflow: visible;
-  filter: drop-shadow(0 8px 32px rgba(0,0,0,0.7));
-}
-
-#ad-widget .ad-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #0e0e1e;
-  border: 1px solid var(--border);
-  border-bottom: none;
-  border-radius: var(--radius) var(--radius) 0 0;
-  padding: 5px 10px;
-}
-
-#ad-widget .ad-label {
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-#ad-widget .ad-controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-#ad-widget .ad-toggle {
-  background: none;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 0.75rem;
-  padding: 2px 5px;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
-  line-height: 1;
-}
-#ad-widget .ad-toggle:hover { color: var(--text); background: var(--surface2); }
-
-#ad-widget .ad-grid-wrap {
-  background: #0e0e1e;
-  border: 1px solid var(--border);
-  border-top: 1px solid rgba(255,255,255,0.04);
-  border-radius: 0 0 var(--radius) var(--radius);
-  padding: 8px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 6px;
-  transition: all 0.3s ease;
-}
-
-#ad-widget.collapsed .ad-grid-wrap {
-  display: none;
-}
-
-/* 첫 번째 카드 2칸 차지 */
-.ad-card {
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: border-color 0.2s;
-  position: relative;
-}
-.ad-card:hover { border-color: rgba(232,255,71,0.3); }
-.ad-card.main-card {
-  grid-column: 1 / -1;
-}
-.ad-card.active { border-color: rgba(232,255,71,0.5); }
-
-.ad-card iframe {
-  width: 100%;
-  aspect-ratio: 16/9;
-  display: block;
-  border: none;
-}
-
-.ad-thumb {
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: #1a1a2e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.ad-play {
-  width: 28px; height: 28px;
-  background: rgba(232,255,71,0.12);
-  border: 1px solid rgba(232,255,71,0.4);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-.ad-play svg { width: 10px; height: 10px; fill: var(--accent); margin-left: 2px; }
-.ad-thumb:hover .ad-play { background: rgba(232,255,71,0.25); }
-
-.ad-num {
-  position: absolute;
-  top: 4px; left: 5px;
-  background: var(--accent);
-  color: #080810;
-  font-size: 0.55rem;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 0.5px;
-}
-
-footer {
-  text-align: center;
-  padding: 2rem 1rem 1.5rem;
-  margin-top: 3rem;
-  border-top: 1px solid var(--border);
-  font-size: 0.68rem;
-  color: #2e2e48;
-}
-footer a { color: #3a3a5a; text-decoration: none; }
-footer a:hover { color: var(--muted); }
+footer{text-align:center;padding:2rem 1rem 1.5rem;margin-top:3rem;border-top:1px solid var(--border);font-size:.68rem;color:#2e2e48}
+footer a{color:#3a3a5a;text-decoration:none}
+footer a:hover{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -532,21 +190,24 @@ footer a:hover { color: var(--muted); }
 <header>
   <div class="logo" onclick="resetHome()">CATCH IMAGE</div>
   <div class="header-search">
-    <input type="text" id="headerSearch" placeholder="이미지 검색..." />
+    <input type="text" id="headerSearch" placeholder="이미지 검색...">
     <button onclick="doSearch('header')">검색</button>
   </div>
-  <div class="source-toggle">
-    <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
-    <button class="src-btn"        id="btn-pexels"  onclick="setSource('pexels')">Pexels</button>
-    <button class="src-btn"        id="btn-pixabay" onclick="setSource('pixabay')">Pixabay</button>
+  <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button class="hdr-btn" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
+    <div class="source-toggle">
+      <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
+      <button class="src-btn"        id="btn-pexels"  onclick="setSource('pexels')">Pexels</button>
+      <button class="src-btn"        id="btn-pixabay" onclick="setSource('pixabay')">Pixabay</button>
+    </div>
   </div>
 </header>
 
-<section class="hero" id="heroSection">
+<section class="hero">
   <h1>CATCH<br><span>IMAGE</span></h1>
   <p>Pexels + Pixabay — 수백만 장의 무료 고화질 이미지</p>
   <div class="hero-search">
-    <input type="text" id="heroSearch" placeholder="찾고 싶은 이미지를 입력하세요..." autofocus />
+    <input type="text" id="heroSearch" placeholder="찾고 싶은 이미지를 입력하세요..." autofocus>
     <button onclick="doSearch('hero')">검색</button>
   </div>
   <div class="tags">
@@ -578,293 +239,487 @@ footer a:hover { color: var(--muted); }
   </div>
   <div id="gallery" class="gallery"></div>
   <div id="status" class="status"><div class="spinner"></div></div>
-  <div id="loadMore" class="load-more" style="display:none;">
+  <div id="loadMore" class="load-more" style="display:none">
     <button onclick="loadMore()">더 보기 →</button>
   </div>
 </section>
 
-<!-- 광고 영상 위젯 (좌측 하단 고정) -->
+<!-- AD -->
 <div id="ad-widget">
   <div class="ad-header">
     <span class="ad-label">광고 영상</span>
+    <span class="ad-timer" id="adTimer"></span>
     <div class="ad-controls">
-      <button class="ad-toggle" id="collapseBtn" onclick="toggleAd()" title="접기">▾</button>
-      <button class="ad-toggle" onclick="closeAd()" title="닫기">✕</button>
+      <button class="ad-toggle" id="collapseBtn" onclick="toggleAd()">▾</button>
+      <button class="ad-toggle" onclick="closeAd()">✕</button>
     </div>
   </div>
-  <div class="ad-grid-wrap" id="adGrid">
-    <!-- JS로 렌더링 -->
+  <div class="ad-grid-wrap" id="adGrid"></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightboxBtn()">×</button>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lb-btns">
+    <button class="lb-btn" id="lbEditBtn">✏️ 편집하기</button>
+    <button class="lb-btn accent" id="lbDlBtn">⬇ 다운로드</button>
   </div>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <button class="lb-close" onclick="document.getElementById('lightbox').classList.remove('open')">×</button>
-  <img id="lightboxImg" src="" alt="" />
-  <a id="lbDlBtn" class="lb-dl" href="#">⬇ 다운로드</a>
+<!-- EDITOR -->
+<div class="editor-modal" id="editorModal">
+  <div class="editor-top">
+    <div>
+      <div class="logo-sm">CATCH IMAGE</div>
+      <div class="editor-dim" id="edDimInfo">—</div>
+    </div>
+    <button class="editor-close" onclick="closeEditor()">×</button>
+  </div>
+  <div class="editor-body">
+
+    <!-- canvas area -->
+    <div class="editor-canvas-area" id="canvasArea">
+      <div id="canvasWrap">
+        <canvas id="editorCanvas"></canvas>
+        <!-- Crop box overlay -->
+        <div id="cropBox">
+          <div class="ch ch-tl" data-dir="tl"></div>
+          <div class="ch ch-tc" data-dir="tc"></div>
+          <div class="ch ch-tr" data-dir="tr"></div>
+          <div class="ch ch-ml" data-dir="ml"></div>
+          <div class="ch ch-mr" data-dir="mr"></div>
+          <div class="ch ch-bl" data-dir="bl"></div>
+          <div class="ch ch-bc" data-dir="bc"></div>
+          <div class="ch ch-br" data-dir="br"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- sidebar -->
+    <div class="editor-sidebar">
+
+      <div class="ed-section">
+        <div class="ed-section-title">📁 파일 열기</div>
+        <label class="ed-file-label">
+          🖼️ 내 이미지 선택
+          <input type="file" id="localFileInput" accept="image/*" onchange="loadLocalFile(event)">
+        </label>
+      </div>
+
+      <div class="ed-section">
+        <div class="ed-section-title">✂️ 영역 선택 자르기</div>
+        <div class="ed-info">아래 버튼으로 자르기 박스를 활성화하고 모서리·변의 핸들을 드래그해서 영역을 조정하세요.</div>
+        <button class="ed-btn mode-active" id="modeCropBtn" onclick="activateCrop()">✂️ 자르기 박스 켜기</button>
+        <div id="cropReadout" style="display:none">W — H —</div>
+        <button class="ed-btn accent" id="applyCropBtn" onclick="applyCrop()" style="display:none">✅ 이 영역으로 자르기</button>
+        <button class="ed-btn" id="resetCropBtn" onclick="resetCropBox()" style="display:none">↩️ 박스 초기화</button>
+      </div>
+
+      <div class="ed-section">
+        <div class="ed-section-title">🔄 회전</div>
+        <div class="ed-row">
+          <button class="ed-btn" onclick="rotateBy(-90)">↺ 90°</button>
+          <button class="ed-btn" onclick="rotateBy(90)">↻ 90°</button>
+        </div>
+        <div class="ed-row">
+          <button class="ed-btn" onclick="rotateBy(-45)">↺ 45°</button>
+          <button class="ed-btn" onclick="rotateBy(45)">↻ 45°</button>
+        </div>
+        <div class="ed-label">직접 입력 (도)</div>
+        <div class="ed-row">
+          <input id="customAngle" type="number" value="15" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:7px;font-size:.8rem;outline:none">
+          <button class="ed-btn" style="flex:1;margin:0;justify-content:center" onclick="rotateBy(+document.getElementById('customAngle').value)">적용</button>
+        </div>
+      </div>
+
+      <div class="ed-section">
+        <div class="ed-section-title">✨ 화질 조정</div>
+        <div class="ed-label">밝기</div>
+        <input type="range" class="ed-slider" id="brightSlider" min="-100" max="100" value="0" oninput="previewFilter()">
+        <div class="ed-label">대비</div>
+        <input type="range" class="ed-slider" id="contrastSlider" min="-100" max="100" value="0" oninput="previewFilter()">
+        <div class="ed-label">채도</div>
+        <input type="range" class="ed-slider" id="satSlider" min="-100" max="100" value="0" oninput="previewFilter()">
+        <button class="ed-btn" onclick="resetFilters()">↩️ 필터 초기화</button>
+      </div>
+
+      <div class="ed-section">
+        <div class="ed-section-title">💾 저장</div>
+        <div class="ed-label">저장 품질</div>
+        <div class="ed-q-row">
+          <div class="ed-q-btn" id="q-good" onclick="setQuality('good')">일반</div>
+          <div class="ed-q-btn active" id="q-high" onclick="setQuality('high')">고화질</div>
+          <div class="ed-q-btn" id="q-max" onclick="setQuality('max')">최고</div>
+        </div>
+        <div class="ed-label">형식</div>
+        <div class="ed-q-row">
+          <div class="ed-q-btn active" id="fmt-jpg" onclick="setFormat('jpg')">JPG</div>
+          <div class="ed-q-btn" id="fmt-png" onclick="setFormat('png')">PNG</div>
+          <div class="ed-q-btn" id="fmt-webp" onclick="setFormat('webp')">WebP</div>
+        </div>
+        <button class="ed-btn purple" onclick="saveImage(false)">💾 저장하기</button>
+        <button class="ed-btn accent" onclick="saveImage(true)">✨ 화질 향상 저장</button>
+      </div>
+
+      <button class="ed-btn" onclick="undoEdit()" style="margin-top:auto">↩️ 실행 취소</button>
+    </div>
+  </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <footer>
   Photos by <a href="https://www.pexels.com" target="_blank">Pexels</a> &amp; <a href="https://pixabay.com" target="_blank">Pixabay</a>
 </footer>
 
 <script>
-const PEXELS_KEY  = 'CyPFyOXxFbr0NMAzwDCrfplwsXdM0fbvm8I466eyhXSz807E85UmBn1t';
-const PIXABAY_KEY = '55240646-e066fc8797e32f224e3416303';
-const VIDEO_IDS   = ['195446325','195445799','195445533','195352929','195346657'];
+/* ─────────────────────────────────────────
+   AD
+───────────────────────────────────────── */
+const VIDEO_IDS=['195446325','195445799','195445533','195352929','195346657'];
+const AD_DUR=180;
+let adIdx=0,adSec=AD_DUR,adIv=null;
 
-let currentQuery  = 'nature';
-let currentPage   = 1;
-let isLoading     = false;
-let currentSource = 'all';
-let activeVideoIdx = 0;
-
-/* ── AD WIDGET ─────────────────────────────────── */
-function buildAdGrid() {
-  const grid = document.getElementById('adGrid');
-  grid.innerHTML = '';
-
-  VIDEO_IDS.forEach((id, i) => {
-    const card = document.createElement('div');
-    card.className = 'ad-card' + (i === 0 ? ' main-card' : '') + (i === activeVideoIdx ? ' active' : '');
-    card.id = 'adcard-' + i;
-
-    if (i === activeVideoIdx) {
-      card.innerHTML = '<iframe src="https://vod.sooplive.com/player/' + id +
-        '/embed?showChat=false&autoPlay=true&mutePlay=true" allowfullscreen allow="clipboard-write; web-share; autoplay;"></iframe>';
-    } else {
-      card.innerHTML =
-        '<div class="ad-thumb" onclick="switchVideo(' + i + ')">' +
-          '<span class="ad-num">0' + (i+1) + '</span>' +
-          '<div class="ad-play"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>' +
-        '</div>';
+function startAd(rand){
+  clearInterval(adIv);
+  if(rand)adIdx=Math.floor(Math.random()*VIDEO_IDS.length);
+  buildAdGrid();startAdTimer();
+}
+function startAdTimer(){
+  clearInterval(adIv);adSec=AD_DUR;tickAd();
+  adIv=setInterval(tickAd,1000);
+}
+function tickAd(){
+  adSec--;if(adSec<0){adIdx=(adIdx+1)%VIDEO_IDS.length;buildAdGrid();adSec=AD_DUR;}
+  const m=String(Math.floor(adSec/60)).padStart(2,'0'),s=String(adSec%60).padStart(2,'0');
+  const te=document.getElementById('adTimer');if(te)te.textContent=m+':'+s;
+  const pf=document.getElementById('adProgressFill');if(pf)pf.style.width=((AD_DUR-adSec)/AD_DUR*100)+'%';
+}
+function buildAdGrid(){
+  const g=document.getElementById('adGrid');g.innerHTML='';
+  VIDEO_IDS.forEach((id,i)=>{
+    const c=document.createElement('div');
+    c.className='ad-card'+(i===0?' main-card':'')+(i===adIdx?' active':'');
+    if(i===adIdx){
+      c.innerHTML='<iframe src="https://vod.sooplive.com/player/'+id+'/embed?showChat=false&autoPlay=true&mutePlay=true" allowfullscreen allow="clipboard-write;web-share;autoplay;"></iframe><div class="ad-progress-bar"><div class="ad-progress-fill" id="adProgressFill"></div></div>';
+    }else{
+      c.innerHTML='<div class="ad-thumb"><span class="ad-num">0'+(i+1)+'</span><div class="ad-play"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>';
+      c.addEventListener('click',()=>{adIdx=i;buildAdGrid();adSec=AD_DUR;});
     }
-    grid.appendChild(card);
+    g.appendChild(c);
   });
 }
+function toggleAd(){const w=document.getElementById('ad-widget');const b=document.getElementById('collapseBtn');w.classList.toggle('collapsed');b.textContent=w.classList.contains('collapsed')?'▸':'▾';}
+function closeAd(){document.getElementById('ad-widget').style.display='none';clearInterval(adIv);}
 
-function switchVideo(idx) {
-  activeVideoIdx = idx;
-  buildAdGrid();
-}
+/* ─────────────────────────────────────────
+   SEARCH
+───────────────────────────────────────── */
+const PEXELS_KEY='CyPFyOXxFbr0NMAzwDCrfplwsXdM0fbvm8I466eyhXSz807E85UmBn1t';
+const PIXABAY_KEY='55240646-e066fc8797e32f224e3416303';
+let currentQuery='nature',currentPage=1,isLoading=false,currentSource='all';
 
-function toggleAd() {
-  const w = document.getElementById('ad-widget');
-  const btn = document.getElementById('collapseBtn');
-  w.classList.toggle('collapsed');
-  btn.textContent = w.classList.contains('collapsed') ? '▸' : '▾';
-}
+function setSource(s){currentSource=s;['all','pexels','pixabay'].forEach(k=>document.getElementById('btn-'+k).className='src-btn'+(k===s?' active':''));reSearch();}
+document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('hero');});
+document.getElementById('headerSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('header');});
+function quickSearch(q){document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
+function doSearch(from){const q=(from==='header'?document.getElementById('headerSearch'):document.getElementById('heroSearch')).value.trim();if(!q)return;document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
+function reSearch(){if(currentQuery)startSearch(currentQuery);}
+function resetHome(){document.getElementById('heroSearch').value='';document.getElementById('headerSearch').value='';document.getElementById('ad-widget').style.display='';startAd(true);startSearch('nature');window.scrollTo({top:0,behavior:'smooth'});}
+function startSearch(q){currentQuery=q;currentPage=1;document.getElementById('gallery').innerHTML='';document.getElementById('loadMore').style.display='none';document.getElementById('galleryTitle').textContent=q==='nature'?'인기 이미지':'"'+q+'" 검색 결과';fetchAll(q,1,true);window.scrollTo({top:document.querySelector('.gallery-section').offsetTop-80,behavior:'smooth'});}
+function loadMore(){currentPage++;fetchAll(currentQuery,currentPage,false);}
 
-function closeAd() {
-  document.getElementById('ad-widget').style.display = 'none';
-}
-
-/* ── SOURCE TOGGLE ──────────────────────────────── */
-function setSource(src) {
-  currentSource = src;
-  ['all','pexels','pixabay'].forEach(s => {
-    document.getElementById('btn-' + s).className = 'src-btn' + (s === src ? ' active' : '');
-  });
-  reSearch();
-}
-
-/* ── SEARCH ─────────────────────────────────────── */
-document.getElementById('heroSearch').addEventListener('keydown',   e => { if (e.key === 'Enter') doSearch('hero'); });
-document.getElementById('headerSearch').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch('header'); });
-
-function quickSearch(q) {
-  document.getElementById('heroSearch').value   = q;
-  document.getElementById('headerSearch').value = q;
-  startSearch(q);
-}
-
-function doSearch(from) {
-  const q = (from === 'header'
-    ? document.getElementById('headerSearch')
-    : document.getElementById('heroSearch')).value.trim();
-  if (!q) return;
-  document.getElementById('heroSearch').value   = q;
-  document.getElementById('headerSearch').value = q;
-  startSearch(q);
-}
-
-function reSearch() { if (currentQuery) startSearch(currentQuery); }
-
-function resetHome() {
-  document.getElementById('heroSearch').value   = '';
-  document.getElementById('headerSearch').value = '';
-  startSearch('nature');
-}
-
-function startSearch(q) {
-  currentQuery = q;
-  currentPage  = 1;
-  document.getElementById('gallery').innerHTML       = '';
-  document.getElementById('loadMore').style.display  = 'none';
-  document.getElementById('galleryTitle').textContent =
-    q === 'nature' ? '인기 이미지' : '"' + q + '" 검색 결과';
-  fetchAll(q, 1, true);
-  window.scrollTo({ top: document.querySelector('.gallery-section').offsetTop - 80, behavior: 'smooth' });
-}
-
-function loadMore() { currentPage++; fetchAll(currentQuery, currentPage, false); }
-
-/* ── FETCH ──────────────────────────────────────── */
-async function fetchAll(query, page, clear) {
-  if (isLoading) return;
-  isLoading = true;
-  const perPage   = parseInt(document.getElementById('perPage').value);
-  const status    = document.getElementById('status');
-  const loadMoreEl = document.getElementById('loadMore');
-
-  if (clear) {
-    status.innerHTML  = '<div class="spinner"></div>';
-    status.className  = 'status';
-    status.style.display = 'block';
-  } else {
-    loadMoreEl.style.display = 'none';
-    const sp = document.createElement('div');
-    sp.className = 'spinner'; sp.id = 'moreSpinner';
-    document.querySelector('.gallery-section').appendChild(sp);
-  }
-
-  try {
-    let photos = [], hasMore = false;
-
-    if (currentSource === 'pexels') {
-      const r = await fetchPexels(query, page, perPage);
-      photos = r.photos; hasMore = r.hasMore;
-    } else if (currentSource === 'pixabay') {
-      const r = await fetchPixabay(query, page, perPage);
-      photos = r.photos; hasMore = r.hasMore;
-    } else {
-      const half = Math.floor(perPage / 2);
-      const [px, pb] = await Promise.all([fetchPexels(query, page, half), fetchPixabay(query, page, half)]);
-      const maxLen = Math.max(px.photos.length, pb.photos.length);
-      for (let i = 0; i < maxLen; i++) {
-        if (i < px.photos.length) photos.push(px.photos[i]);
-        if (i < pb.photos.length) photos.push(pb.photos[i]);
-      }
-      hasMore = px.hasMore || pb.hasMore;
-    }
-
+async function fetchAll(q,page,clear){
+  if(isLoading)return;isLoading=true;
+  const pp=parseInt(document.getElementById('perPage').value);
+  const st=document.getElementById('status');const lm=document.getElementById('loadMore');
+  if(clear){st.innerHTML='<div class="spinner"></div>';st.className='status';st.style.display='block';}
+  else{lm.style.display='none';const sp=document.createElement('div');sp.className='spinner';sp.id='moreSpinner';document.querySelector('.gallery-section').appendChild(sp);}
+  try{
+    let photos=[],hasMore=false;
+    if(currentSource==='pexels'){const r=await fPexels(q,page,pp);photos=r.p;hasMore=r.m;}
+    else if(currentSource==='pixabay'){const r=await fPixabay(q,page,pp);photos=r.p;hasMore=r.m;}
+    else{const h=Math.floor(pp/2);const[a,b]=await Promise.all([fPexels(q,page,h),fPixabay(q,page,h)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)photos.push(a.p[i]);if(i<b.p.length)photos.push(b.p[i]);}hasMore=a.m||b.m;}
     document.getElementById('moreSpinner')?.remove();
-
-    if (photos.length === 0) {
-      status.textContent   = '"' + query + '" 검색 결과가 없습니다.';
-      status.style.display = 'block';
-      isLoading = false; return;
-    }
-
-    status.style.display = 'none';
-    renderPhotos(photos);
-    if (hasMore) loadMoreEl.style.display = 'flex';
-
-  } catch(err) {
-    status.textContent   = '❌ ' + err.message;
-    status.className     = 'status error';
-    status.style.display = 'block';
-    document.getElementById('moreSpinner')?.remove();
-  }
-
-  isLoading = false;
+    if(!photos.length){st.textContent='"'+q+'" 검색 결과가 없습니다.';st.style.display='block';isLoading=false;return;}
+    st.style.display='none';renderPhotos(photos);if(hasMore)lm.style.display='flex';
+  }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
+  isLoading=false;
 }
+async function fPexels(q,page,pp){const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page,{headers:{Authorization:PEXELS_KEY}});if(!r.ok)throw new Error('Pexels '+r.status);const d=await r.json();return{p:(d.photos||[]).map(p=>({s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q})),m:d.total_results>page*pp};}
+async function fPixabay(q,page,pp){const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&image_type=photo&safesearch=true');if(!r.ok)throw new Error('Pixabay '+r.status);const d=await r.json();return{p:(d.hits||[]).map(p=>({s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q})),m:d.totalHits>page*pp};}
 
-async function fetchPexels(query, page, perPage) {
-  const res = await fetch(
-    'https://api.pexels.com/v1/search?query=' + encodeURIComponent(query) + '&per_page=' + perPage + '&page=' + page,
-    { headers: { Authorization: PEXELS_KEY } }
-  );
-  if (!res.ok) throw new Error('Pexels 오류: ' + res.status);
-  const data = await res.json();
-  return {
-    photos: (data.photos||[]).map(p => ({
-      source: 'pexels', thumb: p.src.large, original: p.src.original,
-      download: p.src.original, photographer: p.photographer, alt: p.alt||query
-    })),
-    hasMore: data.total_results > page * perPage
-  };
-}
-
-async function fetchPixabay(query, page, perPage) {
-  const res = await fetch(
-    'https://pixabay.com/api/?key=' + PIXABAY_KEY +
-    '&q=' + encodeURIComponent(query) + '&per_page=' + perPage + '&page=' + page +
-    '&image_type=photo&safesearch=true'
-  );
-  if (!res.ok) throw new Error('Pixabay 오류: ' + res.status);
-  const data = await res.json();
-  return {
-    photos: (data.hits||[]).map(p => ({
-      source: 'pixabay', thumb: p.webformatURL, original: p.largeImageURL,
-      download: p.largeImageURL, photographer: p.user, alt: query
-    })),
-    hasMore: data.totalHits > page * perPage
-  };
-}
-
-/* ── RENDER ─────────────────────────────────────── */
-function renderPhotos(photos) {
-  const gallery = document.getElementById('gallery');
-  photos.forEach(photo => {
-    const card     = document.createElement('div');
-    card.className = 'photo-card';
-    const safeAlt  = (photo.alt||'').replace(/"/g,'').replace(/'/g,'');
-    const badge    = photo.source === 'pexels' ? 'badge-pexels' : 'badge-pixabay';
-    const label    = photo.source === 'pexels' ? 'Pexels' : 'Pixabay';
-
-    card.innerHTML =
-      '<img src="' + photo.thumb + '" alt="' + safeAlt + '" loading="lazy">' +
-      '<span class="source-badge ' + badge + '">' + label + '</span>' +
-      '<div class="photo-overlay">' +
-        '<span class="photographer">📷 ' + photo.photographer + '</span>' +
-        '<div class="overlay-btns">' +
-          '<button class="view-btn">크게 보기</button>' +
-          '<button class="dl-btn">⬇ 다운로드</button>' +
-        '</div>' +
-      '</div>';
-
-    card.querySelector('img').addEventListener('click', () => openLightbox(photo.original, safeAlt, photo.download));
-    card.querySelector('.view-btn').addEventListener('click', () => openLightbox(photo.original, safeAlt, photo.download));
-    card.querySelector('.dl-btn').addEventListener('click', () => directDownload(photo.download, safeAlt));
-    gallery.appendChild(card);
+function renderPhotos(photos){
+  const g=document.getElementById('gallery');
+  photos.forEach(ph=>{
+    const c=document.createElement('div');c.className='photo-card';
+    const alt=(ph.alt||'').replace(/"/g,'').replace(/'/g,'');
+    c.innerHTML='<img src="'+ph.th+'" alt="'+alt+'" loading="lazy"><span class="source-badge badge-'+ph.s+'">'+(ph.s==='pexels'?'Pexels':'Pixabay')+'</span><div class="photo-overlay"><span class="photographer">📷 '+ph.ph+'</span><div class="overlay-btns"><button class="ov-btn ov-view">크게 보기</button><button class="ov-btn ov-edit">✏️ 편집</button><button class="ov-btn ov-dl">⬇ 저장</button></div></div>';
+    c.querySelector('img').addEventListener('click',()=>openLightbox(ph.or,alt,ph.dl));
+    c.querySelector('.ov-view').addEventListener('click',()=>openLightbox(ph.or,alt,ph.dl));
+    c.querySelector('.ov-edit').addEventListener('click',()=>openEditorFromUrl(ph.or,alt));
+    c.querySelector('.ov-dl').addEventListener('click',()=>directDownload(ph.dl,alt));
+    g.appendChild(c);
   });
 }
 
-/* ── DOWNLOAD ───────────────────────────────────── */
-async function directDownload(url, filename) {
-  try {
-    const res  = await fetch(url);
-    const blob = await res.blob();
-    const a    = document.createElement('a');
-    a.href     = URL.createObjectURL(blob);
-    a.download = (filename || 'catch-image') + '.jpg';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  } catch {
-    const a    = document.createElement('a');
-    a.href     = url; a.download = (filename||'catch-image') + '.jpg'; a.target = '_blank';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  }
-}
-
-/* ── LIGHTBOX ───────────────────────────────────── */
-function openLightbox(src, alt, dlUrl) {
-  document.getElementById('lightboxImg').src = src;
-  document.getElementById('lightboxImg').alt = alt;
-  document.getElementById('lbDlBtn').onclick = e => { e.preventDefault(); directDownload(dlUrl, alt); };
+/* ─────────────────────────────────────────
+   LIGHTBOX
+───────────────────────────────────────── */
+function openLightbox(src,alt,dl){
+  document.getElementById('lightboxImg').src=src;
+  document.getElementById('lightboxImg').alt=alt;
+  document.getElementById('lbDlBtn').onclick=()=>directDownload(dl,alt);
+  document.getElementById('lbEditBtn').onclick=()=>{closeLightboxBtn();openEditorFromUrl(src,alt);};
   document.getElementById('lightbox').classList.add('open');
 }
-function closeLightbox(e) {
-  if (e.target === document.getElementById('lightbox'))
-    document.getElementById('lightbox').classList.remove('open');
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
-});
+function closeLightbox(e){if(e.target===document.getElementById('lightbox'))closeLightboxBtn();}
+function closeLightboxBtn(){document.getElementById('lightbox').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLightboxBtn();closeEditor();}});
 
-/* ── INIT ───────────────────────────────────────── */
-buildAdGrid();
-fetchAll('nature', 1, true);
+/* ─────────────────────────────────────────
+   DOWNLOAD
+───────────────────────────────────────── */
+async function directDownload(url,filename){
+  showToast('다운로드 중...');
+  try{const r=await fetch(url);const b=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(filename||'catch-image').replace(/\s+/g,'-')+'.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(a.href),5000);showToast('✅ 다운로드 완료!');}
+  catch{const a=document.createElement('a');a.href=url;a.download=(filename||'catch-image')+'.jpg';a.target='_blank';document.body.appendChild(a);a.click();document.body.removeChild(a);}
+}
+
+/* ─────────────────────────────────────────
+   EDITOR
+───────────────────────────────────────── */
+const canvas=document.getElementById('editorCanvas');
+const ctx=canvas.getContext('2d');
+const cropBox=document.getElementById('cropBox');
+const canvasWrap=document.getElementById('canvasWrap');
+
+let edImg=null,edHistory=[],edRotation=0,edSaveQuality=0.92,edSaveFormat='jpg';
+let enhBright=0,enhContrast=0,enhSat=0;
+
+// Crop box state (percentages 0-1 relative to canvas)
+let cropActive=false;
+let cBoxL=0.1,cBoxT=0.1,cBoxR=0.9,cBoxB=0.9; // fractional
+let dragging=null; // {handle, startX,startY, origL,T,R,B}
+
+function openEditorFromUrl(url,alt){
+  showToast('이미지 불러오는 중...');
+  const img=new Image();img.crossOrigin='anonymous';
+  img.onload=()=>{edImg=img;initEditor(alt||'image');};
+  img.onerror=()=>fetch(url).then(r=>r.blob()).then(b=>{const u=URL.createObjectURL(b);const i2=new Image();i2.onload=()=>{edImg=i2;initEditor(alt||'image');};i2.src=u;}).catch(()=>showToast('❌ 이미지 불러오기 실패'));
+  img.src=url;
+}
+function openLocalEditor(){document.getElementById('localFileInput').click();}
+function loadLocalFile(e){const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);const img=new Image();img.onload=()=>{edImg=img;initEditor(f.name.replace(/\.[^.]+$/,''));};img.src=u;e.target.value='';}
+
+function initEditor(name){
+  edRotation=0;edHistory=[];
+  enhBright=0;enhContrast=0;enhSat=0;syncSliders();
+  canvas.dataset.name=name||'image';
+  document.getElementById('editorModal').classList.add('open');
+  cropBox.style.display='none';cropActive=false;
+  showCropControls(false);
+  drawImage();
+  showToast('✅ 편집기 열림');
+}
+function closeEditor(){document.getElementById('editorModal').classList.remove('open');}
+
+/* draw */
+function drawImage(){
+  if(!edImg)return;
+  const area=document.getElementById('canvasArea');
+  const maxW=area.clientWidth-40||800, maxH=area.clientHeight-40||600;
+  const rad=edRotation*Math.PI/180;
+  const sin=Math.abs(Math.sin(rad)),cos=Math.abs(Math.cos(rad));
+  const rW=edImg.width*cos+edImg.height*sin;
+  const rH=edImg.width*sin+edImg.height*cos;
+  const sc=Math.min(maxW/rW,maxH/rH,1);
+  canvas.width=Math.round(rW*sc);canvas.height=Math.round(rH*sc);
+  canvasWrap.style.width=canvas.width+'px';canvasWrap.style.height=canvas.height+'px';
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rad);
+  ctx.drawImage(edImg,-edImg.width*sc/2,-edImg.height*sc/2,edImg.width*sc,edImg.height*sc);
+  ctx.restore();
+  applyCSS();
+  document.getElementById('edDimInfo').textContent=(edImg.naturalWidth||edImg.width)+'×'+(edImg.naturalHeight||edImg.height)+' px';
+  if(cropActive)positionCropBox();
+}
+function applyCSS(){
+  let f='';
+  if(enhBright!==0)f+='brightness('+(1+enhBright/100)+') ';
+  if(enhContrast!==0)f+='contrast('+(1+enhContrast/100)+') ';
+  if(enhSat!==0)f+='saturate('+(1+enhSat/100)+') ';
+  canvas.style.filter=f||'none';
+}
+function syncSliders(){
+  document.getElementById('brightSlider').value=enhBright;
+  document.getElementById('contrastSlider').value=enhContrast;
+  document.getElementById('satSlider').value=enhSat;
+}
+function previewFilter(){
+  enhBright=parseInt(document.getElementById('brightSlider').value);
+  enhContrast=parseInt(document.getElementById('contrastSlider').value);
+  enhSat=parseInt(document.getElementById('satSlider').value);
+  applyCSS();
+}
+function resetFilters(){enhBright=0;enhContrast=0;enhSat=0;syncSliders();applyCSS();showToast('필터 초기화');}
+
+/* undo */
+function pushHistory(){
+  const t=document.createElement('canvas');t.width=edImg.width;t.height=edImg.height;
+  t.getContext('2d').drawImage(edImg,0,0);
+  edHistory.push({src:t.toDataURL('image/png'),rot:edRotation,bright:enhBright,contrast:enhContrast,sat:enhSat});
+  if(edHistory.length>20)edHistory.shift();
+}
+function undoEdit(){
+  if(!edHistory.length){showToast('더 이상 되돌릴 수 없습니다');return;}
+  const h=edHistory.pop();
+  const img=new Image();img.onload=()=>{edImg=img;edRotation=h.rot;enhBright=h.bright;enhContrast=h.contrast;enhSat=h.sat;syncSliders();drawImage();};img.src=h.src;
+  showToast('↩️ 실행 취소');
+}
+
+/* ── CROP BOX ─────────────────────── */
+function activateCrop(){
+  cropActive=true;
+  cBoxL=0.1;cBoxT=0.1;cBoxR=0.9;cBoxB=0.9;
+  positionCropBox();cropBox.style.display='block';
+  showCropControls(true);updateCropReadout();
+  showToast('핸들을 드래그해서 영역을 조절하세요');
+}
+function showCropControls(show){
+  document.getElementById('cropReadout').style.display=show?'block':'none';
+  document.getElementById('applyCropBtn').style.display=show?'':'none';
+  document.getElementById('resetCropBtn').style.display=show?'':'none';
+}
+function positionCropBox(){
+  const cw=canvas.width,ch=canvas.height;
+  cropBox.style.left=Math.round(cBoxL*cw)+'px';
+  cropBox.style.top=Math.round(cBoxT*ch)+'px';
+  cropBox.style.width=Math.round((cBoxR-cBoxL)*cw)+'px';
+  cropBox.style.height=Math.round((cBoxB-cBoxT)*ch)+'px';
+}
+function updateCropReadout(){
+  const pw=Math.round((cBoxR-cBoxL)*(edImg?edImg.width:canvas.width));
+  const ph=Math.round((cBoxB-cBoxT)*(edImg?edImg.height:canvas.height));
+  document.getElementById('cropReadout').textContent='W '+pw+' H '+ph;
+}
+function resetCropBox(){cBoxL=0.1;cBoxT=0.1;cBoxR=0.9;cBoxB=0.9;positionCropBox();updateCropReadout();}
+
+// Handles
+cropBox.addEventListener('mousedown',startDrag);
+cropBox.addEventListener('touchstart',startDragTouch,{passive:false});
+
+function startDrag(e){
+  const dir=e.target.dataset.dir;
+  if(!dir&&e.target!==cropBox)return;
+  e.preventDefault();e.stopPropagation();
+  dragging={dir:dir||'move',x:e.clientX,y:e.clientY,l:cBoxL,t:cBoxT,r:cBoxR,b:cBoxB};
+  window.addEventListener('mousemove',onDrag);window.addEventListener('mouseup',endDrag);
+}
+function startDragTouch(e){
+  const dir=e.target.dataset.dir;
+  if(!dir&&e.target!==cropBox)return;
+  e.preventDefault();e.stopPropagation();
+  const t=e.touches[0];
+  dragging={dir:dir||'move',x:t.clientX,y:t.clientY,l:cBoxL,t:cBoxT,r:cBoxR,b:cBoxB};
+  window.addEventListener('touchmove',onDragTouch,{passive:false});window.addEventListener('touchend',endDrag);
+}
+function onDragTouch(e){e.preventDefault();onDrag(e.touches[0]);}
+function onDrag(e){
+  if(!dragging)return;
+  const cw=canvas.width,ch=canvas.height;
+  const rect=canvas.getBoundingClientRect();
+  const dx=(e.clientX-dragging.x)/cw, dy=(e.clientY-dragging.y)/ch;
+  const minSz=0.05;
+  const d=dragging.dir;
+  let l=dragging.l,t=dragging.t,r=dragging.r,b=dragging.b;
+
+  if(d==='move'){l=Math.max(0,Math.min(1-(r-l),l+dx));t=Math.max(0,Math.min(1-(b-t),t+dy));r=l+(dragging.r-dragging.l);b=t+(dragging.b-dragging.t);}
+  else{
+    if(d.includes('l'))l=Math.max(0,Math.min(r-minSz,l+dx));
+    if(d.includes('r'))r=Math.max(l+minSz,Math.min(1,r+dx));
+    if(d.includes('t'))t=Math.max(0,Math.min(b-minSz,t+dy));
+    if(d.includes('b'))b=Math.max(t+minSz,Math.min(1,b+dy));
+  }
+  cBoxL=l;cBoxT=t;cBoxR=r;cBoxB=b;
+  positionCropBox();updateCropReadout();
+}
+function endDrag(){
+  dragging=null;
+  window.removeEventListener('mousemove',onDrag);window.removeEventListener('mouseup',endDrag);
+  window.removeEventListener('touchmove',onDragTouch);window.removeEventListener('touchend',endDrag);
+}
+
+function applyCrop(){
+  if(!cropActive){showToast('자르기 박스를 먼저 켜주세요');return;}
+  pushHistory();
+  const sw=edImg.width,sh=edImg.height;
+  const x=Math.round(cBoxL*sw),y=Math.round(cBoxT*sh);
+  const w=Math.round((cBoxR-cBoxL)*sw),h=Math.round((cBoxB-cBoxT)*sh);
+  if(w<4||h<4){showToast('영역이 너무 작습니다');return;}
+  const t=document.createElement('canvas');t.width=w;t.height=h;
+  t.getContext('2d').drawImage(edImg,x,y,w,h,0,0,w,h);
+  const out=new Image();
+  out.onload=()=>{edImg=out;cropActive=false;cropBox.style.display='none';showCropControls(false);drawImage();showToast('✅ 자르기 완료!');};
+  out.src=t.toDataURL('image/png');
+}
+
+/* ── ROTATE ───────────────────────── */
+function rotateBy(deg){
+  pushHistory();
+  edRotation=(edRotation+Number(deg)+360)%360;
+  drawImage();showToast('🔄 '+edRotation+'° 회전');
+}
+
+/* ── QUALITY / FORMAT ─────────────── */
+function setQuality(q){['good','high','max'].forEach(k=>document.getElementById('q-'+k).className='ed-q-btn'+(k===q?' active':''));edSaveQuality=q==='good'?0.75:q==='high'?0.92:1.0;}
+function setFormat(f){['jpg','png','webp'].forEach(k=>document.getElementById('fmt-'+k).className='ed-q-btn'+(k===f?' active':''));edSaveFormat=f;}
+
+/* ── SAVE ─────────────────────────── */
+function saveImage(withEnhance){
+  if(!edImg){showToast('이미지를 먼저 불러오세요');return;}
+  showToast('저장 중...');
+  const up=withEnhance?1.5:1;
+  const rad=edRotation*Math.PI/180;
+  const sin=Math.abs(Math.sin(rad)),cos=Math.abs(Math.cos(rad));
+  const sw=Math.round((edImg.naturalWidth||edImg.width)*up);
+  const sh=Math.round((edImg.naturalHeight||edImg.height)*up);
+  const outW=Math.round(sw*cos+sh*sin), outH=Math.round(sw*sin+sh*cos);
+  const oc=document.createElement('canvas');oc.width=outW;oc.height=outH;
+  const octx=oc.getContext('2d');
+  let flt='';
+  if(enhBright!==0)flt+='brightness('+(1+enhBright/100)+') ';
+  if(enhContrast!==0)flt+='contrast('+(1+enhContrast/100)+') ';
+  if(enhSat!==0)flt+='saturate('+(1+enhSat/100)+') ';
+  if(withEnhance)flt+='contrast(1.08) saturate(1.08) ';
+  octx.filter=flt||'none';
+  octx.save();octx.translate(outW/2,outH/2);octx.rotate(rad);
+  octx.drawImage(edImg,-sw/2,-sh/2,sw,sh);
+  octx.restore();
+  if(withEnhance)applySharpness(octx,outW,outH,0.35);
+  const mime=edSaveFormat==='png'?'image/png':edSaveFormat==='webp'?'image/webp':'image/jpeg';
+  const dataUrl=oc.toDataURL(mime,edSaveFormat==='png'?undefined:edSaveQuality);
+  const a=document.createElement('a');a.href=dataUrl;
+  a.download=(canvas.dataset.name||'image')+(withEnhance?'_enhanced':'_edited')+'.'+edSaveFormat;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  showToast((withEnhance?'✨ 화질 향상':'💾')+' 저장 완료!');
+}
+function applySharpness(c,w,h,amt){
+  try{const d=c.getImageData(0,0,w,h),px=d.data,out=new Uint8ClampedArray(px);const k=[-amt,-amt,-amt,-amt,1+8*amt,-amt,-amt,-amt,-amt];for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)for(let ch=0;ch<3;ch++){let v=0;for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++){v+=px[((y+ky)*w+(x+kx))*4+ch]*k[(ky+1)*3+(kx+1)];}out[(y*w+x)*4+ch]=Math.max(0,Math.min(255,v));}c.putImageData(new ImageData(out,w,h),0,0);}catch(e){}
+}
+
+/* ─────────────────────────────────────────
+   TOAST
+───────────────────────────────────────── */
+let toastT;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+startAd(true);
+fetchAll('nature',1,true);
 </script>
 </body>
 </html>
