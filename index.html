@@ -707,19 +707,60 @@ async function fetchAll(q,page,clear){
 async function fPexels(q,page,pp){const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page,{headers:{Authorization:PEXELS_KEY}});if(!r.ok)throw new Error('Pexels '+r.status);const d=await r.json();return{p:(d.photos||[]).map(p=>{return{s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}}),m:d.total_results>page*pp};}
 async function fPixabay(q,page,pp){const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&image_type=photo&safesearch=true');if(!r.ok)throw new Error('Pixabay '+r.status);const d=await r.json();return{p:(d.hits||[]).map(p=>{return{s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}}),m:d.totalHits>page*pp};}
 function renderPhotos(photos){
-  const g=document.getElementById('gallery');
-  photos.forEach(ph=>{
-    const c=document.createElement('div');c.className='photo-card';
-    const alt=(ph.alt||'').replace(/"/g,'').replace(/'/g,'');
-    c.innerHTML='<img src="'+ph.th+'" alt="'+alt+'" loading="lazy"><span class="source-badge badge-'+ph.s+'">'+(ph.s==='pexels'?'Pexels':'Pixabay')+'</span><div class="photo-overlay"><span class="photographer">📷 '+ph.ph+'</span><div class="overlay-btns"><button class="ov-btn ov-view">크게 보기</button><button class="ov-btn ov-edit">✏️ 편집</button><button class="ov-btn ov-dl">⬇ 저장</button></div></div>';
-    c.querySelector('img').addEventListener('click',()=>openLightbox(ph.or,alt,ph.dl));
-    c.querySelector('.ov-view').addEventListener('click',()=>openLightbox(ph.or,alt,ph.dl));
-    c.querySelector('.ov-edit').addEventListener('click',()=>openEditorFromUrl(ph.or,alt));
-    c.querySelector('.ov-dl').addEventListener('click',()=>directDownload(ph.dl,alt));
+  const g = document.getElementById('gallery');
+  photos.forEach(ph => {
+    const c = document.createElement('div');
+    c.className = 'photo-card';
+    const alt = (ph.alt || '').replace(/"/g, '').replace(/'/g, '');
+    
+    c.innerHTML = `
+      <img src="${ph.th}" alt="${alt}" loading="lazy">
+      <span class="source-badge badge-${ph.s}">${ph.s === 'pexels' ? 'Pexels' : 'Pixabay'}</span>
+      <div class="photo-overlay">
+        <span class="photographer">📷 ${ph.ph}</span>
+        <div class="overlay-btns">
+          <button class="ov-btn ov-view">크게 보기</button>
+          <button class="ov-btn ov-edit">✏️ 편집</button>
+          <button class="ov-btn ov-dl">⬇ 저장</button>
+        </div>
+      </div>
+    `;
+    
+    // 이미지 직접 클릭 시 라이트박스 열기
+    const imgEl = c.querySelector('img');
+    imgEl.style.cursor = 'pointer';
+    imgEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLightbox(ph.or, alt, ph.dl);
+    });
+    
+    // "크게 보기" 버튼 클릭 시에도 라이트박스 (선택 유지)
+    c.querySelector('.ov-view').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLightbox(ph.or, alt, ph.dl);
+    });
+    
+    c.querySelector('.ov-edit').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openEditorFromUrl(ph.or, alt);
+    });
+    
+    c.querySelector('.ov-dl').addEventListener('click', (e) => {
+      e.stopPropagation();
+      directDownload(ph.dl, alt);
+    });
+    
+    // 카드 자체에 클릭 리스너 추가 (백업) - 버튼이 아니면 라이트박스
+    c.addEventListener('click', (e) => {
+      // 클릭한 요소가 버튼이나 그 자식이 아니면 라이트박스
+      if (!e.target.closest('.ov-btn')) {
+        openLightbox(ph.or, alt, ph.dl);
+      }
+    });
+    
     g.appendChild(c);
   });
 }
-
 /* ── LIGHTBOX ── */
 function openLightbox(src,alt,dl){document.getElementById('lightboxImg').src=src;document.getElementById('lightboxImg').alt=alt;document.getElementById('lbDlBtn').onclick=()=>directDownload(dl,alt);document.getElementById('lbEditBtn').onclick=()=>{closeLightboxBtn();openEditorFromUrl(src,alt);};document.getElementById('lightbox').classList.add('open');}
 function closeLightbox(e){if(e.target===document.getElementById('lightbox'))closeLightboxBtn();}
