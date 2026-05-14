@@ -392,6 +392,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
   .mobile-preview-notice {
     display: block;
   }
+
   /* 헤더 오른쪽 버튼 영역 세로 정렬 */
   .header-actions {
     flex-direction: column !important;
@@ -409,6 +410,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
     font-size: 0.7rem;
     text-align: center;
   }
+
+  /* 🔽 순서 변경 (새로 추가) */
+  .header-actions .hdr-btn:first-child { order: 3; }
+  .header-actions .hdr-btn:nth-child(2) { order: 1; }
+  .header-actions .hdr-btn:nth-child(3) { order: 2; }
+ }
 }
 
 /* TOAST */
