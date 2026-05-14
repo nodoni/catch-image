@@ -647,6 +647,14 @@ const AD_DUR=180;
 let adIdx=0,adSec=AD_DUR,adIv=null;
 let adMuted = true;
 
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 /* ── LINK COPY ── */
 function copyLink(){
   const url='https://www.catch-image.com/';
@@ -704,7 +712,11 @@ async function fetchAll(q,page,clear){
     else{const h=Math.floor(pp/2);const[a,b]=await Promise.all([fPexels(q,page,h),fPixabay(q,page,h)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)photos.push(a.p[i]);if(i<b.p.length)photos.push(b.p[i]);}hasMore=a.m||b.m;}
     document.getElementById('moreSpinner')?.remove();
     if(!photos.length){st.textContent='"'+q+'" 검색 결과가 없습니다.';st.style.display='block';isLoading=false;return;}
-    st.style.display='none';renderPhotos(photos);if(hasMore)lm.style.display='flex';
+    st.style.display='none';
+// 추가: 이미지 순서를 랜덤으로 섞음
+const shuffledPhotos = shuffleArray([...photos]); // 원본 훼손 방지
+renderPhotos(shuffledPhotos);
+if(hasMore) lm.style.display='flex';
   }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
   isLoading=false;
 }
