@@ -393,29 +393,49 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
     display: block;
   }
 
-  /* 헤더 오른쪽 버튼 영역 세로 정렬 */
-  .header-actions {
+  /* ===== 모바일 헤더 버튼 정리 (새로운 구조) ===== */
+   .header-actions {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 6px !important;
+    gap: 8px !important;
   }
-  /* '내 이미지 편집' 버튼은 기본 크기 유지 */
-  .header-actions .hdr-btn:first-child {
+  /* 모바일에서 순서: 그룹(다크모드/링크복사)을 먼저, 내 이미지 편집을 나중에 */
+  .mobile-btn-group {
+    order: 1 !important;
+  }
+  .header-actions .hdr-btn.main {
+    order: 2 !important;
+  }
+  /* 나머지 스타일 유지 */
+  .mobile-btn-group .hdr-btn {
+    flex: 1 !important;
+    text-align: center;
+    padding: 6px 8px !important;
+    font-size: 0.75rem !important;
+  }
+  .header-actions .hdr-btn.main {
+    width: 100%;
+    padding: 10px 14px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold;
+    text-align: center;
+  }
+}
+
+/* PC에서는 원래 스타일 유지 */
+@media (min-width: 769px) {
+  .mobile-btn-group {
+    display: contents;  /* 그룹 무시, 버튼들이 원래대로 나란히 */
+  }
+  .mobile-btn-group .hdr-btn {
     padding: 7px 14px;
     font-size: 0.8rem;
   }
-  /* 다크모드, 링크 복사 버튼은 더 작게 */
-  .header-actions .hdr-btn:not(:first-child) {
-    padding: 4px 8px;
-    font-size: 0.7rem;
-    text-align: center;
+  .header-actions .hdr-btn.main-action {
+    width: auto;
+    padding: 7px 14px;
+    font-size: 0.8rem;
   }
-
-  /* 🔽 순서 변경 (새로 추가) */
-  .header-actions .hdr-btn:first-child { order: 3; }
-  .header-actions .hdr-btn:nth-child(2) { order: 1; }
-  .header-actions .hdr-btn:nth-child(3) { order: 2; }
- }
 }
 
 /* TOAST */
@@ -445,10 +465,13 @@ footer a:hover{color:var(--muted)}
     <input type="text" id="headerSearch" placeholder="이미지 검색...">
     <button onclick="doSearch('header')">검색</button>
   </div>
-  <div class="header-actions" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-    <button class="hdr-btn" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
-    <button class="hdr-btn" onclick="toggleTheme()" id="themeToggleBtn">🌙 다크모드</button>
-    <button class="hdr-btn" onclick="copyLink()" id="copyLinkBtn">🔗 링크 복사</button>
+<div class="header-actions" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+  <button class="hdr-btn main" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
+  <div class="mobile-btn-group" style="display:flex; gap:8px; width:100%;">
+    <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙 다크모드</button>
+    <button class="hdr-btn small" onclick="copyLink()" id="copyLinkBtn">🔗 링크 복사</button>
+  </div>
+</div>
     <div class="source-toggle">
       <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
       <button class="src-btn"        id="btn-pexels"  onclick="setSource('pexels')">Pexels</button>
