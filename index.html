@@ -392,6 +392,23 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
   .mobile-preview-notice {
     display: block;
   }
+  /* 헤더 오른쪽 버튼 영역 세로 정렬 */
+  .header-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  /* '내 이미지 편집' 버튼은 기본 크기 유지 */
+  .header-actions .hdr-btn:first-child {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+  /* 다크모드, 링크 복사 버튼은 더 작게 */
+  .header-actions .hdr-btn:not(:first-child) {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    text-align: center;
+  }
 }
 
 /* TOAST */
@@ -421,7 +438,7 @@ footer a:hover{color:var(--muted)}
     <input type="text" id="headerSearch" placeholder="이미지 검색...">
     <button onclick="doSearch('header')">검색</button>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+  <div class="header-actions" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
     <button class="hdr-btn" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
     <button class="hdr-btn" onclick="toggleTheme()" id="themeToggleBtn">🌙 다크모드</button>
     <button class="hdr-btn" onclick="copyLink()" id="copyLinkBtn">🔗 링크 복사</button>
