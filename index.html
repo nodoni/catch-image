@@ -1093,29 +1093,40 @@ let toastT;
 function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // ========== 광고 음소거 강제 유지 (추가) ==========
+// 강제로 활성 광고 iframe을 새로 생성하여 음소거 적용
 function forceMuteAd() {
   const activeAdCard = document.querySelector('#adGrid .ad-card.active');
-  if (activeAdCard) {
-    const iframe = activeAdCard.querySelector('iframe');
-    if (iframe) {
-      let src = iframe.src;
-      if (src.includes('mutePlay=')) {
-        src = src.replace(/mutePlay=(true|false)/, 'mutePlay=true');
-      } else {
-        src += (src.includes('?') ? '&' : '?') + 'mutePlay=true';
-      }
-      if (iframe.src !== src) {
-        iframe.src = src;
-      }
-    }
-  }
+  if (!activeAdCard) return;
+  
+  // 현재 iframe의 비디오 ID 추출
+  const oldIframe = activeAdCard.querySelector('iframe');
+  if (!oldIframe) return;
+  
+  const src = oldIframe.src;
+  // 비디오 ID 추출 (vod.sooplive.com/player/숫자/embed)
+  const match = src.match(/\/player\/(\d+)\/embed/);
+  if (!match) return;
+  
+  const videoId = match[1];
+  // 새로운 iframe 생성 (무조건 mutePlay=true)
+  const newIframe = document.createElement('iframe');
+  newIframe.src = `https://vod.sooplive.com/player/${videoId}/embed?showChat=false&autoPlay=true&mutePlay=true`;
+  newIframe.allowFullscreen = true;
+  newIframe.setAttribute('allow', 'clipboard-write;web-share;autoplay');
+  newIframe.style.width = '100%';
+  newIframe.style.aspectRatio = '16/9';
+  newIframe.style.border = 'none';
+  
+  // 기존 iframe 교체
+  oldIframe.replaceWith(newIframe);
 }
+
+// 페이지 가시성 변경 감지 (홈버튼 눌렀다가 다시 돌아올 때)
 document.addEventListener('visibilitychange', function() {
   if (!document.hidden) {
     forceMuteAd();
   }
 });
-
 const initRandomTag = randomTags[Math.floor(Math.random() * randomTags.length)];
 currentQuery = initRandomTag;
 document.getElementById('heroSearch').value = initRandomTag;
