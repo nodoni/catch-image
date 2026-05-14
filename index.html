@@ -351,29 +351,63 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
   padding: 7px 10px;
 }
 
-/* 모바일: 사이드바 좁게, 고정 레이아웃 */
+/* 모바일: 사이드바 더 좁게 (150px) */
 @media (max-width: 768px) {
   .editor-sidebar {
-    width: 200px;
-    padding: 0.7rem;
-    position: relative;
-    transform: none;
-    box-shadow: none;
-    height: auto;
+    width: 150px;              /* 200px → 150px */
+    padding: 0.5rem;          /* 패딩 축소 */
+  }
+  .ed-section {
+    margin-bottom: 1rem;
+  }
+  .ed-section-title {
+    font-size: 0.55rem;
+    margin-bottom: 0.4rem;
   }
   .ed-btn {
-    font-size: 0.7rem;
-    padding: 6px 8px;
+    font-size: 0.65rem;
+    padding: 4px 6px;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .ed-row {
+    gap: 3px;
+  }
+  .ed-row .ed-btn {
+    font-size: 0.6rem;
+  }
+  .ed-label {
+    font-size: 0.6rem;
+    margin-bottom: 2px;
+  }
+  .ed-slider {
+    margin-bottom: 6px;
+  }
+  .ed-info {
+    font-size: 0.55rem;
+    padding: 4px 6px;
+  }
+  .ed-q-btn {
+    font-size: 0.55rem;
+    padding: 3px 4px;
+  }
+  .ed-file-label {
+    font-size: 0.65rem;
+    padding: 4px 6px;
+    gap: 4px;
   }
   .angle-input-row input {
-    font-size: 0.7rem;
-    padding: 5px 8px;
+    font-size: 0.6rem;
+    padding: 4px 6px;
   }
   .angle-apply-btn {
-    padding: 5px 8px;
+    padding: 4px 6px;
+    font-size: 0.6rem;
+  }
+  #cropReadout {
+    font-size: 0.6rem;
   }
 }
-
 .ed-section{margin-bottom:1.4rem}
 .ed-section-title{font-size:.65rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:.7rem}
 .ed-btn{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:.8rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;margin-bottom:6px;text-align:left;display:flex;align-items:center;gap:8px}
@@ -473,6 +507,7 @@ footer a:hover{color:var(--muted)}
     <span class="ad-label">광고 영상</span>
     <span class="ad-timer" id="adTimer"></span>
     <div class="ad-controls">
+      <button class="ad-toggle" id="muteToggleBtn" onclick="toggleMuteAd()">🔊</button>
       <button class="ad-toggle" id="collapseBtn" onclick="toggleAd()">▾</button>
       <button class="ad-toggle" onclick="closeAd()">✕</button>
     </div>
@@ -595,6 +630,7 @@ const PIXABAY_KEY='55240646-e066fc8797e32f224e3416303';
 const VIDEO_IDS=['195446325','195445799','195445533','195352929','195346657'];
 const AD_DUR=180;
 let adIdx=0,adSec=AD_DUR,adIv=null;
+let adMuted = true;
 
 /* ── LINK COPY ── */
 function copyLink(){
@@ -608,9 +644,26 @@ function copyLink(){
 function startAd(rand){clearInterval(adIv);if(rand)adIdx=Math.floor(Math.random()*VIDEO_IDS.length);buildAdGrid();startAdTimer();}
 function startAdTimer(){clearInterval(adIv);adSec=AD_DUR;tickAd();adIv=setInterval(tickAd,1000);}
 function tickAd(){adSec--;if(adSec<0){adIdx=(adIdx+1)%VIDEO_IDS.length;buildAdGrid();adSec=AD_DUR;}const m=String(Math.floor(adSec/60)).padStart(2,'0'),s=String(adSec%60).padStart(2,'0');const te=document.getElementById('adTimer');if(te)te.textContent=m+':'+s;const pf=document.getElementById('adProgressFill');if(pf)pf.style.width=((AD_DUR-adSec)/AD_DUR*100)+'%';}
-function buildAdGrid(){const g=document.getElementById('adGrid');g.innerHTML='';VIDEO_IDS.forEach((id,i)=>{const c=document.createElement('div');c.className='ad-card'+(i===0?' main-card':'')+(i===adIdx?' active':'');if(i===adIdx){c.innerHTML='<iframe src="https://vod.sooplive.com/player/'+id+'/embed?showChat=false&autoPlay=true&mutePlay=true" allowfullscreen allow="clipboard-write;web-share;autoplay;"></iframe><div class="ad-progress-bar"><div class="ad-progress-fill" id="adProgressFill"></div></div>';}else{c.innerHTML='<div class="ad-thumb"><span class="ad-num">0'+(i+1)+'</span><div class="ad-play"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>';c.addEventListener('click',()=>{adIdx=i;buildAdGrid();adSec=AD_DUR;});}g.appendChild(c);});}
+function buildAdGrid(){const g=document.getElementById('adGrid');g.innerHTML='';VIDEO_IDS.forEach((id,i)=>{const c=document.createElement('div');c.className='ad-card'+(i===0?' main-card':'')+(i===adIdx?' active':'');if(i===adIdx){c.innerHTML='<iframe src="https://vod.sooplive.com/player/'+id+'/embed?showChat=false&autoPlay=true&mutePlay='+adMuted+'" allowfullscreen allow="clipboard-write;web-share;autoplay;"></iframe><div class="ad-progress-bar"><div class="ad-progress-fill" id="adProgressFill"></div></div>';}else{c.innerHTML='<div class="ad-thumb"><span class="ad-num">0'+(i+1)+'</span><div class="ad-play"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>';c.addEventListener('click',()=>{adIdx=i;buildAdGrid();adSec=AD_DUR;});}g.appendChild(c);});}
 function toggleAd(){const w=document.getElementById('ad-widget');const b=document.getElementById('collapseBtn');w.classList.toggle('collapsed');b.textContent=w.classList.contains('collapsed')?'▸':'▾';}
 function closeAd(){document.getElementById('ad-widget').style.display='none';clearInterval(adIv);}
+
+// 음소거 토글 함수 추가
+function toggleMuteAd() {
+  adMuted = !adMuted;
+  const muteBtn = document.getElementById('muteToggleBtn');
+  muteBtn.textContent = adMuted ? '🔇' : '🔊';
+  
+  const activeAdCard = document.querySelector('#adGrid .ad-card.active');
+  if (activeAdCard) {
+    const iframe = activeAdCard.querySelector('iframe');
+    if (iframe) {
+      let src = iframe.src;
+      src = src.replace(/mutePlay=(true|false)/, `mutePlay=${adMuted}`);
+      iframe.src = src;
+    }
+  }
+}
 
 /* ── SEARCH ── */
 let currentQuery='nature',currentPage=1,isLoading=false,currentSource='all';
