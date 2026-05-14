@@ -730,7 +730,7 @@ function startSearch(q){
   window.scrollTo({top:document.querySelector('.gallery-section').offsetTop-80,behavior:'smooth'});
 }
 function loadMore(){currentPage++;fetchAll(currentQuery,currentPage,false);}
-async function fetchAll(q,page,clear){
+async function fetchAll(q, page, clear){
   if(isLoading)return;isLoading=true;
   const pp=parseInt(document.getElementById('perPage').value);
   const st=document.getElementById('status');const lm=document.getElementById('loadMore');
@@ -744,13 +744,21 @@ async function fetchAll(q,page,clear){
     document.getElementById('moreSpinner')?.remove();
     if(!photos.length){st.textContent='"'+q+'" 검색 결과가 없습니다.';st.style.display='block';isLoading=false;return;}
     st.style.display='none';
-    currentPhotos = photos;
-    const shuffled = shuffleArray([...photos]);
-    renderPhotos(shuffled);
+    if (clear) {
+      // 첫 로드: 전체 교체, 셔플 적용
+      currentPhotos = [...photos];
+      const shuffled = shuffleArray([...currentPhotos]);
+      renderPhotos(shuffled, false);
+    } else {
+      // 더보기: 기존 배열에 추가, 셔플 없이 추가 렌더링
+      currentPhotos.push(...photos);
+      renderPhotos(photos, true);
+    }
     if(hasMore) lm.style.display='flex';
   }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
   isLoading=false;
 }
+
 async function fPexels(q,page,pp){const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page,{headers:{Authorization:PEXELS_KEY}});if(!r.ok)throw new Error('Pexels '+r.status);const d=await r.json();return{p:(d.photos||[]).map(p=>{return{s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}}),m:d.total_results>page*pp};}
 async function fPixabay(q,page,pp){const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&image_type=photo&safesearch=true');if(!r.ok)throw new Error('Pixabay '+r.status);const d=await r.json();return{p:(d.hits||[]).map(p=>{return{s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}}),m:d.totalHits>page*pp};}
 
@@ -762,9 +770,11 @@ function shuffleArray(arr) {
   return arr;
 }
 
-function renderPhotos(photos){
+function renderPhotos(photos, append = false) {
   const g = document.getElementById('gallery');
-  g.innerHTML = '';
+  if (!append) {
+    g.innerHTML = ''; // 처음 로드 시만 비움
+  }
   photos.forEach((ph, idx) => {
     const c = document.createElement('div');
     c.className = 'photo-card';
