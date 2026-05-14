@@ -81,14 +81,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 /* LIGHTBOX */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;align-items:center;justify-content:center;padding:1.5rem;flex-direction:column;gap:1rem}
 .lightbox.open{display:flex}
-.lightbox img{max-width:90vw;max-height:80vh;border-radius:var(--radius);object-fit:contain}
+.lightbox img{max-width:90vw;max-height:80vh;border-radius:var(--radius);object-fit:contain;transition:opacity 0.25s ease;opacity:1}
+.lightbox img.loading{opacity:0}
 .lb-close{position:fixed;top:1rem;right:1.5rem;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;opacity:.55;line-height:1}
 .lb-close:hover{opacity:1}
 .lb-btns{display:flex;gap:10px;margin-top:1rem}
 .lb-btn{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:10px 22px;border-radius:10px;font-weight:700;font-size:.88rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
 .lb-btn.accent{background:var(--accent);color:#080810;border-color:var(--accent)}
 .lb-btn:hover{opacity:.85}
-/* 좌우 네비게이션 버튼 */
 .lb-nav {
   position: fixed;
   top: 50%;
@@ -111,6 +111,21 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 @media (max-width: 768px) {
   .lb-nav { font-size: 1.5rem; padding: 6px 12px; }
 }
+.lightbox-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  z-index: 502;
+  display: none;
+}
+.lightbox-spinner.show { display: block; }
 
 /* AD */
 #ad-widget{position:fixed;bottom:20px;left:20px;width:260px;z-index:200;border-radius:var(--radius);filter:drop-shadow(0 8px 32px rgba(0,0,0,.7))}
@@ -461,16 +476,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 footer{text-align:center;padding:2rem 1rem 1.5rem;margin-top:3rem;border-top:1px solid var(--border);font-size:.68rem;color:#2e2e48}
 footer a{color:#3a3a5a;text-decoration:none}
 footer a:hover{color:var(--muted)}
-/* 이미지 클릭 시 라이트박스 바로 열리게 */
-.photo-overlay {
-  pointer-events: none;
-}
-.overlay-btns button {
-  pointer-events: auto;
-}
-.photo-card img {
-  cursor: pointer;
-}
+.photo-overlay { pointer-events: none; }
+.overlay-btns button { pointer-events: auto; }
+.photo-card img { cursor: pointer; }
 </style>
 </head>
 <body>
@@ -557,6 +565,7 @@ footer a:hover{color:var(--muted)}
   </div>
   <button class="lb-nav lb-prev" onclick="prevPhoto()">❮</button>
   <button class="lb-nav lb-next" onclick="nextPhoto()">❯</button>
+  <div class="lightbox-spinner" id="lightboxSpinner"></div>
 </div>
 
 <div class="editor-modal" id="editorModal">
@@ -621,7 +630,6 @@ footer a:hover{color:var(--muted)}
           <button class="ed-btn" onclick="flipV()">↕️ 상하반전</button>
         </div>
       </div>
-      <!-- 되돌리기 버튼 -->
       <div class="ed-row">
         <button class="ed-btn" onclick="undoEdit()">↩️ 되돌리기</button>
       </div>
@@ -673,10 +681,9 @@ const PIXABAY_KEY='55240646-e066fc8797e32f224e3416303';
 const VIDEO_IDS=['195446325','195445799','195445533','195352929','195346657'];
 const AD_DUR=180;
 let adIdx=0,adSec=AD_DUR,adIv=null;
-let adMuted = true; // 항상 true, 음소거 고정 (토글 제거됨)
+let adMuted = true;
 const randomTags = ['food', 'nature', 'city', 'ocean', 'mountain', 'animal', 'technology', 'travel', 'flower', 'architecture'];
 
-// ========== 라이트박스 전역 변수 ==========
 let currentPhotos = [];
 let currentPhotoIndex = -1;
 let lightboxOpen = false;
@@ -688,14 +695,13 @@ function copyLink(){
   .catch(()=>{const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);showToast('링크 복사됨! 🔗');});
 }
 
-/* AD - 음소거 강제 (토글 버튼 없음, 항상 음소거) */
+/* AD */
 function startAd(rand){clearInterval(adIv);if(rand)adIdx=Math.floor(Math.random()*VIDEO_IDS.length);buildAdGrid();startAdTimer();}
 function startAdTimer(){clearInterval(adIv);adSec=AD_DUR;tickAd();adIv=setInterval(tickAd,1000);}
 function tickAd(){adSec--;if(adSec<0){adIdx=(adIdx+1)%VIDEO_IDS.length;buildAdGrid();adSec=AD_DUR;}const m=String(Math.floor(adSec/60)).padStart(2,'0'),s=String(adSec%60).padStart(2,'0');const te=document.getElementById('adTimer');if(te)te.textContent=m+':'+s;const pf=document.getElementById('adProgressFill');if(pf)pf.style.width=((AD_DUR-adSec)/AD_DUR*100)+'%';}
 function buildAdGrid(){const g=document.getElementById('adGrid');g.innerHTML='';VIDEO_IDS.forEach((id,i)=>{const c=document.createElement('div');c.className='ad-card'+(i===0?' main-card':'')+(i===adIdx?' active':'');if(i===adIdx){c.innerHTML='<iframe src="https://vod.sooplive.com/player/'+id+'/embed?showChat=false&autoPlay=true&mutePlay=true" allowfullscreen allow="clipboard-write;web-share;autoplay;"></iframe><div class="ad-progress-bar"><div class="ad-progress-fill" id="adProgressFill"></div></div>';}else{c.innerHTML='<div class="ad-thumb"><span class="ad-num">0'+(i+1)+'</span><div class="ad-play"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>';c.addEventListener('click',()=>{adIdx=i;buildAdGrid();adSec=AD_DUR;});}g.appendChild(c);});}
 function toggleAd(){const w=document.getElementById('ad-widget');const b=document.getElementById('collapseBtn');w.classList.toggle('collapsed');b.textContent=w.classList.contains('collapsed')?'▸':'▾';}
 function closeAd(){document.getElementById('ad-widget').style.display='none';clearInterval(adIv);}
-// 음소거 함수 제거 (항상 음소거)
 
 /* SEARCH */
 let currentQuery='food',currentPage=1,isLoading=false,currentSource='all';
@@ -738,7 +744,7 @@ async function fetchAll(q,page,clear){
     document.getElementById('moreSpinner')?.remove();
     if(!photos.length){st.textContent='"'+q+'" 검색 결과가 없습니다.';st.style.display='block';isLoading=false;return;}
     st.style.display='none';
-    currentPhotos = photos; // 저장
+    currentPhotos = photos;
     const shuffled = shuffleArray([...photos]);
     renderPhotos(shuffled);
     if(hasMore) lm.style.display='flex';
@@ -802,38 +808,21 @@ function renderPhotos(photos){
   });
 }
 
-/* LIGHTBOX 개선 */
+/* LIGHTBOX with fade & spinner */
 function openLightbox(src, alt, dl, index) {
   currentPhotoIndex = index !== undefined ? index : currentPhotos.findIndex(p => p.or === src);
   if (currentPhotoIndex === -1 && currentPhotos.length) currentPhotoIndex = 0;
-  const img = document.getElementById('lightboxImg');
-  img.src = src;
-  img.alt = alt;
-  document.getElementById('lbDlBtn').onclick = () => directDownload(dl, alt);
-  document.getElementById('lbEditBtn').onclick = () => {
-    closeLightboxBtn();
-    openEditorFromUrl(src, alt);
-  };
+  updateLightboxImage();
   document.getElementById('lightbox').classList.add('open');
   lightboxOpen = true;
-  // 히스토리에 상태 추가 (뒤로가기 감지용)
   history.pushState({ lightbox: true }, '');
   window.addEventListener('popstate', onPopState);
-  // 모바일 스와이프 리스너 등록
   const lbImg = document.getElementById('lightboxImg');
   lbImg.addEventListener('touchstart', onTouchStart);
   lbImg.addEventListener('touchend', onTouchEnd);
 }
-
-function onPopState(event) {
-  if (lightboxOpen) {
-    closeLightboxBtn();
-  }
-}
-
-function closeLightbox(e) {
-  if (e.target === document.getElementById('lightbox')) closeLightboxBtn();
-}
+function onPopState(event) { if (lightboxOpen) closeLightboxBtn(); }
+function closeLightbox(e) { if (e.target === document.getElementById('lightbox')) closeLightboxBtn(); }
 function closeLightboxBtn() {
   document.getElementById('lightbox').classList.remove('open');
   lightboxOpen = false;
@@ -847,34 +836,36 @@ function updateLightboxImage() {
   const photo = currentPhotos[currentPhotoIndex];
   if (!photo) return;
   const img = document.getElementById('lightboxImg');
-  img.src = photo.or;
-  img.alt = photo.alt || '';
-  document.getElementById('lbDlBtn').onclick = () => directDownload(photo.dl, photo.alt);
-  document.getElementById('lbEditBtn').onclick = () => {
-    closeLightboxBtn();
-    openEditorFromUrl(photo.or, photo.alt);
+  const spinner = document.getElementById('lightboxSpinner');
+  spinner.classList.add('show');
+  img.classList.add('loading');
+  const newImg = new Image();
+  newImg.onload = () => {
+    img.src = newImg.src;
+    img.alt = photo.alt || '';
+    img.classList.remove('loading');
+    spinner.classList.remove('show');
+    document.getElementById('lbDlBtn').onclick = () => directDownload(photo.dl, photo.alt);
+    document.getElementById('lbEditBtn').onclick = () => {
+      closeLightboxBtn();
+      openEditorFromUrl(photo.or, photo.alt);
+    };
   };
+  newImg.src = photo.or;
+  preloadAdjacent();
 }
-function prevPhoto() {
-  if (currentPhotos.length === 0) return;
-  currentPhotoIndex = (currentPhotoIndex - 1 + currentPhotos.length) % currentPhotos.length;
-  updateLightboxImage();
+function preloadAdjacent() {
+  const nextIdx = (currentPhotoIndex + 1) % currentPhotos.length;
+  const prevIdx = (currentPhotoIndex - 1 + currentPhotos.length) % currentPhotos.length;
+  if (currentPhotos[nextIdx]) { const next = new Image(); next.src = currentPhotos[nextIdx].or; }
+  if (currentPhotos[prevIdx]) { const prev = new Image(); prev.src = currentPhotos[prevIdx].or; }
 }
-function nextPhoto() {
-  if (currentPhotos.length === 0) return;
-  currentPhotoIndex = (currentPhotoIndex + 1) % currentPhotos.length;
-  updateLightboxImage();
-}
-// 모바일 스와이프
-function onTouchStart(e) {
-  touchStartX = e.touches[0].clientX;
-}
+function prevPhoto() { if (currentPhotos.length) { currentPhotoIndex = (currentPhotoIndex - 1 + currentPhotos.length) % currentPhotos.length; updateLightboxImage(); } }
+function nextPhoto() { if (currentPhotos.length) { currentPhotoIndex = (currentPhotoIndex + 1) % currentPhotos.length; updateLightboxImage(); } }
+function onTouchStart(e) { touchStartX = e.touches[0].clientX; }
 function onTouchEnd(e) {
   const diff = e.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(diff) > 50) {
-    if (diff > 0) prevPhoto();
-    else nextPhoto();
-  }
+  if (Math.abs(diff) > 50) { if (diff > 0) prevPhoto(); else nextPhoto(); }
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeLightboxBtn(); closeEditor(); }
@@ -909,7 +900,7 @@ async function directDownload(url, filename) {
   }
 }
 
-/* EDITOR (기존 그대로, 필요한 함수만 유지 - 너무 길어서 생략 가능하지만 전체 코드에 포함) */
+/* EDITOR (간소화 - 기존 함수 대부분 유지, 생략 가능) */
 const canvas = document.getElementById('editorCanvas');
 const ctx = canvas.getContext('2d');
 const cropBox = document.getElementById('cropBox');
@@ -919,41 +910,41 @@ let enhBright = 0, enhContrast = 0, enhSat = 0;
 let cropActive = false, cBoxL = 0.1, cBoxT = 0.1, cBoxR = 0.9, cBoxB = 0.9, dragging = null;
 let edSaveScale = 1.0;
 
-function openEditorFromUrl(url, alt){ /* 기존 코드와 동일 - 생략 가능하나 전체 기능을 위해 포함 */ 
+function openEditorFromUrl(url, alt){
   showToast('이미지 불러오는 중...');
   const img = new Image(); img.crossOrigin = 'anonymous';
   img.onload = () => { edImg = img; initEditor(alt || 'image'); };
-  img.onerror = () => fetch(url).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); const i2 = new Image(); i2.onload = () => { edImg = i2; initEditor(alt || 'image'); }; i2.src = u; }).catch(() => showToast('❌ 이미지 불러오기 실패'));
+  img.onerror = () => fetch(url).then(r=>r.blob()).then(b=>{const u=URL.createObjectURL(b);const i2=new Image();i2.onload=()=>{edImg=i2;initEditor(alt||'image');};i2.src=u;}).catch(()=>showToast('❌ 이미지 불러오기 실패'));
   img.src = url;
 }
 function openLocalEditor(){ document.getElementById('localFileInput').click(); }
-function loadLocalFile(e){ const f = e.target.files[0]; if(!f) return; const u = URL.createObjectURL(f); const img = new Image(); img.onload = () => { edImg = img; initEditor(f.name.replace(/\.[^.]+$/, '')); }; img.src = u; e.target.value = ''; }
+function loadLocalFile(e){ const f=e.target.files[0]; if(!f)return; const u=URL.createObjectURL(f); const img=new Image(); img.onload=()=>{edImg=img;initEditor(f.name.replace(/\.[^.]+$/,''));}; img.src=u; e.target.value=''; }
 function initEditor(name){
-  edRotation = 0; edFlipX = false; edFlipY = false; edHistory = []; edRedoStack = [];
-  enhBright = 0; enhContrast = 0; enhSat = 0; syncSliders();
-  canvas.dataset.name = name || 'image';
+  edRotation=0; edFlipX=false; edFlipY=false; edHistory=[]; edRedoStack=[];
+  enhBright=0; enhContrast=0; enhSat=0; syncSliders();
+  canvas.dataset.name=name||'image';
   document.getElementById('editorModal').classList.add('open');
-  cropBox.style.display = 'none'; cropActive = false; showCropControls(false);
-  if(window.innerWidth <= 768) document.getElementById('editorSidebar').classList.add('open');
+  cropBox.style.display='none'; cropActive=false; showCropControls(false);
+  if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
   drawImage(); showToast('✅ 편집기 열림');
 }
 function closeEditor(){ document.getElementById('editorModal').classList.remove('open'); }
-function drawImage(){ /* 기존 코드 유지 */ 
-  if(!edImg) return;
-  const area = document.getElementById('canvasArea');
-  const maxW = area.clientWidth - 20 || 800, maxH = area.clientHeight - 20 || 600;
-  const rad = edRotation * Math.PI / 180;
-  const sin = Math.abs(Math.sin(rad)), cos = Math.abs(Math.cos(rad));
-  const rW = edImg.width * cos + edImg.height * sin, rH = edImg.width * sin + edImg.height * cos;
-  const sc = Math.min(maxW / rW, maxH / rH, 1);
-  canvas.width = Math.round(rW * sc); canvas.height = Math.round(rH * sc);
-  canvasWrap.style.width = canvas.width + 'px'; canvasWrap.style.height = canvas.height + 'px';
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.save(); ctx.translate(canvas.width / 2, canvas.height / 2); ctx.rotate(rad);
-  ctx.scale(edFlipX ? -1 : 1, edFlipY ? -1 : 1);
-  ctx.drawImage(edImg, -edImg.width * sc / 2, -edImg.height * sc / 2, edImg.width * sc, edImg.height * sc);
+function drawImage(){
+  if(!edImg)return;
+  const area=document.getElementById('canvasArea');
+  const maxW=area.clientWidth-20||800,maxH=area.clientHeight-20||600;
+  const rad=edRotation*Math.PI/180;
+  const sin=Math.abs(Math.sin(rad)),cos=Math.abs(Math.cos(rad));
+  const rW=edImg.width*cos+edImg.height*sin,rH=edImg.width*sin+edImg.height*cos;
+  const sc=Math.min(maxW/rW,maxH/rH,1);
+  canvas.width=Math.round(rW*sc); canvas.height=Math.round(rH*sc);
+  canvasWrap.style.width=canvas.width+'px'; canvasWrap.style.height=canvas.height+'px';
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.save(); ctx.translate(canvas.width/2,canvas.height/2); ctx.rotate(rad);
+  ctx.scale(edFlipX?-1:1,edFlipY?-1:1);
+  ctx.drawImage(edImg,-edImg.width*sc/2,-edImg.height*sc/2,edImg.width*sc,edImg.height*sc);
   ctx.restore(); applyCSS();
-  document.getElementById('edDimInfo').textContent = (edImg.naturalWidth || edImg.width) + '×' + (edImg.naturalHeight || edImg.height) + ' px';
+  document.getElementById('edDimInfo').textContent=(edImg.naturalWidth||edImg.width)+'×'+(edImg.naturalHeight||edImg.height)+' px';
   if(cropActive) positionCropBox();
 }
 function applyCSS(){ let f=''; if(enhBright!==0) f+='brightness('+(1+enhBright/100)+') '; if(enhContrast!==0) f+='contrast('+(1+enhContrast/100)+') '; if(enhSat!==0) f+='saturate('+(1+enhSat/100)+') '; canvas.style.filter=f||'none'; }
@@ -961,8 +952,7 @@ function syncSliders(){ document.getElementById('brightSlider').value=enhBright;
 function previewFilter(){ enhBright=parseInt(document.getElementById('brightSlider').value); enhContrast=parseInt(document.getElementById('contrastSlider').value); enhSat=parseInt(document.getElementById('satSlider').value); applyCSS(); }
 function resetFilters(){ enhBright=0; enhContrast=0; enhSat=0; syncSliders(); applyCSS(); showToast('필터 초기화'); }
 function pushHistory(){
-  const t=document.createElement('canvas');
-  t.width=edImg.width; t.height=edImg.height;
+  const t=document.createElement('canvas'); t.width=edImg.width; t.height=edImg.height;
   t.getContext('2d').drawImage(edImg,0,0);
   edHistory.push({src:t.toDataURL('image/png'), rot:edRotation, fx:edFlipX, fy:edFlipY, bright:enhBright, contrast:enhContrast, sat:enhSat});
   if(edHistory.length>20) edHistory.shift();
@@ -1052,7 +1042,6 @@ function saveImage(withEnhance){
 }
 function applySharpness(c,w,h,amt){ try{ const d=c.getImageData(0,0,w,h), px=d.data, out=new Uint8ClampedArray(px); const k=[-amt,-amt,-amt,-amt,1+8*amt,-amt,-amt,-amt,-amt]; for(let y=1; y<h-1; y++) for(let x=1; x<w-1; x++) for(let ch=0;ch<3;ch++){ let v=0; for(let ky=-1;ky<=1;ky++) for(let kx=-1;kx<=1;kx++) v+=px[((y+ky)*w+(x+kx))*4+ch]*k[(ky+1)*3+(kx+1)]; out[(y*w+x)*4+ch]=Math.max(0,Math.min(255,v)); } c.putImageData(new ImageData(out,w,h),0,0); }catch(e){} }
 
-// 테마 전환
 function toggleTheme() {
   const root = document.documentElement;
   const computedBg = getComputedStyle(root).getPropertyValue('--bg').trim();
@@ -1081,16 +1070,13 @@ function toggleTheme() {
 }
 function loadTheme() {
   const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'light') {
-    toggleTheme();
-  }
+  if (savedTheme === 'light') { toggleTheme(); }
 }
 document.addEventListener('DOMContentLoaded', loadTheme);
 
 let toastT;
 function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
-// 시작
 const initRandomTag = randomTags[Math.floor(Math.random() * randomTags.length)];
 currentQuery = initRandomTag;
 document.getElementById('heroSearch').value = initRandomTag;
