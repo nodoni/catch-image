@@ -681,14 +681,14 @@ function toggleMuteAd() {
 }
 
 /* ── SEARCH ── */
-let currentQuery='nature',currentPage=1,isLoading=false,currentSource='all';
+let currentQuery='food',currentPage=1,isLoading=false,currentSource='all';
 function setSource(s){currentSource=s;['all','pexels','pixabay'].forEach(k=>document.getElementById('btn-'+k).className='src-btn'+(k===s?' active':''));reSearch();}
 document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('hero');});
 document.getElementById('headerSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('header');});
 function quickSearch(q){document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
 function doSearch(from){const q=(from==='header'?document.getElementById('headerSearch'):document.getElementById('heroSearch')).value.trim();if(!q)return;document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
 function reSearch(){if(currentQuery)startSearch(currentQuery);}
-function resetHome(){document.getElementById('heroSearch').value='';document.getElementById('headerSearch').value='';document.getElementById('ad-widget').style.display='';startAd(true);startSearch('nature');window.scrollTo({top:0,behavior:'smooth'});}
+function resetHome(){document.getElementById('heroSearch').value='';document.getElementById('headerSearch').value='';document.getElementById('ad-widget').style.display='';startAd(true);startSearch('food');window.scrollTo({top:0,behavior:'smooth'});}
 function startSearch(q){currentQuery=q;currentPage=1;document.getElementById('gallery').innerHTML='';document.getElementById('loadMore').style.display='none';document.getElementById('galleryTitle').textContent=q==='nature'?'인기 이미지':'"'+q+'" 검색 결과';fetchAll(q,1,true);window.scrollTo({top:document.querySelector('.gallery-section').offsetTop-80,behavior:'smooth'});}
 function loadMore(){currentPage++;fetchAll(currentQuery,currentPage,false);}
 async function fetchAll(q,page,clear){
@@ -896,8 +896,18 @@ function applySharpness(c,w,h,amt){try{const d=c.getImageData(0,0,w,h),px=d.data
 let toastT;
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
 
+// 랜덤 검색어 목록 (원하는 태그 추가 가능)
+const randomTags = ['food', 'nature', 'city', 'ocean', 'mountain', 'animal', 'technology', 'travel', 'flower', 'architecture'];
+// 무작위 선택
+const randomTag = randomTags[Math.floor(Math.random() * randomTags.length)];
+// 전역 변수와 검색어 동기화
+currentQuery = randomTag;
+document.getElementById('heroSearch').value = randomTag;
+document.getElementById('headerSearch').value = randomTag;
+document.getElementById('galleryTitle').textContent = randomTag === 'nature' ? '인기 이미지' : '"'+randomTag+'" 검색 결과';
+
 startAd(true);
-fetchAll('nature',1,true);
+fetchAll(randomTag, 1, true);
 </script>
 </body>
 </html>
