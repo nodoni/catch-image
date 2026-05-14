@@ -431,7 +431,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 .toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:10px;font-size:.82rem;z-index:700;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
 
-footer{text-align:center;padding:2rem 1rem 1.5rem;margin-top:3rem;border-top:1px solid var(--border);font-size:.68rem;color:#2e2e48}
+footer {
+  text-align: center;
+  width: 100%;
+  padding: 2rem 1rem 1.5rem;
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  font-size: .68rem;
+  color: #2e2e48;
+  clear: both;
+  display: block;
+}
 footer a{color:#3a3a5a;text-decoration:none}
 footer a:hover{color:var(--muted)}
 /* 이미지 클릭 시 라이트박스 바로 열리게 (오버레이 방해 제거) */
@@ -558,77 +568,74 @@ footer a:hover{color:var(--muted)}
         </div>
       </div>
     </div>
-<div class="editor-sidebar" id="editorSidebar">
-  <!-- 모바일 미리보기 품질 안내 메시지 -->
-  <div class="mobile-preview-notice" id="mobilePreviewNotice">
-    📱 미리보기는 성능 최적화로 저화질입니다<br>저장 시 원본 화질로 저장됩니다
-  </div>
+    <div class="editor-sidebar" id="editorSidebar">
+  	<!-- 모바일 미리보기 품질 안내 메시지 -->
+ 	<div class="mobile-preview-notice" id="mobilePreviewNotice">
+   		📱 미리보기는 성능 최적화로 저화질입니다<br>저장 시 원본 화질로 저장됩니다
+  	</div>
+  
+  	<div class="ed-section">
+   		<div class="ed-section-title">📁 파일 열기</div>
 
-  <div class="ed-section">
-    <div class="ed-section-title">📁 파일 열기</div>
-    <label class="ed-file-label">🖼️ 내 이미지 선택<input type="file" id="localFileInput" accept="image/*" onchange="loadLocalFile(event)"></label>
-  </div>
-
-  <div class="ed-section">
-    <div class="ed-section-title">✂️ 영역 선택 자르기</div>
-    <div class="ed-info">자르기 박스를 켜고 핸들을 드래그해서 영역을 조정하세요.</div>
-    <button class="ed-btn mode-active" id="modeCropBtn" onclick="activateCrop()">✂️ 자르기 박스 켜기</button>
-    <div id="cropReadout" style="display:none">W — H —</div>
-    <button class="ed-btn accent" id="applyCropBtn" onclick="applyCrop()" style="display:none">✅ 이 영역으로 자르기</button>
-    <button class="ed-btn" id="resetCropBtn" onclick="resetCropBox()" style="display:none">↩️ 박스 초기화</button>
-  </div>
-
-  <div class="ed-section">
-    <div class="ed-section-title">🔄 회전 / 반전</div>
-    <div class="ed-row">
-      <button class="ed-btn" onclick="rotateBy(-90)">↺ 90°</button>
-      <button class="ed-btn" onclick="rotateBy(90)">↻ 90°</button>
+        <label class="ed-file-label">🖼️ 내 이미지 선택<input type="file" id="localFileInput" accept="image/*" onchange="loadLocalFile(event)"></label>
+      </div>
+      <div class="ed-section">
+        <div class="ed-section-title">✂️ 영역 선택 자르기</div>
+        <div class="ed-info">자르기 박스를 켜고 핸들을 드래그해서 영역을 조정하세요.</div>
+        <button class="ed-btn mode-active" id="modeCropBtn" onclick="activateCrop()">✂️ 자르기 박스 켜기</button>
+        <div id="cropReadout" style="display:none">W — H —</div>
+        <button class="ed-btn accent" id="applyCropBtn" onclick="applyCrop()" style="display:none">✅ 이 영역으로 자르기</button>
+        <button class="ed-btn" id="resetCropBtn" onclick="resetCropBox()" style="display:none">↩️ 박스 초기화</button>
+      </div>
+      <div class="ed-section">
+        <div class="ed-section-title">🔄 회전 / 반전</div>
+        <div class="ed-row">
+          <button class="ed-btn" onclick="rotateBy(-90)">↺ 90°</button>
+          <button class="ed-btn" onclick="rotateBy(90)">↻ 90°</button>
+        </div>
+        <div class="ed-row">
+          <button class="ed-btn" onclick="rotateBy(-45)">↺ 45°</button>
+          <button class="ed-btn" onclick="rotateBy(45)">↻ 45°</button>
+        </div>
+        <div class="ed-label">직접 입력 (도)</div>
+        <div class="angle-input-row">
+  		<input id="customAngle" type="number" value="15">
+  		<button class="ed-btn angle-apply-btn" onclick="rotateBy(+document.getElementById('customAngle').value)">적용</button>
+	</div>
+        <div class="ed-row" style="margin-top:4px">
+          <button class="ed-btn" onclick="flipH()">↔️ 좌우반전</button>
+          <button class="ed-btn" onclick="flipV()">↕️ 상하반전</button>
+        </div>
+      </div>
+      <div class="ed-section">
+        <div class="ed-section-title">✨ 화질 조정</div>
+        <div class="ed-label">밝기</div>
+        <input type="range" class="ed-slider" id="brightSlider" min="-100" max="100" value="0" oninput="previewFilter()">
+        <div class="ed-label">대비</div>
+        <input type="range" class="ed-slider" id="contrastSlider" min="-100" max="100" value="0" oninput="previewFilter()">
+        <div class="ed-label">채도</div>
+        <input type="range" class="ed-slider" id="satSlider" min="-100" max="100" value="0" oninput="previewFilter()">
+        <button class="ed-btn" onclick="resetFilters()">↩️ 필터 초기화</button>
+      </div>
+      <div class="ed-section">
+        <div class="ed-section-title">💾 저장</div>
+        <div class="ed-label">저장 품질</div>
+        <div class="ed-q-row">
+          <div class="ed-q-btn" id="q-good" onclick="setQuality('good')">일반</div>
+          <div class="ed-q-btn active" id="q-high" onclick="setQuality('high')">고화질</div>
+          <div class="ed-q-btn" id="q-max" onclick="setQuality('max')">최고</div>
+        </div>
+        <div class="ed-label">형식</div>
+        <div class="ed-q-row">
+          <div class="ed-q-btn active" id="fmt-jpg" onclick="setFormat('jpg')">JPG</div>
+          <div class="ed-q-btn" id="fmt-png" onclick="setFormat('png')">PNG</div>
+          <div class="ed-q-btn" id="fmt-webp" onclick="setFormat('webp')">WebP</div>
+        </div>
+        <button class="ed-btn purple" onclick="saveImage(false)">💾 저장하기</button>
+        <button class="ed-btn accent" onclick="saveImage(true)">✨ 화질 향상 저장</button>
+      </div>
+      <button class="ed-btn" onclick="undoEdit()" style="margin-top:auto">↩️ 되돌리기</button>
     </div>
-    <div class="ed-row">
-      <button class="ed-btn" onclick="rotateBy(-45)">↺ 45°</button>
-      <button class="ed-btn" onclick="rotateBy(45)">↻ 45°</button>
-    </div>
-    <div class="ed-label">직접 입력 (도)</div>
-    <div class="angle-input-row">
-      <input id="customAngle" type="number" value="15">
-      <button class="ed-btn angle-apply-btn" onclick="rotateBy(+document.getElementById('customAngle').value)">적용</button>
-    </div>
-    <div class="ed-row" style="margin-top:4px">
-      <button class="ed-btn" onclick="flipH()">↔️ 좌우반전</button>
-      <button class="ed-btn" onclick="flipV()">↕️ 상하반전</button>
-    </div>
-  </div>
-
-  <!-- 되돌리기 버튼: 화질 조정 위로 이동 (margin-top:auto 제거) -->
-  <button class="ed-btn" onclick="undoEdit()">↩️ 되돌리기</button>
-
-  <div class="ed-section">
-    <div class="ed-section-title">✨ 화질 조정</div>
-    <div class="ed-label">밝기</div>
-    <input type="range" class="ed-slider" id="brightSlider" min="-100" max="100" value="0" oninput="previewFilter()">
-    <div class="ed-label">대비</div>
-    <input type="range" class="ed-slider" id="contrastSlider" min="-100" max="100" value="0" oninput="previewFilter()">
-    <div class="ed-label">채도</div>
-    <input type="range" class="ed-slider" id="satSlider" min="-100" max="100" value="0" oninput="previewFilter()">
-    <button class="ed-btn" onclick="resetFilters()">↩️ 필터 초기화</button>
-  </div>
-
-  <div class="ed-section">
-    <div class="ed-section-title">💾 저장</div>
-    <div class="ed-label">저장 품질</div>
-    <div class="ed-q-row">
-      <div class="ed-q-btn" id="q-good" onclick="setQuality('good')">일반</div>
-      <div class="ed-q-btn active" id="q-high" onclick="setQuality('high')">고화질</div>
-      <div class="ed-q-btn" id="q-max" onclick="setQuality('max')">최고</div>
-    </div>
-    <div class="ed-label">형식</div>
-    <div class="ed-q-row">
-      <div class="ed-q-btn active" id="fmt-jpg" onclick="setFormat('jpg')">JPG</div>
-      <div class="ed-q-btn" id="fmt-png" onclick="setFormat('png')">PNG</div>
-      <div class="ed-q-btn" id="fmt-webp" onclick="setFormat('webp')">WebP</div>
-    </div>
-    <button class="ed-btn purple" onclick="saveImage(false)">💾 저장하기</button>
-    <button class="ed-btn accent" onclick="saveImage(true)">✨ 화질 향상 저장</button>
   </div>
 </div>
 
