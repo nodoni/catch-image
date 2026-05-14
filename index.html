@@ -1092,6 +1092,30 @@ document.addEventListener('DOMContentLoaded', loadTheme);
 let toastT;
 function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
+// ========== 광고 음소거 강제 유지 (추가) ==========
+function forceMuteAd() {
+  const activeAdCard = document.querySelector('#adGrid .ad-card.active');
+  if (activeAdCard) {
+    const iframe = activeAdCard.querySelector('iframe');
+    if (iframe) {
+      let src = iframe.src;
+      if (src.includes('mutePlay=')) {
+        src = src.replace(/mutePlay=(true|false)/, 'mutePlay=true');
+      } else {
+        src += (src.includes('?') ? '&' : '?') + 'mutePlay=true';
+      }
+      if (iframe.src !== src) {
+        iframe.src = src;
+      }
+    }
+  }
+}
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    forceMuteAd();
+  }
+});
+
 const initRandomTag = randomTags[Math.floor(Math.random() * randomTags.length)];
 currentQuery = initRandomTag;
 document.getElementById('heroSearch').value = initRandomTag;
