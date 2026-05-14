@@ -123,9 +123,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 .editor-close{background:none;border:none;color:var(--muted);font-size:1.8rem;cursor:pointer;line-height:1}
 .editor-close:hover{color:var(--text)}
 
-/* sidebar toggle button — visible on mobile */
-.sidebar-toggle-btn{display:none;background:var(--accent);border:none;color:#080810;padding:6px 12px;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap}
-@media(max-width:768px){.sidebar-toggle-btn{display:block}}
 
 .editor-body{display:flex;flex:1;min-height:0;overflow:hidden;position:relative}
 
@@ -286,7 +283,7 @@ footer a:hover{color:var(--muted)}
       <div class="editor-dim" id="edDimInfo">—</div>
     </div>
     <div class="editor-top-right">
-      <button class="sidebar-toggle-btn" onclick="toggleSidebar()">⚙️ 편집 도구</button>
+    
       <button class="editor-close" onclick="closeEditor()">×</button>
     </div>
   </div>
@@ -391,19 +388,6 @@ function copyLink(){
   .catch(()=>{const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);showToast('링크 복사됨! 🔗');});
 }
 
-/* ── SIDEBAR TOGGLE (모바일) ── */
-function toggleSidebar(){
-  const sb=document.getElementById('editorSidebar');
-  sb.classList.toggle('open');
-}
-// 캔버스 영역 클릭 시 사이드바 닫기 (모바일)
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('canvasArea').addEventListener('click',(e)=>{
-    if(window.innerWidth<=768){
-      document.getElementById('editorSidebar').classList.remove('open');
-    }
-  });
-});
 
 /* ── AD ── */
 function startAd(rand){clearInterval(adIv);if(rand)adIdx=Math.floor(Math.random()*VIDEO_IDS.length);buildAdGrid();startAdTimer();}
