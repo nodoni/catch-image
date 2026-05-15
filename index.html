@@ -96,7 +96,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 
 /* ── GIF / ILLUSTRATION: re-use photo-card ── */
 .gif-badge{position:absolute;top:8px;left:8px;background:#e8ff47;color:#080810;font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:4px}
-
+.illus-badge{position:absolute;top:8px;left:8px;background:#7c6ff7;color:#fff;font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:4px}
 
 /* ── STATUS ── */
 .status{text-align:center;padding:4rem 1rem;color:var(--muted);font-size:.9rem}
@@ -277,7 +277,7 @@ footer a:hover{color:var(--muted)}
   <button class="mt-btn active" id="mt-image"        onclick="setMediaType('image')">🖼️ 이미지</button>
   <button class="mt-btn"        id="mt-video"        onclick="setMediaType('video')">🎬 동영상</button>
   
-  
+  <button class="mt-btn"        id="mt-illustration" onclick="setMediaType('illustration')">🎨 일러스트</button>
 </div>
 
 <section class="hero">
@@ -584,7 +584,7 @@ document.addEventListener('visibilitychange', () => {
 /* ═══════════════════════════════════════════════
    미디어 타입 상태
 ═══════════════════════════════════════════════ */
-const ALL_TYPES = ['image','video'];
+const ALL_TYPES = ['image','video','illustration'];
 let currentMediaType = 'image';
 
 function setMediaType(type) {
@@ -594,8 +594,14 @@ function setMediaType(type) {
   });
   // 소스 토글: GIF/일러스트는 Pixabay only
   const srcToggle = document.getElementById('sourceToggle');
-  const pixabayOnly = [];
-   else {
+  const pixabayOnly = ['illustration'];
+  if (pixabayOnly.includes(type)) {
+    srcToggle.style.opacity = '.35';
+    srcToggle.style.pointerEvents = 'none';
+    currentSource = 'pixabay';
+    ['all','pexels','pixabay'].forEach(k =>
+      document.getElementById('btn-' + k).className = 'src-btn' + (k === 'pixabay' ? ' active' : ''));
+  } else {
     srcToggle.style.opacity = '';
     srcToggle.style.pointerEvents = '';
   }
@@ -659,7 +665,7 @@ function startSearch(q){
   currentQuery=q;currentPage=1;
   document.getElementById('gallery').innerHTML='';
   document.getElementById('loadMore').style.display='none';
-  const typeLabel={'image':'이미지','video':'동영상','music':'음악','sfx':'음향효과',}[currentMediaType]||'미디어';
+  const typeLabel={'image':'이미지','video':'동영상','music':'음악','sfx':'음향효과','illustration':'일러스트'}[currentMediaType]||'미디어';
   document.getElementById('galleryTitle').textContent='"'+q+'" '+typeLabel+' 검색 결과';
   fetchAll(q,1,true);
   window.scrollTo({top:document.querySelector('.gallery-section').offsetTop-120,behavior:'smooth'});
@@ -690,6 +696,8 @@ async function fetchAll(q,page,clear){
       const r=await fPixabayMusic(q,page,pp);items=r.p;hasMore=r.m;
     } else if(mt==='sfx'){
       const r=await fPixabaySfx(q,page,pp);items=r.p;hasMore=r.m;
+    } else if(mt==='illustration'){
+      const r=await fPixabayIllus(q,page,pp);items=r.p;hasMore=r.m;
     }
 
     document.getElementById('moreSpinner')?.remove();
@@ -720,7 +728,7 @@ function renderItems(items, append, mediaType){
   const offset = append ? (currentPhotos.length - items.length) : 0;
   items.forEach((item, i) => {
     const idx = offset + i;
-    if(item.kind==='image') renderPhotoCard(g, item, idx);
+    if(item.kind==='image' || item.kind==='illustration') renderPhotoCard(g, item, idx);
     else if(item.kind==='video') renderVideoCard(g, item, idx);
     else if(item.kind==='music' || item.kind==='sfx') renderAudioCard(g, item, idx);
   });
@@ -740,7 +748,13 @@ function renderPhotoCard(g, ph, idx){
   img.style.display = 'block';
   card.appendChild(img);
 
-
+  // 일러스트 뱃지
+  if(ph.kind==='illustration'){
+    const b = document.createElement('span');
+    b.className = 'illus-badge';
+    b.textContent = '일러스트';
+    card.appendChild(b);
+  }
 
   // 소스 뱃지
   const sb = document.createElement('span');
