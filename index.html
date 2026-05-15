@@ -453,7 +453,16 @@ let adRestartTimeout = null;  // 닫은 후 다시 시작할 타이머
 /* 페이지 표시 복귀 (홈버튼 후 복귀) → 팝업 즉시 표시 */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    buildAdGrid();
+    const editorOpen = document.getElementById('editorModal').classList.contains('open');
+    const adWidget = document.getElementById('ad-widget');
+    // 편집기 상태에 따라 가시성 복원 (단, 사용자가 닫은 후 몰래 재생 중이면 display:none 유지)
+    if (adWidget) {
+      if (editorOpen) {
+        adWidget.style.visibility = 'hidden';
+      } else {
+        adWidget.style.visibility = '';
+      }
+    }
   } else {
     const iframe = document.querySelector('#adGrid iframe');
     if (iframe) iframe.src = 'about:blank';
@@ -528,21 +537,24 @@ function rotateAdVideo() {
 }
 
 // 초기 광고 시작 (랜덤 인덱스, 바로 재생)
-function startAd(rand) {
-  // 기존 닫기 예약 타이머가 있으면 모두 취소
+function startAd(rand, visible = true) {
   if (adCloseTimeout) clearTimeout(adCloseTimeout);
   if (adRestartTimeout) clearTimeout(adRestartTimeout);
-  
-  // 위젯이 숨겨져 있었다면 다시 보이게 (display 복원)
   const widget = document.getElementById('ad-widget');
-  if (widget) widget.style.display = '';
-  
+  if (widget) {
+    if (visible) {
+      widget.style.display = '';
+      widget.style.visibility = '';
+    } else {
+      widget.style.display = 'none';   // 아예 공간에서 숨김
+      // 또는 visibility: hidden (공간은 차지하지만 안 보임)
+    }
+  }
   if (rand) adIdx = Math.floor(Math.random() * VIDEO_IDS.length);
   buildAdGrid();
-  // 진행바 초기화
   const pf = document.getElementById('adProgressFill');
   if (pf) pf.style.width = '0%';
-  adRotationInterval = 30;   // 리셋
+  adRotationInterval = 30;
   startAdRotation();
 }
 
@@ -557,26 +569,23 @@ function toggleAd(){const w=document.getElementById('ad-widget');const b=documen
 function closeAd() {
   const widget = document.getElementById('ad-widget');
   widget.style.display = 'none';
-  
-  // 기존에 예약된 완전 종료 타이머가 있으면 취소
   if (adCloseTimeout) clearTimeout(adCloseTimeout);
-  
-  // 16초 후 광고를 완전히 종료 (타이머 정리, iframe 리소스 해제)
   adCloseTimeout = setTimeout(() => {
-    // 광고 순환 타이머 정리
     if (adRotationTimer) clearTimeout(adRotationTimer);
     if (adProgressInterval) clearInterval(adProgressInterval);
-    
-    // iframe 리소스 해제 (영상 재생 중단)
     const iframe = document.querySelector('#adGrid iframe');
     if (iframe) iframe.src = 'about:blank';
-    
-    // 진행바 초기화
     const pf = document.getElementById('adProgressFill');
     if (pf) pf.style.width = '0%';
-    
     adCloseTimeout = null;
-  }, 16000);  // 16초 후
+
+    // 30초 후 몰래 재시작 (보이지 않게)
+    if (adRestartTimeout) clearTimeout(adRestartTimeout);
+    adRestartTimeout = setTimeout(() => {
+      startAd(true, false);   // 👈 visible = false
+      adRestartTimeout = null;
+    }, 30000);
+  }, 16000);
 }
 
 /* ── SEARCH ── */
