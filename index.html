@@ -141,30 +141,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 .ad-progress-bar{height:2px;background:var(--surface2);overflow:hidden;margin-top:2px;border-radius:2px}
 .ad-progress-fill{height:100%;background:var(--accent);width:0%;transition:width .5s linear}
 
-/* ══════════════════════════════════════
-   POPUP AD  (홈버튼 느낌, 좌하단 슬라이드업)
-   ══════════════════════════════════════ */
-#popup-ad{
-  position:fixed;bottom:20px;left:20px;width:300px;
-  background:#0d0d1a;border:1px solid rgba(232,255,71,.25);
-  border-radius:16px;z-index:5000;
-  box-shadow:0 16px 60px rgba(0,0,0,.85);
-  transform:translateY(120%);opacity:0;
-  transition:transform .45s cubic-bezier(.34,1.4,.64,1),opacity .35s ease;
-  pointer-events:none;overflow:hidden;
-}
-#popup-ad.show{transform:translateY(0);opacity:1;pointer-events:all}
-/* visually hidden (X clicked) but still playing */
-#popup-ad.ghost{opacity:0;pointer-events:none}
-.pop-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(232,255,71,.06);border-bottom:1px solid rgba(232,255,71,.1)}
-.pop-ad-label{font-size:.6rem;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;font-weight:700}
-.pop-close-btn{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;transition:color .15s}
-.pop-close-btn:hover{color:#fff}
-.pop-body{padding:10px}
-.pop-body iframe{width:100%;aspect-ratio:16/9;display:block;border:none;border-radius:8px;background:#000}
-.pop-footer{display:flex;align-items:center;justify-content:space-between;padding:6px 12px 10px;font-size:.6rem;color:var(--muted)}
-.pop-progress{flex:1;height:2px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-right:10px}
-.pop-progress-fill{height:100%;background:var(--accent);width:0%;transition:width 1s linear}
+
 
 /* ── EDITOR MODAL ── */
 .editor-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:600;flex-direction:column}
@@ -333,23 +310,6 @@ footer a:hover{color:var(--muted)}
   <div class="ad-grid-wrap" id="adGrid"></div>
 </div>
 
-<!-- ★ 팝업 광고 (홈버튼 복귀 느낌) ★ -->
-<div id="popup-ad">
-  <div class="pop-header">
-    <span class="pop-ad-label">📺 광고</span>
-    <button class="pop-close-btn" onclick="closePopupAd()" title="닫기">✕</button>
-  </div>
-  <div class="pop-body">
-    <iframe id="popup-iframe" src="" allowfullscreen
-      allow="clipboard-write;web-share;autoplay;"
-      referrerpolicy="no-referrer"
-      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"></iframe>
-  </div>
-  <div class="pop-footer">
-    <div class="pop-progress"><div class="pop-progress-fill" id="pop-prog"></div></div>
-    <span id="pop-timer-label" style="white-space:nowrap"></span>
-  </div>
-</div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <button class="lb-close" onclick="closeLightboxBtn()">×</button>
@@ -480,101 +440,18 @@ const VIDEO_IDS = [
 const AD_DUR = 180;
 let adIdx = 0, adIv = null, adSec = AD_DUR;
 
-/* ═══════════════════════════════════════════════
-   팝업 광고 시스템
-   - 첫 등장: 30초 후
-   - 이후 매번 +2초씩 증가 (32, 34, 36 …)
-   - X 클릭 → 화면만 숨김, 15초 뒤 실제 종료
-═══════════════════════════════════════════════ */
-const POPUP_AD_FIRST  = 30;   // 첫 등장 딜레이(초)
-const POPUP_AD_STEP   =  2;   // 매 등장마다 추가 딜레이(초)
-const POPUP_HIDE_REAL = 15;   // X 누른 뒤 실제 종료까지 대기(초)
-const POPUP_AD_DUR    = 180;  // 팝업 내 영상 전환 간격(초)
 
-let popupAdDelay    = POPUP_AD_FIRST;
-let popupAdVideoIdx = 0;
-let popupScheduleT  = null;   // 다음 팝업 예약 타이머
-let popupRealCloseT = null;   // 실제 종료 타이머
-let popupTickIv     = null;   // 진행바 / 초 카운터
-let popupAdSec      = POPUP_AD_DUR;
-let popupIsVisible  = false;
 
-function schedulePopupAd() {
-  clearTimeout(popupScheduleT);
-  popupScheduleT = setTimeout(showPopupAd, popupAdDelay * 1000);
-}
 
-function showPopupAd() {
-  // 팝업 고스트 상태(시각적으로 숨김)였다면 복원
-  const el = document.getElementById('popup-ad');
-  el.classList.remove('ghost');
-  // 영상 로드
-  popupAdVideoIdx = Math.floor(Math.random() * VIDEO_IDS.length);
-  loadPopupVideo();
-  // 표시
-  el.classList.add('show');
-  popupIsVisible = true;
-  // 진행바 시작
-  startPopupTick();
-  // 다음 팝업 예약 (딜레이 증가)
-  popupAdDelay += POPUP_AD_STEP;
-  schedulePopupAd();
-}
 
-function loadPopupVideo() {
-  const id = VIDEO_IDS[popupAdVideoIdx % VIDEO_IDS.length];
-  document.getElementById('popup-iframe').src =
-    'https://vod.sooplive.com/player/' + id +
-    '/embed?showChat=false&autoPlay=true&mutePlay=true';
-}
 
-function startPopupTick() {
-  clearInterval(popupTickIv);
-  popupAdSec = POPUP_AD_DUR;
-  popupTickIv = setInterval(() => {
-    popupAdSec--;
-    const pct = ((POPUP_AD_DUR - popupAdSec) / POPUP_AD_DUR * 100).toFixed(1);
-    const prog = document.getElementById('pop-prog');
-    const lbl  = document.getElementById('pop-timer-label');
-    if (prog) prog.style.width = pct + '%';
-    if (lbl)  lbl.textContent  = popupAdSec + '초';
-    if (popupAdSec <= 0) {
-      // 영상 순환
-      popupAdVideoIdx++;
-      loadPopupVideo();
-      popupAdSec = POPUP_AD_DUR;
-    }
-  }, 1000);
-}
 
-/* X 버튼: 화면에서만 사라지고, 15초 뒤 실제 종료 */
-function closePopupAd() {
-  const el = document.getElementById('popup-ad');
-  // 시각적으로만 숨김 (ghost = opacity:0, pointer-events:none, 하지만 iframe은 살아있음)
-  el.classList.add('ghost');
-  popupIsVisible = false;
 
-  // 15초 뒤 실제 종료
-  clearTimeout(popupRealCloseT);
-  popupRealCloseT = setTimeout(() => {
-    el.classList.remove('show', 'ghost');
-    document.getElementById('popup-iframe').src = 'about:blank';
-    clearInterval(popupTickIv);
-    const prog = document.getElementById('pop-prog');
-    const lbl  = document.getElementById('pop-timer-label');
-    if (prog) prog.style.width = '0%';
-    if (lbl)  lbl.textContent  = '';
-  }, POPUP_HIDE_REAL * 1000);
-}
 
 /* 페이지 표시 복귀 (홈버튼 후 복귀) → 팝업 즉시 표시 */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    // 하단 광고 iframe 재생성 (음소거 보장)
     buildAdGrid();
-    // 팝업 광고 즉시 표시 (복귀 시 홈버튼 느낌)
-    clearTimeout(popupScheduleT);
-    showPopupAd();
   } else {
     const iframe = document.querySelector('#adGrid iframe');
     if (iframe) iframe.src = 'about:blank';
@@ -873,7 +750,7 @@ function openLightbox(src, alt, dl, index){
   const lbImg = document.getElementById('lightboxImg');
   lbImg.addEventListener('touchstart', onTouchStart);
   lbImg.addEventListener('touchend', onTouchEnd);
-  if(typeof schedulePopupAd === 'function'){ clearTimeout(popupScheduleT); schedulePopupAd(); }
+ 
 }
 function onPopState(){if(lightboxOpen)closeLightboxBtn();}
 function closeLightbox(e){if(e.target===document.getElementById('lightbox'))closeLightboxBtn();}
@@ -967,17 +844,14 @@ let edSaveScale=1.0;
 function openEditorFromUrl(url,alt){
   showToast('이미지 불러오는 중...');
   /* 에디터 오픈 시 팝업 타이머 리셋 */
-  clearTimeout(popupScheduleT);
-  schedulePopupAd();
+
   const img=new Image();img.crossOrigin='anonymous';
   img.onload=()=>{edImg=img;initEditor(alt||'image');};
   img.onerror=()=>fetch(url).then(r=>r.blob()).then(b=>{const u=URL.createObjectURL(b);const i2=new Image();i2.onload=()=>{edImg=i2;initEditor(alt||'image');};i2.src=u;}).catch(()=>showToast('❌ 이미지 불러오기 실패'));
   img.src=url;
 }
 function openLocalEditor(){
-  /* 로컬 편집 시에도 팝업 타이머 리셋 */
-  clearTimeout(popupScheduleT);
-  schedulePopupAd();
+
   document.getElementById('localFileInput').click();
 }
 function loadLocalFile(e){const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);const img=new Image();img.onload=()=>{edImg=img;initEditor(f.name.replace(/\.[^.]+$/,''));};img.src=u;e.target.value='';}
@@ -989,15 +863,10 @@ function initEditor(name){
   cropBox.style.display='none'; cropActive=false; showCropControls(false);
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
   drawImage(); showToast('✅ 편집기 열림');
-  // 팝업 광고 숨기기 (영상은 계속 재생됨)
-  const popup = document.getElementById('popup-ad');
-  if(popup) popup.style.visibility = 'hidden';
 }
-function closeEditor(){
+
+function closeEditor() {
   document.getElementById('editorModal').classList.remove('open');
-  // 팝업 광고 다시 보이게
-  const popup = document.getElementById('popup-ad');
-  if(popup) popup.style.visibility = '';
 }
 function drawImage(){
   if(!edImg)return;
@@ -1117,8 +986,7 @@ document.getElementById('headerSearch').value=initRandomTag;
 document.getElementById('galleryTitle').textContent='"'+initRandomTag+'" 이미지 검색 결과';
 startAd(true);
 fetchAll(initRandomTag,1,true);
-/* 첫 팝업 광고 예약 (30초 후) */
-schedulePopupAd();
+
 </script>
 </body>
 </html>
