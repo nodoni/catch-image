@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9957606428071156"
-     crossorigin="anonymous"></script></head>
+<head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9957606428071156" crossorigin="anonymous"></script>
+</head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>캐치이미지 - 무료 고화질 이미지/영상 검색 | Catch Image</title>
@@ -226,6 +226,13 @@ footer a:hover{color:var(--muted)}
 .photo-overlay{pointer-events:none}
 .overlay-btns button{pointer-events:auto}
 .photo-card img{cursor:pointer}
+
+/* ── AdSense 광고 스타일 ── */
+.ad-display{max-width:1300px;margin:1.5rem auto 0;padding:0 2rem;min-height:90px}
+.ad-inarticle{max-width:900px;margin:2rem auto;padding:0 2rem;min-height:60px}
+.ad-infeed-card{break-inside:avoid;margin-bottom:14px;border-radius:var(--radius);overflow:hidden;background:var(--surface);border:1px solid var(--border);min-height:120px}
+.ad-infeed-card ins{display:block!important}
+@media(max-width:500px){.ad-display,.ad-inarticle{padding:0 1rem}}
 </style>
 </head>
 <body>
@@ -281,6 +288,16 @@ footer a:hover{color:var(--muted)}
   </div>
 </section>
 
+<div class="ad-display" aria-label="advertisement">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-9957606428071156"
+       data-ad-slot="4173360018"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+</div>
+
 <section class="gallery-section">
   <div class="gallery-header">
     <div class="gallery-title-text" id="galleryTitle">인기 이미지</div>
@@ -302,6 +319,16 @@ footer a:hover{color:var(--muted)}
   <div id="loadMore" class="load-more" style="display:none">
     <button onclick="loadMore()">더 보기 →</button>
   </div>
+
+<div class="ad-inarticle" aria-label="advertisement">
+  <ins class="adsbygoogle"
+       style="display:block;text-align:center;"
+       data-ad-layout="in-article"
+       data-ad-format="fluid"
+       data-ad-client="ca-pub-9957606428071156"
+       data-ad-slot="1072885038"></ins>
+  <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+</div>
 </section>
 
 <!-- 하단 고정 광고 위젯 -->
@@ -600,7 +627,12 @@ document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key===
 document.getElementById('headerSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('header');});
 function quickSearch(q){document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
 function doSearch(from){const q=(from==='header'?document.getElementById('headerSearch'):document.getElementById('heroSearch')).value.trim();if(!q)return;document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
-function reSearch(){currentSort=document.getElementById('sortOrder')?.value||'popular';if(currentQuery)startSearch(currentQuery);}
+function reSearch(){
+  currentSort = document.getElementById('sortOrder')?.value || 'popular';
+  currentPhotos = []; // 정렬 변경 시 반드시 초기화
+  currentPhotoIndex = -1;
+  if(currentQuery) startSearch(currentQuery);
+}
 function resetHome(){
   document.getElementById('heroSearch').value='';
   document.getElementById('headerSearch').value='';
@@ -617,6 +649,7 @@ function resetHome(){
 }
 function startSearch(q){
   currentQuery=q;currentPage=1;currentSort=document.getElementById('sortOrder')?.value||'popular';
+  currentPhotos = []; currentPhotoIndex = -1;
   document.getElementById('gallery').innerHTML='';
   document.getElementById('loadMore').style.display='none';
   const typeLabel={'image':'이미지','video':'동영상','music':'음악','sfx':'음향효과','illustration':'일러스트'}[currentMediaType]||'미디어';
@@ -718,10 +751,17 @@ async function fPixabayVid(q,page,pp){
 function renderItems(items, append, mediaType){
   const g = document.getElementById('gallery');
   if(!append) g.innerHTML = '';
-  // offset: append 시 currentPhotos 전체 기준 인덱스 계산
   const offset = append ? (currentPhotos.length - items.length) : 0;
   items.forEach((item, i) => {
     const idx = offset + i;
+    // 인피드 광고: 10번째 아이템마다 삽입 (idx 9, 19, 29...)
+    if(idx > 0 && idx % 10 === 9){
+      const adCard = document.createElement('div');
+      adCard.className = 'ad-infeed-card';
+      adCard.innerHTML = '<ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-6t+ed+2i-1n-4w" data-ad-client="ca-pub-9957606428071156" data-ad-slot="3133895997"></ins>';
+      g.appendChild(adCard);
+      try{ (window.adsbygoogle = window.adsbygoogle || []).push({}); }catch(e){}
+    }
     if(item.kind==='image' || item.kind==='illustration') renderPhotoCard(g, item, idx);
     else if(item.kind==='video') renderVideoCard(g, item, idx);
     else if(item.kind==='music' || item.kind==='sfx') renderAudioCard(g, item, idx);
