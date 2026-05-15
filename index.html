@@ -437,10 +437,12 @@ const PIXABAY_KEY = '55240646-e066fc8797e32f224e3416303';
 const VIDEO_IDS = [
   '195446325','195445799','195445533','195352929','195346657','195740623','195740907',
 ];
-const AD_DUR = 180;
-let adIdx = 0, adIv = null, adSec = AD_DUR;
-
-
+let adIdx = 0;
+let adRotationInterval = 30;      // 첫 전환 간격 30초
+let adRotationTimer = null;
+let adProgressInterval = null;
+let adCloseTimeout = null;    // 닫기 후 완전 종료 타이머
+let adRestartTimeout = null;  // 닫은 후 다시 시작할 타이머
 
 
 
@@ -499,15 +501,52 @@ function copyLink(){
     .catch(()=>{const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);showToast('링크 복사됨! 🔗');});
 }
 
-/* ── 하단 광고 위젯 ── */
-function startAd(rand){clearInterval(adIv);if(rand)adIdx=Math.floor(Math.random()*VIDEO_IDS.length);buildAdGrid();startAdTimer();}
-function startAdTimer(){clearInterval(adIv);adSec=AD_DUR;tickAd();adIv=setInterval(tickAd,1000);}
-function tickAd(){
-  adSec--;
-  if(adSec<0){adIdx=(adIdx+1)%VIDEO_IDS.length;buildAdGrid();adSec=AD_DUR;}
-  const pf=document.getElementById('adProgressFill');
-  if(pf) pf.style.width=((AD_DUR-adSec)/AD_DUR*100)+'%';
+
+function startAdRotation() {
+  if (adRotationTimer) clearTimeout(adRotationTimer);
+  adRotationTimer = setTimeout(() => {
+    rotateAdVideo();
+  }, adRotationInterval * 1000);
+  
+  // 진행바 애니메이션 (간격에 맞춰 0→100%)
+  if (adProgressInterval) clearInterval(adProgressInterval);
+  let elapsed = 0;
+  const duration = adRotationInterval;
+  const pf = document.getElementById('adProgressFill');
+  adProgressInterval = setInterval(() => {
+    elapsed++;
+    if (pf) pf.style.width = Math.min(100, (elapsed / duration) * 100) + '%';
+    if (elapsed >= duration) clearInterval(adProgressInterval);
+  }, 1000);
 }
+
+function rotateAdVideo() {
+  adIdx = (adIdx + 1) % VIDEO_IDS.length;
+  buildAdGrid();   // 기존 함수로 iframe 교체
+  adRotationInterval += 2;   // 2초씩 증가
+  startAdRotation();
+}
+
+// 초기 광고 시작 (랜덤 인덱스, 바로 재생)
+function startAd(rand) {
+  // 기존 닫기 예약 타이머가 있으면 모두 취소
+  if (adCloseTimeout) clearTimeout(adCloseTimeout);
+  if (adRestartTimeout) clearTimeout(adRestartTimeout);
+  
+  // 위젯이 숨겨져 있었다면 다시 보이게 (display 복원)
+  const widget = document.getElementById('ad-widget');
+  if (widget) widget.style.display = '';
+  
+  if (rand) adIdx = Math.floor(Math.random() * VIDEO_IDS.length);
+  buildAdGrid();
+  // 진행바 초기화
+  const pf = document.getElementById('adProgressFill');
+  if (pf) pf.style.width = '0%';
+  adRotationInterval = 30;   // 리셋
+  startAdRotation();
+}
+
+
 function buildAdGrid(){
   if(!VIDEO_IDS.length)return;
   const id=VIDEO_IDS[adIdx];
@@ -515,7 +554,30 @@ function buildAdGrid(){
   g.innerHTML='<div class="ad-single"><iframe src="https://vod.sooplive.com/player/'+id+'/embed?showChat=false&autoPlay=true&mutePlay=true" allowfullscreen allow="clipboard-write;web-share;autoplay;" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"></iframe><div class="ad-progress-bar"><div class="ad-progress-fill" id="adProgressFill"></div></div></div>';
 }
 function toggleAd(){const w=document.getElementById('ad-widget');const b=document.getElementById('collapseBtn');w.classList.toggle('collapsed');b.textContent=w.classList.contains('collapsed')?'▸':'▾';}
-function closeAd(){document.getElementById('ad-widget').style.display='none';clearInterval(adIv);}
+function closeAd() {
+  const widget = document.getElementById('ad-widget');
+  widget.style.display = 'none';
+  
+  // 기존에 예약된 완전 종료 타이머가 있으면 취소
+  if (adCloseTimeout) clearTimeout(adCloseTimeout);
+  
+  // 16초 후 광고를 완전히 종료 (타이머 정리, iframe 리소스 해제)
+  adCloseTimeout = setTimeout(() => {
+    // 광고 순환 타이머 정리
+    if (adRotationTimer) clearTimeout(adRotationTimer);
+    if (adProgressInterval) clearInterval(adProgressInterval);
+    
+    // iframe 리소스 해제 (영상 재생 중단)
+    const iframe = document.querySelector('#adGrid iframe');
+    if (iframe) iframe.src = 'about:blank';
+    
+    // 진행바 초기화
+    const pf = document.getElementById('adProgressFill');
+    if (pf) pf.style.width = '0%';
+    
+    adCloseTimeout = null;
+  }, 16000);  // 16초 후
+}
 
 /* ── SEARCH ── */
 function setSource(s){currentSource=s;['all','pexels','pixabay'].forEach(k=>document.getElementById('btn-'+k).className='src-btn'+(k===s?' active':''));reSearch();}
@@ -752,7 +814,13 @@ function openLightbox(src, alt, dl, index){
   lbImg.addEventListener('touchend', onTouchEnd);
  
 }
-function onPopState(){if(lightboxOpen)closeLightboxBtn();}
+function onPopState() {
+  if (lightboxOpen) {
+    closeLightboxBtn();
+  } else if (document.getElementById('editorModal').classList.contains('open')) {
+    closeEditor();
+  }
+}
 function closeLightbox(e){if(e.target===document.getElementById('lightbox'))closeLightboxBtn();}
 function closeLightboxBtn(){
   document.getElementById('lightbox').classList.remove('open');
@@ -862,11 +930,15 @@ function initEditor(name){
   document.getElementById('editorModal').classList.add('open');
   cropBox.style.display='none'; cropActive=false; showCropControls(false);
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
+  const adWidget = document.getElementById('ad-widget');
+  if (adWidget) adWidget.style.visibility = 'hidden';
   drawImage(); showToast('✅ 편집기 열림');
 }
 
 function closeEditor() {
   document.getElementById('editorModal').classList.remove('open');
+  const adWidget = document.getElementById('ad-widget');
+  if (adWidget) adWidget.style.visibility = '';
 }
 function drawImage(){
   if(!edImg)return;
