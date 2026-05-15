@@ -242,11 +242,29 @@ footer a:hover{color:var(--muted)}
 .photo-card img{cursor:pointer}
 
 /* ── AdSense 광고 스타일 ── */
-.ad-display{max-width:1300px;margin:1.5rem auto 0;padding:0 2rem;min-height:90px}
-.ad-inarticle{max-width:900px;margin:2rem auto;padding:0 2rem;min-height:60px}
-.ad-infeed-card{break-inside:avoid;margin-bottom:14px;border-radius:var(--radius);overflow:hidden;background:var(--surface);border:1px solid var(--border);min-height:120px}
-.ad-infeed-card ins{display:block!important}
-@media(max-width:500px){.ad-display,.ad-inarticle{padding:0 1rem}}
+/* 페이지 전체 래퍼 */
+.page-layout{display:flex;gap:0;align-items:flex-start;min-height:100vh}
+.sidebar-ad{width:160px;flex-shrink:0;position:sticky;top:80px;padding:10px 8px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.sidebar-ad-left{left:0}
+.sidebar-ad-right{right:0}
+.sidebar-ad ins{display:block!important;width:160px}
+.main-content{flex:1;min-width:0;overflow:hidden}
+/* 헤더 아래 가로 배너 (hero 위) */
+.ad-top-banner{max-width:900px;margin:0.8rem auto;padding:0 1rem;min-height:60px;text-align:center}
+.ad-top-banner ins{display:block!important}
+/* 더보기 아래 배너 */
+.ad-bottom-banner{max-width:900px;margin:1.5rem auto;padding:0 1rem;min-height:90px}
+.ad-bottom-banner ins{display:block!important}
+/* 사이드바 없을 때 (좁은 화면) */
+@media(max-width:1400px){
+  .sidebar-ad{width:120px}
+  .sidebar-ad ins{width:120px!important}
+}
+@media(max-width:1100px){
+  .sidebar-ad{display:none} /* 태블릿/모바일: 사이드바 숨김 */
+  .page-layout{display:block}
+  .ad-top-banner,.ad-bottom-banner{max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -266,6 +284,35 @@ footer a:hover{color:var(--muted)}
     <button class="src-btn"        id="btn-pixabay" onclick="setSource('pixabay')">Pixabay</button>
   </div>
 </header>
+
+<!-- 페이지 레이아웃: 사이드바 + 중앙 콘텐츠 -->
+<div class="page-layout">
+
+  <!-- 왼쪽 사이드바 광고 (CI 1 - 디스플레이) -->
+  <aside class="sidebar-ad sidebar-ad-left">
+    <ins class="adsbygoogle"
+         style="display:block;width:160px;height:600px"
+         data-ad-client="ca-pub-9957606428071156"
+         data-ad-slot="4173360018"
+         data-ad-format="auto"
+         data-full-width-responsive="false"></ins>
+    <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+  </aside>
+
+  <!-- 중앙 콘텐츠 -->
+  <div class="main-content">
+
+    <!-- 히어로 상단 가로 배너 (CI 3 - 인아티클) -->
+    <div class="ad-top-banner">
+      <ins class="adsbygoogle"
+           style="display:block;text-align:center;"
+           data-ad-layout="in-article"
+           data-ad-format="fluid"
+           data-ad-client="ca-pub-9957606428071156"
+           data-ad-slot="1072885038"></ins>
+      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+    </div>
+
 
 <!-- 미디어 타입 탭 -->
 <div class="media-type-bar">
@@ -296,17 +343,6 @@ footer a:hover{color:var(--muted)}
     <span class="tag" onclick="quickSearch('flower')">🌸 꽃</span>
   </div>
 </section>
-
-<div class="ad-display" aria-label="advertisement">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-9957606428071156"
-       data-ad-slot="4173360018"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-  <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
-</div>
-
 <section class="gallery-section">
   <div class="gallery-header">
     <div class="gallery-title-text" id="galleryTitle">인기 이미지</div>
@@ -328,16 +364,6 @@ footer a:hover{color:var(--muted)}
   <div id="loadMore" class="load-more" style="display:none">
     <button onclick="loadMore()">더 보기 →</button>
   </div>
-
-<div class="ad-inarticle" aria-label="advertisement">
-  <ins class="adsbygoogle"
-       style="display:block;text-align:center;"
-       data-ad-layout="in-article"
-       data-ad-format="fluid"
-       data-ad-client="ca-pub-9957606428071156"
-       data-ad-slot="1072885038"></ins>
-  <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
-</div>
 </section>
 
 <!-- 하단 고정 광고 위젯 -->
@@ -472,6 +498,32 @@ footer a:hover{color:var(--muted)}
   </div>
   <div class="footer-copy">© 2025 Catch Image · 무료 미디어 검색 서비스</div>
 </footer>
+
+    <!-- 더보기 아래 가로 배너 (CI 2 - 인피드) -->
+    <div class="ad-bottom-banner">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-format="fluid"
+           data-ad-layout-key="-6t+ed+2i-1n-4w"
+           data-ad-client="ca-pub-9957606428071156"
+           data-ad-slot="3133895997"></ins>
+      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+    </div>
+
+  </div><!-- /main-content -->
+
+  <!-- 오른쪽 사이드바 광고 -->
+  <aside class="sidebar-ad sidebar-ad-right">
+    <ins class="adsbygoogle"
+         style="display:block;width:160px;height:600px"
+         data-ad-client="ca-pub-9957606428071156"
+         data-ad-slot="4173360018"
+         data-ad-format="auto"
+         data-full-width-responsive="false"></ins>
+    <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+  </aside>
+
+</div><!-- /page-layout -->
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -777,14 +829,7 @@ function renderItems(items, append, mediaType){
   const offset = append ? (currentPhotos.length - items.length) : 0;
   items.forEach((item, i) => {
     const idx = offset + i;
-    // 인피드 광고: 10번째 아이템마다 삽입 (idx 9, 19, 29...)
-    if(idx > 0 && idx % 10 === 9){
-      const adCard = document.createElement('div');
-      adCard.className = 'ad-infeed-card';
-      adCard.innerHTML = '<ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-6t+ed+2i-1n-4w" data-ad-client="ca-pub-9957606428071156" data-ad-slot="3133895997"></ins>';
-      g.appendChild(adCard);
-      try{ (window.adsbygoogle = window.adsbygoogle || []).push({}); }catch(e){}
-    }
+
     if(item.kind==='image' || item.kind==='illustration') renderPhotoCard(g, item, idx);
     else if(item.kind==='video') renderVideoCard(g, item, idx);
     else if(item.kind==='music' || item.kind==='sfx') renderAudioCard(g, item, idx);
