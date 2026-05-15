@@ -704,7 +704,7 @@ async function fetchAll(q,page,clear){
     document.getElementById('moreSpinner')?.remove();
     if(!items.length){st.textContent='"'+q+'" 검색 결과가 없습니다.';st.style.display='block';isLoading=false;return;}
     st.style.display='none';
-    if(clear){currentPhotos=[...items];renderItems(shuffleArray([...items]),false,mt);}
+    if(clear){currentPhotos=[...items];renderItems(currentPhotos,false,mt);}
     else{currentPhotos.push(...items);renderItems(items,true,mt);}
     if(hasMore)lm.style.display='flex';
   }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
@@ -738,13 +738,13 @@ function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Ma
 function renderItems(items,append,mediaType){
   const g=document.getElementById('gallery');
   if(!append)g.innerHTML='';
-  // offset: 이미 currentPhotos에 push된 이전 아이템 수 기준으로 인덱스 계산
+  // append 시 이전 아이템 수를 offset으로 더해서 currentPhotos 전체 기준 idx 유지
   const offset = append ? (currentPhotos.length - items.length) : 0;
   items.forEach((item,i)=>{
-    const globalIdx = offset + i;
-    if(item.kind==='image'||item.kind==='gif'||item.kind==='illustration') renderPhotoCard(g,item,globalIdx);
-    else if(item.kind==='video') renderVideoCard(g,item,globalIdx);
-    else if(item.kind==='music'||item.kind==='sfx') renderAudioCard(g,item,globalIdx);
+    const idx = offset + i;
+    if(item.kind==='image'||item.kind==='gif'||item.kind==='illustration') renderPhotoCard(g,item,idx);
+    else if(item.kind==='video') renderVideoCard(g,item,idx);
+    else if(item.kind==='music'||item.kind==='sfx') renderAudioCard(g,item,idx);
   });
 }
 
@@ -769,7 +769,7 @@ function renderPhotoCard(g,ph,idx){
   c.querySelector('.ov-view').addEventListener('click',e=>{e.stopPropagation();openLightbox(ph.or,alt,ph.dl,idx);});
   if(ph.kind==='image')c.querySelector('.ov-edit').addEventListener('click',e=>{e.stopPropagation();openEditorFromUrl(ph.or,alt);});
   c.querySelector('.ov-dl').addEventListener('click',e=>{e.stopPropagation();directDownload(ph.dl,alt);});
-  // 카드 전체 클릭 제거 (img + ov-btn이 각각 처리하므로 중복 방지)
+  // 카드 전체 클릭 제거 (img 클릭과 중복 방지)
   g.appendChild(c);
 }
 
@@ -835,11 +835,11 @@ function renderAudioCard(g,track,idx){
 
 /* ── LIGHTBOX ── */
 function openLightbox(src,alt,dl,index){
-  if(index!==undefined && index>=0 && index<currentPhotos.length){
+  // index가 유효하면 그대로 사용, 아니면 src로 검색
+  if(typeof index==='number' && index>=0 && index<currentPhotos.length){
     currentPhotoIndex=index;
   } else {
-    // fallback: src로 찾기 (or 또는 th 중 일치하는 것)
-    let found=currentPhotos.findIndex(p=>p.or===src||p.th===src);
+    const found=currentPhotos.findIndex(p=>p.or===src||p.th===src);
     currentPhotoIndex=found>=0?found:0;
   }
   updateLightboxImage();
@@ -877,7 +877,7 @@ function updateLightboxImage(){
     document.getElementById('lbDlBtn').onclick=()=>directDownload(photo.dl,photo.alt);
     document.getElementById('lbEditBtn').onclick=()=>{closeLightboxBtn();openEditorFromUrl(photo.or,photo.alt);};
   };
-  newImg.src=photo.or||photo.th||'';  // .or 없으면 썸네일로 fallback
+  newImg.src=photo.or||photo.th||'';
   preloadAdjacent();
 }
 function preloadAdjacent(){
