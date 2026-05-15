@@ -70,7 +70,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 
 
 /* 로고 기본 색상 */
-.logo-catch,.logo-image{color:#e8ff47}
+.logo-catch,.logo-image{color:var(--accent)}
 
 /* ── 로고 이펙트: 빛줄기 스윕 ── */
 .logo{overflow:hidden}
@@ -142,8 +142,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
   transition:max-height .35s ease,opacity .3s ease,margin .3s ease;
   max-height:200px;overflow:hidden;opacity:1;
 }
-.hero-logo-catch{color:#f0f0ff}
-.hero-logo-img{color:#e8ff47}
+.hero-logo-catch{color:var(--accent)}
+.hero-logo-img{color:var(--accent)}
 .hero-desc{color:var(--muted);font-size:.82rem;letter-spacing:.03em;margin-bottom:1rem;line-height:1.6;max-width:560px;margin-left:auto;margin-right:auto;
   transition:max-height .35s ease,opacity .3s ease,margin .3s ease;
   overflow:hidden;max-height:80px;opacity:1}
@@ -177,7 +177,7 @@ body.searched .gallery-section{margin-top:.3rem}
 
 
 
-.hero-search{display:flex;gap:10px;max-width:560px;margin:0 auto;background:var(--surface);border:1px solid rgba(232,255,71,.18);border-radius:14px;padding:8px 8px 8px 22px}
+.hero-search{display:flex;gap:10px;max-width:560px;margin:0 auto;background:var(--surface);border:1px solid var(--accent-soft);border-radius:14px;padding:8px 8px 8px 22px}
 .hero-search input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:1rem;font-family:'Noto Sans KR',sans-serif}
 .hero-search input::placeholder{color:var(--muted)}
 .hero-search button{background:var(--accent);border:none;color:#080810;padding:10px 26px;border-radius:10px;font-weight:700;font-size:.95rem;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:opacity .15s,transform .1s}
@@ -266,12 +266,12 @@ body.searched .gallery-section{margin-top:.3rem}
 
 /* ── BOTTOM-LEFT AD WIDGET ── */
 #ad-widget{position:fixed;bottom:20px;left:20px;width:260px;z-index:200;border-radius:var(--radius);filter:drop-shadow(0 8px 32px rgba(0,0,0,.7))}
-#ad-widget .ad-header{display:flex;align-items:center;justify-content:space-between;background:#0e0e1e;border:1px solid var(--border);border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:5px 10px}
+#ad-widget .ad-header{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:5px 10px}
 .ad-label{font-size:.6rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
 .ad-controls{display:flex;align-items:center;gap:6px}
 .ad-toggle{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:2px 5px;border-radius:4px;transition:color .15s,background .15s;line-height:1}
 .ad-toggle:hover{color:var(--text);background:var(--surface2)}
-.ad-grid-wrap{background:#0e0e1e;border:1px solid var(--border);border-top:1px solid rgba(255,255,255,.04);border-radius:0 0 var(--radius) var(--radius);padding:8px}
+.ad-grid-wrap{background:var(--surface2);border:1px solid var(--border);border-top:1px solid rgba(255,255,255,.04);border-radius:0 0 var(--radius) var(--radius);padding:8px}
 #ad-widget.collapsed .ad-grid-wrap{display:none}
 .ad-single{border-radius:8px;overflow:hidden;background:var(--surface2);border:1px solid var(--border);position:relative}
 .ad-single iframe{width:100%;aspect-ratio:16/9;display:block;border:none}
@@ -324,7 +324,7 @@ body.searched .gallery-section{margin-top:.3rem}
 .angle-input-row{display:flex;gap:6px;align-items:center}
 .angle-input-row input{flex:2;min-width:0;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:7px;font-size:.8rem;outline:none}
 .angle-apply-btn{flex:1;margin:0;justify-content:center;white-space:nowrap;padding:7px 10px}
-.mobile-preview-notice{display:none;background:rgba(232,255,71,.1);border-left:3px solid var(--accent);padding:8px 10px;border-radius:6px;font-size:.65rem;color:var(--accent);margin-bottom:1rem;text-align:center;line-height:1.4}
+.mobile-preview-notice{display:none;background:var(--accent-soft);border-left:3px solid var(--accent);padding:8px 10px;border-radius:6px;font-size:.65rem;color:var(--accent);margin-bottom:1rem;text-align:center;line-height:1.4}
 @media(max-width:768px){
   .editor-sidebar{width:150px;padding:.5rem}
   .ed-section{margin-bottom:1rem}
@@ -403,7 +403,7 @@ footer a:hover{color:var(--muted)}
   <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
     <button class="hdr-btn main" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
     <div class="mobile-btn-group" style="display:flex;gap:8px">
-      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙 다크모드</button>
+      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙</button>
     </div>
     <div class="source-toggle" id="sourceToggle">
       <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
@@ -1405,11 +1405,32 @@ function applySharpness(c,w,h,amt){try{const d=c.getImageData(0,0,w,h),px=d.data
 function toggleTheme(){
   const root=document.documentElement;
   const isDark=getComputedStyle(root).getPropertyValue('--bg').trim()==='#080810';
-  if(isDark){root.style.setProperty('--bg','#f5f5f7');root.style.setProperty('--surface','#ffffff');root.style.setProperty('--surface2','#f0f0f0');root.style.setProperty('--border','rgba(0,0,0,.1)');root.style.setProperty('--text','#111111');root.style.setProperty('--muted','#666666');root.style.setProperty('--accent','#f97316');localStorage.setItem('theme','light');document.getElementById('themeToggleBtn').innerHTML='☀️';}
-  else{root.style.setProperty('--bg','#080810');root.style.setProperty('--surface','#10101c');root.style.setProperty('--surface2','#18182a');root.style.setProperty('--border','rgba(255,255,255,.06)');root.style.setProperty('--text','#f0f0ff');root.style.setProperty('--muted','#6b6b88');root.style.setProperty('--accent','#e8ff47');localStorage.setItem('theme','dark');document.getElementById('themeToggleBtn').innerHTML='🌙';}
+  if(isDark){
+    // 다크모드 → 라이트모드
+    root.style.setProperty('--bg','#f5f5f7');
+    root.style.setProperty('--surface','#ffffff');
+    root.style.setProperty('--surface2','#f0f0f0');
+    root.style.setProperty('--border','rgba(0,0,0,.1)');
+    root.style.setProperty('--text','#111111');
+    root.style.setProperty('--muted','#666666');
+    root.style.setProperty('--accent','#f97316');
+    root.style.setProperty('--accent-soft', 'rgba(249,115,22,0.18)');  // 주황 투명
+    localStorage.setItem('theme','light');
+    document.getElementById('themeToggleBtn').innerHTML='☀️';
+  } else {
+    // 라이트모드 → 다크모드
+    root.style.setProperty('--bg','#080810');
+    root.style.setProperty('--surface','#10101c');
+    root.style.setProperty('--surface2','#18182a');
+    root.style.setProperty('--border','rgba(255,255,255,.06)');
+    root.style.setProperty('--text','#f0f0ff');
+    root.style.setProperty('--muted','#6b6b88');
+    root.style.setProperty('--accent','#e8ff47');
+    root.style.setProperty('--accent-soft', 'rgba(232,255,71,0.18)'); // 노랑 투명
+    localStorage.setItem('theme','dark');
+    document.getElementById('themeToggleBtn').innerHTML='🌙';
+  }
 }
-function loadTheme(){if(localStorage.getItem('theme')==='light')toggleTheme();}
-document.addEventListener('DOMContentLoaded',loadTheme);
 
 /* ── TOAST ── */
 let toastT;
