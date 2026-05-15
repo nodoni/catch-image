@@ -283,7 +283,12 @@ footer a:hover{color:var(--muted)}
 <section class="gallery-section">
   <div class="gallery-header">
     <div class="gallery-title-text" id="galleryTitle">인기 이미지</div>
-    <div class="gallery-controls">
+    <div class="gallery-controls" style="display:flex;gap:8px;align-items:center">
+      <select id="sortOrder" onchange="reSearch()">
+        <option value="random">🔀 랜덤</option>
+        <option value="latest">🕐 최신순</option>
+        <option value="popular" selected>🔥 인기순</option>
+      </select>
       <select id="perPage" onchange="reSearch()">
         <option value="15">15개</option>
         <option value="30" selected>30개</option>
@@ -500,7 +505,7 @@ function setMediaType(type) {
    SEARCH STATE
 ═══════════════════════════════════════════════ */
 const randomTags = ['food','nature','city','ocean','mountain','animal','technology','travel','flower','architecture'];
-let currentQuery = 'food', currentPage = 1, isLoading = false, currentSource = 'all';
+let currentQuery = 'food', currentPage = 1, isLoading = false, currentSource = 'all', currentSort = 'popular';
 let currentPhotos = [], currentPhotoIndex = -1, lightboxOpen = false, touchStartX = 0;
 
 function copyLink(){
@@ -594,7 +599,7 @@ document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key===
 document.getElementById('headerSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('header');});
 function quickSearch(q){document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
 function doSearch(from){const q=(from==='header'?document.getElementById('headerSearch'):document.getElementById('heroSearch')).value.trim();if(!q)return;document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
-function reSearch(){if(currentQuery)startSearch(currentQuery);}
+function reSearch(){currentSort=document.getElementById('sortOrder')?.value||'popular';if(currentQuery)startSearch(currentQuery);}
 function resetHome(){
   document.getElementById('heroSearch').value='';
   document.getElementById('headerSearch').value='';
@@ -610,7 +615,7 @@ function resetHome(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function startSearch(q){
-  currentQuery=q;currentPage=1;
+  currentQuery=q;currentPage=1;currentSort=document.getElementById('sortOrder')?.value||'popular';
   document.getElementById('gallery').innerHTML='';
   document.getElementById('loadMore').style.display='none';
   const typeLabel={'image':'이미지','video':'동영상','music':'음악','sfx':'음향효과','illustration':'일러스트'}[currentMediaType]||'미디어';
@@ -618,7 +623,10 @@ function startSearch(q){
   fetchAll(q,1,true);
   window.scrollTo({top:document.querySelector('.gallery-section').offsetTop-120,behavior:'smooth'});
 }
-function loadMore(){currentPage++;fetchAll(currentQuery,currentPage,false);}
+function loadMore(){
+  if(currentSort==='random'){fetchAll(currentQuery,1,false);}
+  else{currentPage++;fetchAll(currentQuery,currentPage,false);}
+}
 
 /* ── 통합 Fetch ── */
 async function fetchAll(q,page,clear){
@@ -652,18 +660,56 @@ async function fetchAll(q,page,clear){
     st.style.display='none';
     if(clear){currentPhotos=[...items];renderItems(currentPhotos,false,mt);}
     else{currentPhotos.push(...items);renderItems(items,true,mt);}
-    if(hasMore)lm.style.display='flex';
+    if(hasMore||currentSort==='random'){
+      lm.style.display='flex';
+      lm.querySelector('button').textContent=currentSort==='random'?'🔀 더 불러오기':'더 보기 →';
+    }
   }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
   isLoading=false;
 }
 
 /* ── API: 이미지 ── */
-async function fPexelsImg(q,page,pp){const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page,{headers:{Authorization:PEXELS_KEY}});if(!r.ok)throw new Error('Pexels '+r.status);const d=await r.json();return{p:(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q})),m:d.total_results>page*pp};}
-async function fPixabayImg(q,page,pp){const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&image_type=photo&safesearch=true');if(!r.ok)throw new Error('Pixabay '+r.status);const d=await r.json();return{p:(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q})),m:d.totalHits>page*pp};}
+async function fPexelsImg(q,page,pp){
+  // Pexels: 정렬 파라미터 없음 → 랜덤은 랜덤 페이지, 최신/인기는 일반 검색
+  const actualPage = currentSort==='random' ? Math.floor(Math.random()*20)+1 : page;
+  const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+  if(!r.ok)throw new Error('Pexels '+r.status);
+  const d=await r.json();
+  let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
+  if(currentSort==='random')photos=photos.sort(()=>Math.random()-.5);
+  return{p:photos,m:currentSort==='random'?false:d.total_results>page*pp};
+}
+async function fPixabayImg(q,page,pp){
+  const order=currentSort==='latest'?'latest':'popular';
+  const actualPage=currentSort==='random'?Math.floor(Math.random()*20)+1:page;
+  const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
+  if(!r.ok)throw new Error('Pixabay '+r.status);
+  const d=await r.json();
+  let photos=(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
+  if(currentSort==='random')photos=photos.sort(()=>Math.random()-.5);
+  return{p:photos,m:currentSort==='random'?false:d.totalHits>page*pp};
+}
 
 /* ── API: 동영상 ── */
-async function fPexelsVid(q,page,pp){const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page,{headers:{Authorization:PEXELS_KEY}});if(!r.ok)throw new Error('Pexels Video '+r.status);const d=await r.json();return{p:(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};}),m:d.total_results>page*pp};}
-async function fPixabayVid(q,page,pp){const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&safesearch=true');if(!r.ok)throw new Error('Pixabay Video '+r.status);const d=await r.json();return{p:(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};}),m:d.totalHits>page*pp};}
+async function fPexelsVid(q,page,pp){
+  const actualPage=currentSort==='random'?Math.floor(Math.random()*10)+1:page;
+  const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+  if(!r.ok)throw new Error('Pexels Video '+r.status);
+  const d=await r.json();
+  let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
+  if(currentSort==='random')vids=vids.sort(()=>Math.random()-.5);
+  return{p:vids,m:currentSort==='random'?false:d.total_results>page*pp};
+}
+async function fPixabayVid(q,page,pp){
+  const order=currentSort==='latest'?'latest':'popular';
+  const actualPage=currentSort==='random'?Math.floor(Math.random()*10)+1:page;
+  const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&safesearch=true&order='+order);
+  if(!r.ok)throw new Error('Pixabay Video '+r.status);
+  const d=await r.json();
+  let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
+  if(currentSort==='random')vids=vids.sort(()=>Math.random()-.5);
+  return{p:vids,m:currentSort==='random'?false:d.totalHits>page*pp};
+}
 
 /* ── API: GIF ── */
 // fPixabayGif removed
