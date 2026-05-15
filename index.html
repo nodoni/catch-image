@@ -734,32 +734,66 @@ function renderItems(items, append, mediaType){
   });
 }
 
-function renderPhotoCard(g,ph,idx){
-  const c=document.createElement('div');
-  c.className='photo-card';
-  const alt=(ph.alt||'').replace(/"/g,'').replace(/'/g,'');
-  const badgeHtml=ph.kind==='illustration'?'<span class="illus-badge">일러스트</span>':'';
-  c.innerHTML=`
-    <img src="${ph.th}" alt="${alt}" loading="lazy" style="cursor:pointer">
-    ${badgeHtml}
-    <span class="source-badge badge-${ph.s}">${ph.s==='pexels'?'Pexels':'Pixabay'}</span>
-    <div class="photo-overlay">
-      <span class="photographer">📷 ${ph.ph}</span>
-      <div class="overlay-btns">
-        ${ph.kind==='image'?'<button class="ov-btn ov-edit">✏️ 편집</button>':''}
-        <button class="ov-btn ov-dl">⬇ 저장</button>
-      </div>
-    </div>`;
-  // 이미지 클릭/터치 → 바로 크게보기
-  const imgEl = c.querySelector('img');
-  imgEl.addEventListener('click', e=>{e.stopPropagation(); openLightbox(ph.or,alt,ph.dl,idx);});
-  imgEl.addEventListener('touchend', e=>{
-    e.preventDefault();
-    openLightbox(ph.or,alt,ph.dl,idx);
-  }, {passive:false});
-  if(ph.kind==='image') c.querySelector('.ov-edit').addEventListener('click',e=>{e.stopPropagation();openEditorFromUrl(ph.or,alt);});
-  c.querySelector('.ov-dl').addEventListener('click',e=>{e.stopPropagation();directDownload(ph.dl,alt);});
-  g.appendChild(c);
+function renderPhotoCard(g, ph, idx){
+  const card = document.createElement('div');
+  card.className = 'photo-card';
+
+  // 이미지
+  const img = document.createElement('img');
+  img.src = ph.th;
+  img.alt = (ph.alt||'').replace(/"/g,'').replace(/'/g,'');
+  img.loading = 'lazy';
+  img.style.cursor = 'pointer';
+  img.style.width = '100%';
+  img.style.display = 'block';
+  card.appendChild(img);
+
+  // 일러스트 뱃지
+  if(ph.kind==='illustration'){
+    const b = document.createElement('span');
+    b.className = 'illus-badge';
+    b.textContent = '일러스트';
+    card.appendChild(b);
+  }
+
+  // 소스 뱃지
+  const sb = document.createElement('span');
+  sb.className = 'source-badge badge-' + ph.s;
+  sb.textContent = ph.s==='pexels'?'Pexels':'Pixabay';
+  card.appendChild(sb);
+
+  // 오버레이 (편집 + 저장)
+  const overlay = document.createElement('div');
+  overlay.className = 'photo-overlay';
+  const phName = document.createElement('span');
+  phName.className = 'photographer';
+  phName.textContent = '📷 ' + ph.ph;
+  overlay.appendChild(phName);
+  const btns = document.createElement('div');
+  btns.className = 'overlay-btns';
+  if(ph.kind==='image'){
+    const editBtn = document.createElement('button');
+    editBtn.className = 'ov-btn ov-edit';
+    editBtn.textContent = '✏️ 편집';
+    editBtn.addEventListener('click', e=>{ e.stopPropagation(); openEditorFromUrl(ph.or, ph.alt||''); });
+    btns.appendChild(editBtn);
+  }
+  const dlBtn = document.createElement('button');
+  dlBtn.className = 'ov-btn ov-dl';
+  dlBtn.textContent = '⬇ 저장';
+  dlBtn.addEventListener('click', e=>{ e.stopPropagation(); directDownload(ph.dl, ph.alt||''); });
+  btns.appendChild(dlBtn);
+  overlay.appendChild(btns);
+  card.appendChild(overlay);
+
+  // ── 클릭/터치 → 라이트박스 바로 열기 ──
+  function openThis(e){ e.stopPropagation(); openLightbox(ph.or, ph.alt||'', ph.dl, idx); }
+  img.addEventListener('click', openThis);
+  img.addEventListener('touchend', e=>{ e.preventDefault(); openThis(e); }, {passive:false});
+  // 카드 전체도 (오버레이 버튼 제외)
+  card.addEventListener('click', e=>{ if(!e.target.closest('.ov-btn')) openThis(e); });
+
+  g.appendChild(card);
 }
 
 function renderVideoCard(g,vid,idx){
@@ -823,20 +857,24 @@ function renderAudioCard(g,track,idx){
 }
 
 /* ── LIGHTBOX ── */
-function openLightbox(src,alt,dl,index){
-  currentPhotoIndex=index!==undefined?index:currentPhotos.findIndex(p=>p.or===src);
-  if(currentPhotoIndex===-1&&currentPhotos.length)currentPhotoIndex=0;
+function openLightbox(src, alt, dl, index){
+  // index 우선 사용, 유효하지 않으면 src로 검색
+  if(typeof index === 'number' && index >= 0 && index < currentPhotos.length){
+    currentPhotoIndex = index;
+  } else {
+    const found = currentPhotos.findIndex(p => p.or===src || p.th===src);
+    currentPhotoIndex = found >= 0 ? found : 0;
+  }
   updateLightboxImage();
-  document.getElementById('lightbox').classList.add('open');
-  lightboxOpen=true;
-  history.pushState({lightbox:true},'');
-  window.addEventListener('popstate',onPopState);
-  const lbImg=document.getElementById('lightboxImg');
-  lbImg.addEventListener('touchstart',onTouchStart);
-  lbImg.addEventListener('touchend',onTouchEnd);
-  /* 이미지 관람 시작 → 팝업 타이머 리셋 (30초 후 등장) */
-  clearTimeout(popupScheduleT);
-  schedulePopupAd();
+  const lb = document.getElementById('lightbox');
+  lb.classList.add('open');
+  lightboxOpen = true;
+  history.pushState({lightbox:true}, '');
+  window.addEventListener('popstate', onPopState);
+  const lbImg = document.getElementById('lightboxImg');
+  lbImg.addEventListener('touchstart', onTouchStart);
+  lbImg.addEventListener('touchend', onTouchEnd);
+  if(typeof schedulePopupAd === 'function'){ clearTimeout(popupScheduleT); schedulePopupAd(); }
 }
 function onPopState(){if(lightboxOpen)closeLightboxBtn();}
 function closeLightbox(e){if(e.target===document.getElementById('lightbox'))closeLightboxBtn();}
@@ -849,19 +887,38 @@ function closeLightboxBtn(){
   lbImg.removeEventListener('touchend',onTouchEnd);
 }
 function updateLightboxImage(){
-  if(currentPhotoIndex<0||currentPhotoIndex>=currentPhotos.length)return;
-  const photo=currentPhotos[currentPhotoIndex];
-  if(!photo)return;
-  const img=document.getElementById('lightboxImg');
-  const spinner=document.getElementById('lightboxSpinner');
-  spinner.classList.add('show');img.classList.add('loading');
-  const newImg=new Image();
-  newImg.onload=()=>{
-    img.src=newImg.src;img.alt=photo.alt||'';img.classList.remove('loading');spinner.classList.remove('show');
-    document.getElementById('lbDlBtn').onclick=()=>directDownload(photo.dl,photo.alt);
-    document.getElementById('lbEditBtn').onclick=()=>{closeLightboxBtn();openEditorFromUrl(photo.or,photo.alt);};
+  if(currentPhotoIndex < 0 || currentPhotoIndex >= currentPhotos.length) return;
+  const photo = currentPhotos[currentPhotoIndex];
+  if(!photo) return;
+  const img = document.getElementById('lightboxImg');
+  const spinner = document.getElementById('lightboxSpinner');
+  if(spinner) spinner.classList.add('show');
+  img.classList.add('loading');
+
+  const url = photo.or || photo.th || '';
+  if(!url){ console.warn('no url for photo:', photo); return; }
+
+  const newImg = new Image();
+  newImg.onload = () => {
+    img.src = newImg.src;
+    img.alt = photo.alt || '';
+    img.classList.remove('loading');
+    if(spinner) spinner.classList.remove('show');
+    const dlBtn = document.getElementById('lbDlBtn');
+    const editBtn = document.getElementById('lbEditBtn');
+    if(dlBtn) dlBtn.onclick = () => directDownload(photo.dl || photo.or, photo.alt);
+    if(editBtn) editBtn.onclick = () => { closeLightboxBtn(); openEditorFromUrl(photo.or, photo.alt); };
   };
-  newImg.src=photo.or;
+  newImg.onerror = () => {
+    // 원본 실패 시 썸네일로 fallback
+    if(photo.th && newImg.src !== photo.th){
+      newImg.src = photo.th;
+    } else {
+      img.classList.remove('loading');
+      if(spinner) spinner.classList.remove('show');
+    }
+  };
+  newImg.src = url;
   preloadAdjacent();
 }
 function preloadAdjacent(){
