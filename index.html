@@ -344,7 +344,7 @@ body.searched .gallery-section{margin-top:.3rem}
   .header-actions{flex-direction:column!important;align-items:stretch!important;gap:8px!important}
   .mobile-btn-group{order:1!important}
   .header-actions .hdr-btn.main{order:2!important;width:100%;padding:10px 14px!important;font-size:.9rem!important;font-weight:bold;text-align:center}
-  .mobile-btn-group .hdr-btn{flex:1!important;text-align:center;padding:6px 8px!important;font-size:.75rem!important}
+  .mobile-btn-group .hdr-btn{flex:1!important;text-align:center;padding:4px 8px!important;font-size:.75rem!important}
 }
 @media(min-width:769px){
   .mobile-btn-group{display:contents}
@@ -404,7 +404,6 @@ footer a:hover{color:var(--muted)}
     <button class="hdr-btn main" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
     <div class="mobile-btn-group" style="display:flex;gap:8px">
       <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙 다크모드</button>
-      <button class="hdr-btn small" onclick="copyLink()" id="copyLinkBtn">🔗 링크 복사</button>
     </div>
     <div class="source-toggle" id="sourceToggle">
       <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
@@ -441,7 +440,7 @@ footer a:hover{color:var(--muted)}
   <div class="hero-logo" id="heroLogo">
     <span class="hero-logo-catch">CATCH</span><span class="hero-logo-img">IMAGE</span>
   </div>
-  <p class="hero-desc" id="heroDesc">Pexels + Pixabay = "CATCH IMAGE" <br>800만장 무료이미지+ 내 이미지 편집까지 편하게 이용하세요</p>
+  <p class="hero-desc" id="heroDesc">Pexels + Pixabay = "캐치이미지" <br>800만장 무료이미지+ 내 이미지 편집까지 편하게 이용하세요</p>
   <div class="hero-search-wrap">
     <div class="hero-search">
       <input type="text" id="heroSearch" placeholder="검색" autofocus>
@@ -840,6 +839,7 @@ function reSearch(){
   if(currentQuery) startSearch(currentQuery);
 }
 function resetHome(){
+  copyLink(); 
   document.getElementById('heroSearch').value='';
   document.body.classList.remove('searched');
   document.getElementById('ad-widget').style.display='';
@@ -1405,8 +1405,8 @@ function applySharpness(c,w,h,amt){try{const d=c.getImageData(0,0,w,h),px=d.data
 function toggleTheme(){
   const root=document.documentElement;
   const isDark=getComputedStyle(root).getPropertyValue('--bg').trim()==='#080810';
-  if(isDark){root.style.setProperty('--bg','#f5f5f7');root.style.setProperty('--surface','#ffffff');root.style.setProperty('--surface2','#f0f0f0');root.style.setProperty('--border','rgba(0,0,0,.1)');root.style.setProperty('--text','#111111');root.style.setProperty('--muted','#666666');root.style.setProperty('--accent','#f97316');localStorage.setItem('theme','light');document.getElementById('themeToggleBtn').innerHTML='☀️ 라이트모드';}
-  else{root.style.setProperty('--bg','#080810');root.style.setProperty('--surface','#10101c');root.style.setProperty('--surface2','#18182a');root.style.setProperty('--border','rgba(255,255,255,.06)');root.style.setProperty('--text','#f0f0ff');root.style.setProperty('--muted','#6b6b88');root.style.setProperty('--accent','#e8ff47');localStorage.setItem('theme','dark');document.getElementById('themeToggleBtn').innerHTML='🌙 다크모드';}
+  if(isDark){root.style.setProperty('--bg','#f5f5f7');root.style.setProperty('--surface','#ffffff');root.style.setProperty('--surface2','#f0f0f0');root.style.setProperty('--border','rgba(0,0,0,.1)');root.style.setProperty('--text','#111111');root.style.setProperty('--muted','#666666');root.style.setProperty('--accent','#f97316');localStorage.setItem('theme','light');document.getElementById('themeToggleBtn').innerHTML='☀️';}
+  else{root.style.setProperty('--bg','#080810');root.style.setProperty('--surface','#10101c');root.style.setProperty('--surface2','#18182a');root.style.setProperty('--border','rgba(255,255,255,.06)');root.style.setProperty('--text','#f0f0ff');root.style.setProperty('--muted','#6b6b88');root.style.setProperty('--accent','#e8ff47');localStorage.setItem('theme','dark');document.getElementById('themeToggleBtn').innerHTML='🌙';}
 }
 function loadTheme(){if(localStorage.getItem('theme')==='light')toggleTheme();}
 document.addEventListener('DOMContentLoaded',loadTheme);
