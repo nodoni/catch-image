@@ -724,12 +724,35 @@ function renderPhotoCard(g, ph, idx){
   overlay.appendChild(btns);
   card.appendChild(overlay);
 
-  // ── 클릭/터치 → 라이트박스 바로 열기 ──
-  function openThis(e){ e.stopPropagation(); openLightbox(ph.or, ph.alt||'', ph.dl, idx); }
-  img.addEventListener('click', openThis);
-  img.addEventListener('touchend', e=>{ e.preventDefault(); openThis(e); }, {passive:false});
-  // 카드 전체도 (오버레이 버튼 제외)
-  card.addEventListener('click', e=>{ if(!e.target.closest('.ov-btn')) openThis(e); });
+// ── 터치 이동 감지 (스크롤 시 열리지 않음) ──
+let touchStartX = 0, touchStartY = 0;
+
+function onImageTouchStart(e) {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}
+
+function onImageTouchEnd(e) {
+  const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartX);
+  const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+  // 10px 미만 이동했을 때만 터치(탭)로 간주
+  if (deltaX < 10 && deltaY < 10) {
+    e.preventDefault();
+    e.stopPropagation();
+    openLightbox(ph.or, ph.alt||'', ph.dl, idx);
+  }
+}
+
+function openThis(e){ e.stopPropagation(); openLightbox(ph.or, ph.alt||'', ph.dl, idx); }
+
+img.addEventListener('click', openThis);
+img.addEventListener('touchstart', onImageTouchStart, {passive: true});
+img.addEventListener('touchend', onImageTouchEnd, {passive: false});
+
+// 카드 전체 클릭도 동일하게 처리 (터치는 위에서 이미 처리, click은 그대로)
+card.addEventListener('click', e => {
+  if (!e.target.closest('.ov-btn')) openThis(e);
+});
 
   g.appendChild(card);
 }
