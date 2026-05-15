@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>캐치이미지 - 무료 고화질 이미지/영상 검색 | Catch Image</title>
-<meta name="description" content="캐치이미지(Catch Image) - Pexels, Pixabay 수백만 장의 무료 고화질 이미지·영상·GIF·일러스트를 한 번에 검색하고 편집하세요.">
+<meta name="description" content="캐치이미지(Catch Image) - Pexels, Pixabay 수백만 장의 무료 고화질 이미지를 한 번에 검색하고 편집하세요.">
 <meta name="keywords" content="캐치이미지, 무료이미지, 고화질이미지, 이미지검색, catch image, free image, pexels, pixabay, 이미지편집, 무료동영상">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="캐치이미지 - 무료 미디어 검색">
@@ -277,7 +277,7 @@ footer a:hover{color:var(--muted)}
   <button class="mt-btn active" id="mt-image"        onclick="setMediaType('image')">🖼️ 이미지</button>
   <button class="mt-btn"        id="mt-video"        onclick="setMediaType('video')">🎬 동영상</button>
   
-  <button class="mt-btn"        id="mt-illustration" onclick="setMediaType('illustration')">🎨 일러스트</button>
+
 </div>
 
 <section class="hero">
@@ -584,7 +584,7 @@ document.addEventListener('visibilitychange', () => {
 /* ═══════════════════════════════════════════════
    미디어 타입 상태
 ═══════════════════════════════════════════════ */
-const ALL_TYPES = ['image','video','illustration'];
+const ALL_TYPES = ['image','video'];
 let currentMediaType = 'image';
 
 function setMediaType(type) {
@@ -696,8 +696,7 @@ async function fetchAll(q,page,clear){
       const r=await fPixabayMusic(q,page,pp);items=r.p;hasMore=r.m;
     } else if(mt==='sfx'){
       const r=await fPixabaySfx(q,page,pp);items=r.p;hasMore=r.m;
-    } else if(mt==='illustration'){
-      const r=await fPixabayIllus(q,page,pp);items=r.p;hasMore=r.m;
+
     }
 
     document.getElementById('moreSpinner')?.remove();
