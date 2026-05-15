@@ -846,11 +846,15 @@ function openLightbox(src, alt, dl, index){
   lbImg.addEventListener('touchend', onTouchEnd);
  
 }
-function onPopState() {
-  if (lightboxOpen) {
+function onPopState(e) {
+  if (editorOpen) {
+    editorOpen = false;
+    document.getElementById('editorModal').classList.remove('open');
+    const adWidget = document.getElementById('ad-widget');
+    if (adWidget) adWidget.style.visibility = '';
+    window.removeEventListener('popstate', onPopState);
+  } else if (lightboxOpen) {
     closeLightboxBtn();
-  } else if (document.getElementById('editorModal').classList.contains('open')) {
-    closeEditor();
   }
 }
 function closeLightbox(e){if(e.target===document.getElementById('lightbox'))closeLightboxBtn();}
@@ -955,6 +959,7 @@ function openLocalEditor(){
   document.getElementById('localFileInput').click();
 }
 function loadLocalFile(e){const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);const img=new Image();img.onload=()=>{edImg=img;initEditor(f.name.replace(/\.[^.]+$/,''));};img.src=u;e.target.value='';}
+let editorOpen = false;
 function initEditor(name){
   edRotation=0; edFlipX=false; edFlipY=false; edHistory=[]; edRedoStack=[];
   enhBright=0; enhContrast=0; enhSat=0; syncSliders();
@@ -964,13 +969,22 @@ function initEditor(name){
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
   const adWidget = document.getElementById('ad-widget');
   if (adWidget) adWidget.style.visibility = 'hidden';
+  // 모바일 뒤로가기로 편집기 닫히도록 history 추가
+  if (!editorOpen) {
+    history.pushState({editor:true}, '');
+    editorOpen = true;
+    window.addEventListener('popstate', onPopState);
+  }
   drawImage(); showToast('✅ 편집기 열림');
 }
 
 function closeEditor() {
+  if (!editorOpen) return;
+  editorOpen = false;
   document.getElementById('editorModal').classList.remove('open');
   const adWidget = document.getElementById('ad-widget');
   if (adWidget) adWidget.style.visibility = '';
+  window.removeEventListener('popstate', onPopState);
 }
 function drawImage(){
   if(!edImg)return;
