@@ -276,7 +276,7 @@ footer a:hover{color:var(--muted)}
 <div class="media-type-bar">
   <button class="mt-btn active" id="mt-image"        onclick="setMediaType('image')">🖼️ 이미지</button>
   <button class="mt-btn"        id="mt-video"        onclick="setMediaType('video')">🎬 동영상</button>
-  <button class="mt-btn"        id="mt-gif"          onclick="setMediaType('gif')">🎞 GIF</button>
+  
   <button class="mt-btn"        id="mt-illustration" onclick="setMediaType('illustration')">🎨 일러스트</button>
 </div>
 
@@ -584,7 +584,7 @@ document.addEventListener('visibilitychange', () => {
 /* ═══════════════════════════════════════════════
    미디어 타입 상태
 ═══════════════════════════════════════════════ */
-const ALL_TYPES = ['image','video','gif','illustration'];
+const ALL_TYPES = ['image','video','illustration'];
 let currentMediaType = 'image';
 
 function setMediaType(type) {
@@ -594,7 +594,7 @@ function setMediaType(type) {
   });
   // 소스 토글: GIF/일러스트는 Pixabay only
   const srcToggle = document.getElementById('sourceToggle');
-  const pixabayOnly = ['illustration','gif'];
+  const pixabayOnly = ['illustration'];
   if (pixabayOnly.includes(type)) {
     srcToggle.style.opacity = '.35';
     srcToggle.style.pointerEvents = 'none';
@@ -665,7 +665,7 @@ function startSearch(q){
   currentQuery=q;currentPage=1;
   document.getElementById('gallery').innerHTML='';
   document.getElementById('loadMore').style.display='none';
-  const typeLabel={'image':'이미지','video':'동영상','gif':'GIF','music':'음악','sfx':'음향효과','illustration':'일러스트'}[currentMediaType]||'미디어';
+  const typeLabel={'image':'이미지','video':'동영상','music':'음악','sfx':'음향효과','illustration':'일러스트'}[currentMediaType]||'미디어';
   document.getElementById('galleryTitle').textContent='"'+q+'" '+typeLabel+' 검색 결과';
   fetchAll(q,1,true);
   window.scrollTo({top:document.querySelector('.gallery-section').offsetTop-120,behavior:'smooth'});
@@ -691,8 +691,7 @@ async function fetchAll(q,page,clear){
       if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp);items=r.p;hasMore=r.m;}
       else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp);items=r.p;hasMore=r.m;}
       else{const h=Math.floor(pp/2);const[a,b]=await Promise.all([fPexelsVid(q,page,h),fPixabayVid(q,page,h)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
-    } else if(mt==='gif'){
-      const r=await fPixabayGif(q,page,pp);items=r.p;hasMore=r.m;
+
     } else if(mt==='music'){
       const r=await fPixabayMusic(q,page,pp);items=r.p;hasMore=r.m;
     } else if(mt==='sfx'){
@@ -720,31 +719,18 @@ async function fPexelsVid(q,page,pp){const r=await fetch('https://api.pexels.com
 async function fPixabayVid(q,page,pp){const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&safesearch=true');if(!r.ok)throw new Error('Pixabay Video '+r.status);const d=await r.json();return{p:(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};}),m:d.totalHits>page*pp};}
 
 /* ── API: GIF ── */
-async function fPixabayGif(q,page,pp){const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&image_type=animated_gif&safesearch=true');if(!r.ok)throw new Error('Pixabay GIF '+r.status);const d=await r.json();return{p:(d.hits||[]).map(p=>({kind:'gif',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q})),m:d.totalHits>page*pp};}
+// fPixabayGif removed
 
-/* ── API: 음악 ── */
-async function fPixabayMusic(q,page,pp){const r=await fetch('https://pixabay.com/api/music/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page);if(!r.ok)throw new Error('Pixabay Music '+r.status);const d=await r.json();return{p:(d.hits||[]).map(m=>({kind:'music',s:'pixabay',title:m.title||q,audioUrl:m.audio_download_url||m.preview_url||'',ph:m.user||'',tags:(m.tags||'').split(',').slice(0,4),dur:m.duration||0})),m:d.totalHits>page*pp};}
-
-/* ── API: 음향효과 ── */
-async function fPixabaySfx(q,page,pp){const r=await fetch('https://pixabay.com/api/sounds/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page);if(!r.ok)throw new Error('Pixabay SFX '+r.status);const d=await r.json();return{p:(d.hits||[]).map(m=>({kind:'sfx',s:'pixabay',title:m.title||q,audioUrl:m.audio_download_url||m.preview_url||'',ph:m.user||'',tags:(m.tags||'').split(',').slice(0,4),dur:m.duration||0})),m:d.totalHits>page*pp};}
-
-/* ── API: 일러스트 ── */
-async function fPixabayIllus(q,page,pp){const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+page+'&image_type=illustration&safesearch=true');if(!r.ok)throw new Error('Pixabay Illus '+r.status);const d=await r.json();return{p:(d.hits||[]).map(p=>({kind:'illustration',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q})),m:d.totalHits>page*pp};}
-
-/* ── Shuffle ── */
-function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
-
-/* ── 렌더러 ── */
-function renderItems(items,append,mediaType){
-  const g=document.getElementById('gallery');
-  if(!append)g.innerHTML='';
-  // append 시 이전 아이템 수를 offset으로 더해서 currentPhotos 전체 기준 idx 유지
+function renderItems(items, append, mediaType){
+  const g = document.getElementById('gallery');
+  if(!append) g.innerHTML = '';
+  // offset: append 시 currentPhotos 전체 기준 인덱스 계산
   const offset = append ? (currentPhotos.length - items.length) : 0;
-  items.forEach((item,i)=>{
+  items.forEach((item, i) => {
     const idx = offset + i;
-    if(item.kind==='image'||item.kind==='gif'||item.kind==='illustration') renderPhotoCard(g,item,idx);
-    else if(item.kind==='video') renderVideoCard(g,item,idx);
-    else if(item.kind==='music'||item.kind==='sfx') renderAudioCard(g,item,idx);
+    if(item.kind==='image' || item.kind==='illustration') renderPhotoCard(g, item, idx);
+    else if(item.kind==='video') renderVideoCard(g, item, idx);
+    else if(item.kind==='music' || item.kind==='sfx') renderAudioCard(g, item, idx);
   });
 }
 
@@ -752,24 +738,27 @@ function renderPhotoCard(g,ph,idx){
   const c=document.createElement('div');
   c.className='photo-card';
   const alt=(ph.alt||'').replace(/"/g,'').replace(/'/g,'');
-  const badgeHtml=ph.kind==='gif'?'<span class="gif-badge">GIF</span>':ph.kind==='illustration'?'<span class="illus-badge">일러스트</span>':'';
+  const badgeHtml=ph.kind==='illustration'?'<span class="illus-badge">일러스트</span>':'';
   c.innerHTML=`
-    <img src="${ph.th}" alt="${alt}" loading="lazy">
+    <img src="${ph.th}" alt="${alt}" loading="lazy" style="cursor:pointer">
     ${badgeHtml}
     <span class="source-badge badge-${ph.s}">${ph.s==='pexels'?'Pexels':'Pixabay'}</span>
     <div class="photo-overlay">
       <span class="photographer">📷 ${ph.ph}</span>
       <div class="overlay-btns">
-        <button class="ov-btn ov-view">크게 보기</button>
         ${ph.kind==='image'?'<button class="ov-btn ov-edit">✏️ 편집</button>':''}
         <button class="ov-btn ov-dl">⬇ 저장</button>
       </div>
     </div>`;
-  c.querySelector('img').addEventListener('click',e=>{e.stopPropagation();openLightbox(ph.or,alt,ph.dl,idx);});
-  c.querySelector('.ov-view').addEventListener('click',e=>{e.stopPropagation();openLightbox(ph.or,alt,ph.dl,idx);});
-  if(ph.kind==='image')c.querySelector('.ov-edit').addEventListener('click',e=>{e.stopPropagation();openEditorFromUrl(ph.or,alt);});
+  // 이미지 클릭/터치 → 바로 크게보기
+  const imgEl = c.querySelector('img');
+  imgEl.addEventListener('click', e=>{e.stopPropagation(); openLightbox(ph.or,alt,ph.dl,idx);});
+  imgEl.addEventListener('touchend', e=>{
+    e.preventDefault();
+    openLightbox(ph.or,alt,ph.dl,idx);
+  }, {passive:false});
+  if(ph.kind==='image') c.querySelector('.ov-edit').addEventListener('click',e=>{e.stopPropagation();openEditorFromUrl(ph.or,alt);});
   c.querySelector('.ov-dl').addEventListener('click',e=>{e.stopPropagation();directDownload(ph.dl,alt);});
-  // 카드 전체 클릭 제거 (img 클릭과 중복 방지)
   g.appendChild(c);
 }
 
@@ -835,13 +824,8 @@ function renderAudioCard(g,track,idx){
 
 /* ── LIGHTBOX ── */
 function openLightbox(src,alt,dl,index){
-  // index가 유효하면 그대로 사용, 아니면 src로 검색
-  if(typeof index==='number' && index>=0 && index<currentPhotos.length){
-    currentPhotoIndex=index;
-  } else {
-    const found=currentPhotos.findIndex(p=>p.or===src||p.th===src);
-    currentPhotoIndex=found>=0?found:0;
-  }
+  currentPhotoIndex=index!==undefined?index:currentPhotos.findIndex(p=>p.or===src);
+  if(currentPhotoIndex===-1&&currentPhotos.length)currentPhotoIndex=0;
   updateLightboxImage();
   document.getElementById('lightbox').classList.add('open');
   lightboxOpen=true;
@@ -877,7 +861,7 @@ function updateLightboxImage(){
     document.getElementById('lbDlBtn').onclick=()=>directDownload(photo.dl,photo.alt);
     document.getElementById('lbEditBtn').onclick=()=>{closeLightboxBtn();openEditorFromUrl(photo.or,photo.alt);};
   };
-  newImg.src=photo.or||photo.th||'';
+  newImg.src=photo.or;
   preloadAdjacent();
 }
 function preloadAdjacent(){
