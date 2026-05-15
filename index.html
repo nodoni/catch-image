@@ -32,7 +32,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 
 /* ── HEADER ── */
 header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2.5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(8,8,16,.94);backdrop-filter:blur(14px);z-index:100}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:4px;color:var(--accent);line-height:1;cursor:pointer;user-select:none}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:4px;line-height:1;cursor:pointer;user-select:none}
 .header-search{display:flex;gap:8px;flex:1;max-width:460px;margin:0 2rem}
 .header-search input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);font-size:.88rem;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .2s}
 .header-search input:focus{border-color:var(--accent)}
@@ -53,6 +53,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 
 /* ── HERO ── */
 .hero{text-align:center;padding:1.8rem 2rem 1.2rem;position:relative;overflow:hidden}
+.hero-desc{color:var(--muted);font-size:.82rem;letter-spacing:.03em;margin-bottom:1rem;line-height:1.6;max-width:560px;margin-left:auto;margin-right:auto}
 .hero::before{display:none}
 
 
@@ -251,11 +252,7 @@ footer a:hover{color:var(--muted)}
 <body>
 
 <header>
-  <div class="logo" onclick="resetHome()">CATCH IMAGE</div>
-  <div class="header-search">
-    <input type="text" id="headerSearch" placeholder="검색...">
-    <button onclick="doSearch('header')">검색</button>
-  </div>
+  <div class="logo" onclick="resetHome()"><span style="color:var(--text)">CATCH</span> <span style="color:var(--accent)">IMAGE</span></div>
   <div class="header-actions" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
     <button class="hdr-btn main" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
     <div class="mobile-btn-group" style="display:flex;gap:8px;width:100%">
@@ -279,6 +276,7 @@ footer a:hover{color:var(--muted)}
 </div>
 
 <section class="hero">
+  <p class="hero-desc">Pexels + Pixabay = "CATCH IMAGE" 편리한 이미지 통합 + 무료 이미지 편집 제공 어시스턴트 캐치이미지 매일 이용하기</p>
   <div class="hero-search">
     <input type="text" id="heroSearch" placeholder="이미지, 동영상, 음악 검색..." autofocus>
     <button onclick="doSearch('hero')">검색</button>
@@ -642,9 +640,17 @@ function closeAd() {
 /* ── SEARCH ── */
 function setSource(s){currentSource=s;['all','pexels','pixabay'].forEach(k=>document.getElementById('btn-'+k).className='src-btn'+(k===s?' active':''));reSearch();}
 document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('hero');});
-document.getElementById('headerSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('header');});
-function quickSearch(q){document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
-function doSearch(from){const q=(from==='header'?document.getElementById('headerSearch'):document.getElementById('heroSearch')).value.trim();if(!q)return;document.getElementById('heroSearch').value=q;document.getElementById('headerSearch').value=q;startSearch(q);}
+
+function quickSearch(q){
+  document.getElementById('heroSearch').value=q;
+  startSearch(q);
+}
+function doSearch(from){
+  const q=(document.getElementById('heroSearch')).value.trim();
+  if(!q)return;
+  document.getElementById('heroSearch').value=q;
+  startSearch(q);
+}
 function reSearch(){
   currentSort = document.getElementById('sortOrder')?.value || 'popular';
   currentPhotos = []; // 정렬 변경 시 반드시 초기화
@@ -653,7 +659,6 @@ function reSearch(){
 }
 function resetHome(){
   document.getElementById('heroSearch').value='';
-  document.getElementById('headerSearch').value='';
   document.getElementById('ad-widget').style.display='';
   startAd(true);
   const randomTag=randomTags[Math.floor(Math.random()*randomTags.length)];
@@ -1205,7 +1210,6 @@ function showToast(m){const t=document.getElementById('toast');t.textContent=m;t
 const initRandomTag=randomTags[Math.floor(Math.random()*randomTags.length)];
 currentQuery=initRandomTag;
 document.getElementById('heroSearch').value=initRandomTag;
-document.getElementById('headerSearch').value=initRandomTag;
 document.getElementById('galleryTitle').textContent='"'+initRandomTag+'" 이미지 검색 결과';
 startAd(true);
 fetchAll(initRandomTag,1,true);
