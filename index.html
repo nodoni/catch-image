@@ -1644,12 +1644,9 @@ function openSettingsModal() {
 }
 function closeSettingsModal() {
   document.getElementById('settingsModal').classList.remove('show');
-  document.getElementById('helpContent').style.display = 'none';
+  
 }
-document.getElementById('helpBtn').addEventListener('click', () => {
-  const helpDiv = document.getElementById('helpContent');
-  helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
-});
+
 document.getElementById('settingsModal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
 });
@@ -1671,17 +1668,15 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
     </div>
     <div class="settings-section">
       <h4>📞 문의</h4>
-      <button class="settings-btn" onclick="window.location.href='mailto:nhd7890@gmail.com'">📧 이메일 문의</button>
+      <div style="background: var(--surface2); padding: 10px; border-radius: 12px; text-align: center; font-size: 0.85rem;">
+        <a href="mailto:nhd7890@gmail.com" style="color: var(--accent); text-decoration: none;">nhd7890@gmail.com</a>
+      </div>
     </div>
-    <div class="settings-section">
-      <h4>ℹ️ 도움말</h4>
-      <button class="settings-btn" id="helpBtn">📖 사이트 정보</button>
-      <div id="helpContent" class="help-content" style="display:none;">
-        <strong>캐치이미지 (Catch Image)</strong><br>
+    <!-- 하단 고정 정보 -->
+    <div class="settings-section" style="margin-bottom: 0;">
+      <div style="border-top: 1px solid var(--border); padding-top: 12px; text-align: center; font-size: 0.7rem; color: var(--muted);">
         © 2026 Catch Image · 무료 미디어 검색 서비스<br>
-        Pexels + Pixabay 통합 검색, 무료 이미지/동영상, 이미지 편집 기능 제공.<br>
-        모든 미디어는 각 출처의 라이선스를 따릅니다.<br><br>
-        문의: nhd7890@gmail.com
+        Pexels + Pixabay 통합 검색 | 이미지 편집 기능 제공
       </div>
     </div>
   </div>
