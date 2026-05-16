@@ -39,6 +39,15 @@
 }
 </script>
 <link rel="icon" href="https://www.catch-image.com/logo-share.png">
+<!-- 파비콘 (구글 검색 결과, 브라우저 탭) -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.catch-image.com/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.catch-image.com/favicon-16.png">
+
+<!-- 애플 터치 아이콘 (홈 화면) -->
+<link rel="apple-touch-icon" href="https://www.catch-image.com/logo-share.png">
+
+<!-- 소셜 미디어 공유 (페이스북, 카카오톡 등) -->
+<meta property="og:image" content="https://www.catch-image.com/logo-share.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+KR:wght@400;700&display=block" onload="this.onload=null;this.rel='stylesheet'">
@@ -1248,21 +1257,40 @@ function renderVideoCard(g,vid,idx){
 }
 
 /* 간단한 영상 모달 */
-let _videoModalEl=null;
+let videoModalOpen = false;  // 동영상 모달 열림 상태
 function openVideoModal(vid){
   if(!_videoModalEl){
     _videoModalEl=document.createElement('div');
     _videoModalEl.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem';
     _videoModalEl.innerHTML=`<button id="_vmClose" style="position:fixed;top:1rem;right:1.5rem;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;opacity:.7">×</button><video id="_vmVideo" controls style="max-width:92vw;max-height:80vh;border-radius:12px;background:#000"></video><div id="_vmMeta" style="color:#aaa;font-size:.8rem"></div><div style="display:flex;gap:10px"><button id="_vmDl" style="background:#e8ff47;border:none;color:#080810;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-size:.9rem">⬇ 다운로드</button></div>`;
     document.body.appendChild(_videoModalEl);
-    _videoModalEl.querySelector('#_vmClose').onclick=()=>{_videoModalEl.style.display='none';_videoModalEl.querySelector('#_vmVideo').pause();};
-    _videoModalEl.addEventListener('click',e=>{if(e.target===_videoModalEl){_videoModalEl.style.display='none';_videoModalEl.querySelector('#_vmVideo').pause();}});
+    // 닫기 버튼 클릭 시 플래그 초기화
+    _videoModalEl.querySelector('#_vmClose').onclick = () => {
+      _videoModalEl.style.display = 'none';
+      _videoModalEl.querySelector('#_vmVideo').pause();
+      videoModalOpen = false;
+    };
+    // 배경 클릭 시 플래그 초기화
+    _videoModalEl.addEventListener('click', e => {
+      if (e.target === _videoModalEl) {
+        _videoModalEl.style.display = 'none';
+        _videoModalEl.querySelector('#_vmVideo').pause();
+        videoModalOpen = false;
+      }
+    });
   }
-  _videoModalEl.style.display='flex';
-  const vEl=_videoModalEl.querySelector('#_vmVideo');
-  vEl.src=vid.videoUrl;vEl.play().catch(()=>{});
-  _videoModalEl.querySelector('#_vmMeta').textContent=(vid.ph?'제작: '+vid.ph:'')+(vid.duration?' · '+vid.duration+'초':'');
-  _videoModalEl.querySelector('#_vmDl').onclick=()=>directDownload(vid.dl,vid.alt||'video');
+  _videoModalEl.style.display = 'flex';
+  const vEl = _videoModalEl.querySelector('#_vmVideo');
+  vEl.src = vid.videoUrl;
+  vEl.play().catch(() => {});
+  _videoModalEl.querySelector('#_vmMeta').textContent = (vid.ph ? '제작: '+vid.ph : '') + (vid.duration ? ' · '+vid.duration+'초' : '');
+  _videoModalEl.querySelector('#_vmDl').onclick = () => directDownload(vid.dl, vid.alt || 'video');
+  
+  // 뒤로가기 처리를 위해 히스토리 푸시
+  if (!videoModalOpen) {
+    history.pushState({ videoModal: true }, '');
+    videoModalOpen = true;
+  }
 }
 
 function renderAudioCard(g,track,idx){
@@ -1303,13 +1331,20 @@ function openLightbox(src, alt, dl, index){
  
 }
 function onPopState(e) {
-  if (editorOpen) {
+  // 동영상 모달이 열려 있으면 닫기
+  if (videoModalOpen && _videoModalEl && _videoModalEl.style.display === 'flex') {
+    _videoModalEl.style.display = 'none';
+    _videoModalEl.querySelector('#_vmVideo').pause();
+    videoModalOpen = false;
+  } 
+  else if (editorOpen) {
     editorOpen = false;
     document.getElementById('editorModal').classList.remove('open');
     const adWidget = document.getElementById('ad-widget');
     if (adWidget) adWidget.style.visibility = '';
     window.removeEventListener('popstate', onPopState);
-  } else if (lightboxOpen) {
+  } 
+  else if (lightboxOpen) {
     closeLightboxBtn();
   }
 }
@@ -1631,35 +1666,50 @@ function saveImage(withEnhance){
 function applySharpness(c,w,h,amt){try{const d=c.getImageData(0,0,w,h),px=d.data,out=new Uint8ClampedArray(px);const k=[-amt,-amt,-amt,-amt,1+8*amt,-amt,-amt,-amt,-amt];for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)for(let ch=0;ch<3;ch++){let v=0;for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++)v+=px[((y+ky)*w+(x+kx))*4+ch]*k[(ky+1)*3+(kx+1)];out[(y*w+x)*4+ch]=Math.max(0,Math.min(255,v));}c.putImageData(new ImageData(out,w,h),0,0);}catch(e){}}
 
 /* ── THEME ── */
-function toggleTheme(){
-  const root=document.documentElement;
-  const isDark=getComputedStyle(root).getPropertyValue('--bg').trim()==='#080810';
-  if(isDark){
-    root.style.setProperty('--bg','#f5f5f7');
-    root.style.setProperty('--surface','#ffffff');
-    root.style.setProperty('--surface2','#f0f0f0');
-    root.style.setProperty('--border','rgba(0,0,0,.1)');
-    root.style.setProperty('--text','#111111');
-    root.style.setProperty('--muted','#666666');
-    root.style.setProperty('--accent','#f97316');
+// 테마 직접 설정 함수
+function setTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'light') {
+    root.style.setProperty('--bg', '#f5f5f7');
+    root.style.setProperty('--surface', '#ffffff');
+    root.style.setProperty('--surface2', '#f0f0f0');
+    root.style.setProperty('--border', 'rgba(0,0,0,.1)');
+    root.style.setProperty('--text', '#111111');
+    root.style.setProperty('--muted', '#666666');
+    root.style.setProperty('--accent', '#f97316');
     root.style.setProperty('--accent-soft', 'rgba(249,115,22,0.18)');
-    root.style.setProperty('--search-wrap-bg', 'rgba(255,255,255,.96)');  // 👈 추가
-    localStorage.setItem('theme','light');
-    document.getElementById('themeToggleBtn').innerHTML='☀️';
+    root.style.setProperty('--search-wrap-bg', 'rgba(255,255,255,.96)');
+    document.getElementById('themeToggleBtn').innerHTML = '☀️';
+    localStorage.setItem('theme', 'light');
   } else {
-    root.style.setProperty('--bg','#080810');
-    root.style.setProperty('--surface','#10101c');
-    root.style.setProperty('--surface2','#18182a');
-    root.style.setProperty('--border','rgba(255,255,255,.06)');
-    root.style.setProperty('--text','#f0f0ff');
-    root.style.setProperty('--muted','#6b6b88');
-    root.style.setProperty('--accent','#e8ff47');
+    root.style.setProperty('--bg', '#080810');
+    root.style.setProperty('--surface', '#10101c');
+    root.style.setProperty('--surface2', '#18182a');
+    root.style.setProperty('--border', 'rgba(255,255,255,.06)');
+    root.style.setProperty('--text', '#f0f0ff');
+    root.style.setProperty('--muted', '#6b6b88');
+    root.style.setProperty('--accent', '#e8ff47');
     root.style.setProperty('--accent-soft', 'rgba(232,255,71,0.18)');
-    root.style.setProperty('--search-wrap-bg', 'rgba(8,8,16,.96)');  // 👈 추가
-    localStorage.setItem('theme','dark');
-    document.getElementById('themeToggleBtn').innerHTML='🌙';
+    root.style.setProperty('--search-wrap-bg', 'rgba(8,8,16,.96)');
+    document.getElementById('themeToggleBtn').innerHTML = '🌙';
+    localStorage.setItem('theme', 'dark');
   }
 }
+
+function toggleTheme() {
+  const current = localStorage.getItem('theme') === 'light' ? 'dark' : 'light';
+  setTheme(current);
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    setTheme('light');
+  } else {
+    setTheme('dark'); // 기본값 다크모드
+  }
+}
+document.addEventListener('DOMContentLoaded', loadTheme);
 
 /* ── TOAST ── */
 let toastT;
