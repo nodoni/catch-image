@@ -996,14 +996,16 @@ function closeAd() {
   if (adRotationTimer) clearTimeout(adRotationTimer);
   if (adProgressInterval) clearInterval(adProgressInterval);
 
-  // 3. 22초 후 완전 종료 + 쿨다운
+  // 3. X 누르는 즉시 쿨다운 저장 (새로고침해도 유지)
+  const cooldownEnd = Date.now() + 190000;
+  localStorage.setItem('adCooldownEnd', cooldownEnd);
+
+  // 4. 22초 후 iframe 완전 종료
   if (adCloseTimeout) clearTimeout(adCloseTimeout);
   adCloseTimeout = setTimeout(() => {
     const iframe = document.querySelector('#adGrid iframe');
     if (iframe) iframe.src = 'about:blank';
     widget.style.display = 'none';
-    const cooldownEnd = Date.now() + 190000;
-    localStorage.setItem('adCooldownEnd', cooldownEnd);
     if (adRestartTimeout) clearTimeout(adRestartTimeout);
     adRestartTimeout = null;
   }, 22000);
