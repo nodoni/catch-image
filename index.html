@@ -385,12 +385,12 @@ footer a:hover{color:var(--muted)}
 
 /* ── AdSense 광고 스타일 ── */
 /* 페이지 전체 래퍼 */
-.page-layout{display:flex;gap:0;align-items:flex-start;min-height:100vh}
-.sidebar-ad{width:160px;flex-shrink:0;position:sticky;top:80px;padding:10px 8px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.page-layout{display:block;min-height:100vh}
+.sidebar-ad{width:160px;position:fixed;top:80px;padding:10px 8px;display:flex;flex-direction:column;gap:14px;align-items:center;z-index:50}
 .sidebar-ad-left{left:0}
 .sidebar-ad-right{right:0}
 .sidebar-ad ins{display:block!important;width:160px}
-.main-content{flex:1;min-width:0;overflow:hidden}
+.main-content{min-width:0;overflow:hidden;margin:0 auto}
 /* 헤더 아래 가로 배너 (hero 위) */
 .ad-top-banner{max-width:900px;margin:0.8rem auto;padding:0 1rem;min-height:60px;text-align:center}
 .ad-top-banner ins{display:block!important}
