@@ -772,7 +772,7 @@ footer {
           <input type="number" id="scaleFactor" value="1.0" step="0.1" min="0.2" max="3.0" style="flex:2;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:7px;">
           <button class="ed-btn" style="flex:1;" onclick="setScaleFromInput()">적용</button>
         </div>
-        <div class="ed-info" style="font-size:.65rem;">0.5배 = 절반 크기, 1.5배 = 확대 저장</div>
+        <div class="ed-info" id="scalePreview" style="font-size:.65rem;">저장 크기: — x — px</div>
         <button class="ed-btn purple" onclick="saveImage(false)">💾 저장하기</button>
         <button class="ed-btn accent" onclick="saveImage(true)">✨ 화질 향상 저장</button>
         </div>
@@ -1362,6 +1362,7 @@ function closeLightboxBtn(){
   document.getElementById('lightbox').classList.remove('open');
   lightboxOpen=false;
   window.removeEventListener('popstate',onPopState);
+  document.body.style.overflow = ''; 
   const lbImg=document.getElementById('lightboxImg');
   lbImg.removeEventListener('touchstart',onTouchStart);
   lbImg.removeEventListener('touchend',onTouchEnd);
@@ -1490,9 +1491,12 @@ function initEditor(name){
   if (!editorOpen) {
     history.pushState({editor:true}, '');
     editorOpen = true;
-    
+    // window.addEventListener('popstate', onPopState); // 이 줄은 이미 전역 리스너가 있으면 중복이므로 주석 처리 또는 삭제
   }
+  // 👇 배경 스크롤 차단
+  
   drawImage(); showToast('✅ 편집기 열림');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeEditor() {
@@ -1501,7 +1505,9 @@ function closeEditor() {
   document.getElementById('editorModal').classList.remove('open');
   const adWidget = document.getElementById('ad-widget');
   if (adWidget) adWidget.style.visibility = '';
- 
+  // window.removeEventListener('popstate', onPopState); // 전역 리스너 사용 시 삭제
+  // 👇 배경 스크롤 복원
+  document.body.style.overflow = '';
 }
 function drawImage(){
   if(!edImg)return;
@@ -1520,6 +1526,7 @@ function drawImage(){
   ctx.restore();applyCSS();
   document.getElementById('edDimInfo').textContent=(edImg.naturalWidth||edImg.width)+'×'+(edImg.naturalHeight||edImg.height)+' px';
   if(cropActive)positionCropBox();
+  updateScalePreview();
 }
 function applyCSS(){let f='';if(enhBright!==0)f+='brightness('+(1+enhBright/100)+') ';if(enhContrast!==0)f+='contrast('+(1+enhContrast/100)+') ';if(enhSat!==0)f+='saturate('+(1+enhSat/100)+') ';canvas.style.filter=f||'none';}
 function syncSliders(){document.getElementById('brightSlider').value=enhBright;document.getElementById('contrastSlider').value=enhContrast;document.getElementById('satSlider').value=enhSat;}
@@ -1572,6 +1579,35 @@ function updateCropReadout(){
     hInput.value = ph;
   }
 }
+// 배율에 따른 저장 크기 미리보기 업데이트
+function updateScalePreview() {
+  if (!edImg) {
+    document.getElementById('scalePreview').innerHTML = '저장 크기: — x — px';
+    return;
+  }
+  const scale = parseFloat(document.getElementById('scaleFactor').value) || 1.0;
+  const imgW = edImg.naturalWidth || edImg.width;
+  const imgH = edImg.naturalHeight || edImg.height;
+  let up = scale;
+  // 사용자 지정 크기가 있으면 배율 대신 그 크기를 보여줌
+  if (customSaveWidth && customSaveHeight) {
+    document.getElementById('scalePreview').innerHTML = `저장 크기: ${customSaveWidth} x ${customSaveHeight} px (고정)`;
+    return;
+  }
+  const rad = edRotation * Math.PI / 180;
+  const sin = Math.abs(Math.sin(rad));
+  const cos = Math.abs(Math.cos(rad));
+  const sw = Math.round(imgW * up);
+  const sh = Math.round(imgH * up);
+  const outW = Math.round(sw * cos + sh * sin);
+  const outH = Math.round(sw * sin + sh * cos);
+  document.getElementById('scalePreview').innerHTML = `저장 크기: ${outW} x ${outH} px (배율 ${up.toFixed(2)}x)`;
+}
+
+
+
+
+
 function resetCropBox(){cBoxL=.1;cBoxT=.1;cBoxR=.9;cBoxB=.9;positionCropBox();updateCropReadout();}
 
 // ===== 추가할 함수 =====
@@ -1652,7 +1688,7 @@ function applyCrop(){
 function rotateBy(deg){pushHistory();edRotation=(edRotation+Number(deg)+360)%360;drawImage();showToast('🔄 '+edRotation+'° 회전');}
 function setQuality(q){['good','high','max'].forEach(k=>document.getElementById('q-'+k).className='ed-q-btn'+(k===q?' active':''));edSaveQuality=q==='good'?.75:q==='high'?.92:1.0;}
 function setFormat(f){['jpg','png','webp'].forEach(k=>document.getElementById('fmt-'+k).className='ed-q-btn'+(k===f?' active':''));edSaveFormat=f;}
-function setScaleFromInput(){const val=parseFloat(document.getElementById('scaleFactor').value);if(!isNaN(val)&&val>=.2&&val<=3){edSaveScale=val;showToast('저장 배율: '+edSaveScale+'배');}else showToast('0.2 ~ 3.0 사이 값만 가능합니다');}
+function setScaleFromInput(){const val=parseFloat(document.getElementById('scaleFactor').value);if(!isNaN(val)&&val>=.2&&val<=3){edSaveScale=val;showToast('저장 배율: '+edSaveScale+'배');updateScalePreview();}else showToast('0.2 ~ 3.0 사이 값만 가능합니다');}
 // ===== 추가할 함수 =====
 function applyCustomSize() {
   const w = parseInt(document.getElementById('customWidth').value);
@@ -1666,6 +1702,7 @@ function applyCustomSize() {
     customSaveHeight = h;
     showToast(`저장 크기: ${w} x ${h} (비율 유지)`);
   }
+  updateScalePreview();  // 👈 미리보기 갱신
 }
 // ===== 추가 끝 =====
 function saveImage(withEnhance) {
