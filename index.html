@@ -1334,7 +1334,7 @@ function openLightbox(src, alt, dl, index){
   lb.classList.add('open');
   lightboxOpen = true;
   history.pushState({lightbox:true}, '');
-  window.addEventListener('popstate', onPopState);
+ 
   const lbImg = document.getElementById('lightboxImg');
   lbImg.addEventListener('touchstart', onTouchStart);
   lbImg.addEventListener('touchend', onTouchEnd);
@@ -1490,7 +1490,7 @@ function initEditor(name){
   if (!editorOpen) {
     history.pushState({editor:true}, '');
     editorOpen = true;
-    window.addEventListener('popstate', onPopState);
+    
   }
   drawImage(); showToast('✅ 편집기 열림');
 }
@@ -1501,7 +1501,7 @@ function closeEditor() {
   document.getElementById('editorModal').classList.remove('open');
   const adWidget = document.getElementById('ad-widget');
   if (adWidget) adWidget.style.visibility = '';
-  window.removeEventListener('popstate', onPopState);
+ 
 }
 function drawImage(){
   if(!edImg)return;
@@ -1800,6 +1800,8 @@ function checkAdCooldown() {
     if (cooldownEnd) localStorage.removeItem('adCooldownEnd');
   }
 }
+// 뒤로가기 버튼 전역 처리 (한 번만 등록)
+window.addEventListener('popstate', onPopState);
 /* ════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════ */
