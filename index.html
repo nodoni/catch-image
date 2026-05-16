@@ -368,6 +368,8 @@ footer a:hover{color:var(--muted)}
 .overlay-btns button{pointer-events:auto}
 .photo-card img{cursor:pointer}
 
+
+
 /* ── AdSense 광고 스타일 ── */
 /* 페이지 전체 래퍼 */
 .page-layout{display:flex;gap:0;align-items:flex-start;min-height:100vh}
@@ -392,6 +394,117 @@ footer a:hover{color:var(--muted)}
   .page-layout{display:block}
   .ad-top-banner,.ad-bottom-banner{max-width:100%}
 }
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;...}
+.toast.show{opacity:1;transform:translateY(0)}
+
+footer{text-align:center;padding:2rem 1rem 1.5rem;...}
+.photo-overlay{pointer-events:none}
+.overlay-btns button{pointer-events:auto}
+.photo-card img{cursor:pointer}
+
+/* ===== 여기에 추가 ===== */
+/* ── SCROLL TOP BUTTON ── */
+.scroll-top-btn{
+  position:fixed;
+  bottom:90px;
+  right:20px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  color:var(--accent);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.5rem;
+  z-index:300;
+  transition:all .2s;
+  opacity:0;
+  visibility:hidden;
+  backdrop-filter:blur(8px);
+}
+.scroll-top-btn.show{
+  opacity:1;
+  visibility:visible;
+}
+.scroll-top-btn:hover{
+  background:var(--accent);
+  color:#080810;
+  transform:scale(1.05);
+}
+
+/* ── SETTINGS MODAL ── */
+.settings-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.8);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+  backdrop-filter:blur(6px);
+}
+.settings-modal.show{display:flex}
+.settings-panel{
+  background:var(--surface);
+  border-radius:24px;
+  width:90%;
+  max-width:400px;
+  padding:24px;
+  border:1px solid var(--border);
+  box-shadow:0 20px 40px rgba(0,0,0,.3);
+}
+.settings-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  font-weight:700;
+  font-size:1.2rem;
+  border-bottom:1px solid var(--border);
+  padding-bottom:12px;
+}
+.settings-close{
+  background:none;
+  border:none;
+  font-size:1.6rem;
+  cursor:pointer;
+  color:var(--muted);
+}
+.settings-section{margin-bottom:24px}
+.settings-section h4{font-size:.9rem;margin-bottom:12px;color:var(--accent)}
+.settings-btn{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px;
+  width:100%;
+  text-align:left;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:all .15s;
+  font-size:.9rem;
+}
+.settings-btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.help-content{
+  font-size:.8rem;
+  line-height:1.5;
+  color:var(--muted);
+  margin-top:8px;
+  background:var(--surface2);
+  padding:12px;
+  border-radius:12px;
+}
+/* ===== 추가 끝 ===== */
+</style>
+
+
 </style>
 </head>
 <body>
@@ -403,7 +516,8 @@ footer a:hover{color:var(--muted)}
   <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
     <button class="hdr-btn main" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
     <div class="mobile-btn-group" style="display:flex;gap:8px">
-      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙</button>
+      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙</button> 
+       <button class="hdr-btn small" onclick="openSettingsModal()" id="settingsBtn" title="설정">⚙️</button>
     </div>
     <div class="source-toggle" id="sourceToggle">
       <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
@@ -429,12 +543,6 @@ footer a:hover{color:var(--muted)}
 
   <!-- 중앙 콘텐츠 -->
   <div class="main-content">
-
-
-
-
-
-
 
 <section class="hero" id="heroSection">
   <div class="hero-logo" id="heroLogo">
@@ -620,10 +728,7 @@ footer a:hover{color:var(--muted)}
 
 <div class="toast" id="toast"></div>
 <footer>
-  <div class="footer-links">
-    <a href="mailto:nhd7890@gmail.com">📧 문의하기</a>
-  </div>
-  <div class="footer-copy">© 2026 Catch Image · 무료 미디어 검색 서비스</div>
+  Media by <a href="https://www.pexels.com" target="_blank">Pexels</a> &amp; <a href="https://pixabay.com" target="_blank">Pixabay</a>
 </footer>
 
     <!-- 더보기 아래 가로 배너 (CI 2 - 인피드) -->
@@ -681,9 +786,10 @@ let adRestartTimeout = null;  // 닫은 후 다시 시작할 타이머
 /* 페이지 표시 복귀 (홈버튼 후 복귀) → 팝업 즉시 표시 */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
+    checkAdCooldown();
+    // 편집기 상태에 따른 가시성 추가 처리
     const editorOpen = document.getElementById('editorModal').classList.contains('open');
     const adWidget = document.getElementById('ad-widget');
-    // 편집기 상태에 따라 가시성 복원 (단, 사용자가 닫은 후 몰래 재생 중이면 display:none 유지)
     if (adWidget) {
       if (editorOpen) {
         adWidget.style.visibility = 'hidden';
@@ -692,6 +798,7 @@ document.addEventListener('visibilitychange', () => {
       }
     }
   } else {
+    // 백그라운드 시 리소스 절약 (선택)
     const iframe = document.querySelector('#adGrid iframe');
     if (iframe) iframe.src = 'about:blank';
   }
@@ -768,6 +875,15 @@ function rotateAdVideo() {
 
 // 초기 광고 시작 (랜덤 인덱스, 바로 재생)
 function startAd(rand, visible = true) {
+  // 쿨다운 확인
+  const cooldownEnd = localStorage.getItem('adCooldownEnd');
+  if (cooldownEnd && Date.now() < parseInt(cooldownEnd)) {
+    // 쿨다운 중이면 광고를 숨기고 아무것도 하지 않음
+    const widget = document.getElementById('ad-widget');
+    if (widget) widget.style.display = 'none';
+    return;
+  }
+  
   if (adCloseTimeout) clearTimeout(adCloseTimeout);
   if (adRestartTimeout) clearTimeout(adRestartTimeout);
   const widget = document.getElementById('ad-widget');
@@ -776,8 +892,7 @@ function startAd(rand, visible = true) {
       widget.style.display = '';
       widget.style.visibility = '';
     } else {
-      widget.style.display = 'none';   // 아예 공간에서 숨김
-      // 또는 visibility: hidden (공간은 차지하지만 안 보임)
+      widget.style.display = 'none';
     }
   }
   if (rand) adIdx = Math.floor(Math.random() * VIDEO_IDS.length);
@@ -797,25 +912,29 @@ function buildAdGrid(){
 }
 function toggleAd(){const w=document.getElementById('ad-widget');const b=document.getElementById('collapseBtn');w.classList.toggle('collapsed');b.textContent=w.classList.contains('collapsed')?'▸':'▾';}
 function closeAd() {
+  // 1. 광고 위젯 숨기기
   const widget = document.getElementById('ad-widget');
   widget.style.display = 'none';
-  if (adCloseTimeout) clearTimeout(adCloseTimeout);
-  adCloseTimeout = setTimeout(() => {
-    if (adRotationTimer) clearTimeout(adRotationTimer);
-    if (adProgressInterval) clearInterval(adProgressInterval);
-    const iframe = document.querySelector('#adGrid iframe');
-    if (iframe) iframe.src = 'about:blank';
-    const pf = document.getElementById('adProgressFill');
-    if (pf) pf.style.width = '0%';
-    adCloseTimeout = null;
-
-    // 30초 후 몰래 재시작 (보이지 않게)
-    if (adRestartTimeout) clearTimeout(adRestartTimeout);
-    adRestartTimeout = setTimeout(() => {
-      startAd(true, false);   // 👈 visible = false
-      adRestartTimeout = null;
-    }, 30000);
-  }, 16000);
+  
+  // 2. 모든 광고 타이머 정리
+  if (adRotationTimer) clearTimeout(adRotationTimer);
+  if (adProgressInterval) clearInterval(adProgressInterval);
+  
+  // 3. iframe 비우기 (영상 재생 중단)
+  const iframe = document.querySelector('#adGrid iframe');
+  if (iframe) iframe.src = 'about:blank';
+  
+  // 4. 진행바 초기화
+  const pf = document.getElementById('adProgressFill');
+  if (pf) pf.style.width = '0%';
+  
+  // 5. 쿨다운 저장 (현재 시간 + 190초)
+  const cooldownEnd = Date.now() + 190000;  // 3분 10초
+  localStorage.setItem('adCooldownEnd', cooldownEnd);
+  
+  // 6. 쿨다운 중에는 다시 시작하지 않음 (기존 예약 타이머 제거)
+  if (adRestartTimeout) clearTimeout(adRestartTimeout);
+  adRestartTimeout = null;
 }
 
 /* ── SEARCH ── */
@@ -911,8 +1030,11 @@ async function fetchAll(q,page,clear){
 
 /* ── API: 이미지 ── */
 async function fPexelsImg(q,page,pp){
-  // Pexels: 정렬 파라미터 없음 → 랜덤은 랜덤 페이지, 최신/인기는 일반 검색
-  const actualPage = currentSort==='random' ? Math.floor(Math.random()*20)+1 : page;
+  // '인기순' 또는 '최신순'일 때도 랜덤 페이지 사용 (1~20)
+  let actualPage = page;
+  if (currentSort === 'random' || currentSort === 'popular' || currentSort === 'latest') {
+    actualPage = Math.floor(Math.random() * 20) + 1;
+  }
   const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
   if(!r.ok)throw new Error('Pexels '+r.status);
   const d=await r.json();
@@ -922,7 +1044,10 @@ async function fPexelsImg(q,page,pp){
 }
 async function fPixabayImg(q,page,pp){
   const order=currentSort==='latest'?'latest':'popular';
-  const actualPage=currentSort==='random'?Math.floor(Math.random()*20)+1:page;
+  let actualPage = page;
+  if (currentSort === 'random' || currentSort === 'popular' || currentSort === 'latest') {
+    actualPage = Math.floor(Math.random() * 20) + 1;
+  }
   const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
   if(!r.ok)throw new Error('Pixabay '+r.status);
   const d=await r.json();
@@ -1436,6 +1561,27 @@ function toggleTheme(){
 let toastT;
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
 
+function checkAdCooldown() {
+  const cooldownEnd = localStorage.getItem('adCooldownEnd');
+  if (cooldownEnd && Date.now() < parseInt(cooldownEnd)) {
+    // 쿨다운 중: 광고 숨기고, 혹시 재생 중이면 중단
+    const widget = document.getElementById('ad-widget');
+    if (widget) widget.style.display = 'none';
+    if (adRotationTimer) clearTimeout(adRotationTimer);
+    if (adProgressInterval) clearInterval(adProgressInterval);
+    const iframe = document.querySelector('#adGrid iframe');
+    if (iframe) iframe.src = 'about:blank';
+  } else {
+    // 쿨다운 없음: 광고 보이게 (단, 이전에 숨겨졌다면 다시 시작)
+    const widget = document.getElementById('ad-widget');
+    if (widget && widget.style.display === 'none') {
+      // 기존에 숨겨져 있었으면 새로 시작
+      startAd(true, true);
+    }
+    // 쿨다운 만료되었으면 저장된 값 삭제
+    if (cooldownEnd) localStorage.removeItem('adCooldownEnd');
+  }
+}
 /* ════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════ */
@@ -1445,6 +1591,7 @@ document.getElementById('heroSearch').value='';
 document.getElementById('galleryTitle').textContent='"'+initRandomTag+'" 이미지 검색 결과';
 startAd(true);
 fetchAll(initRandomTag,1,true);
+checkAdCooldown();
 
 /* ── 로고 5초 이펙트 ── */
 (function startLogoEffect(){
@@ -1470,7 +1617,74 @@ fetchAll(initRandomTag,1,true);
   },{rootMargin:'300px'});
   observer.observe(lm);
 })();
+/* ── 무한 스크롤 ── */
+(function initInfiniteScroll(){
+  const lm = document.getElementById('loadMore');
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting && lm.style.display!=='none' && !isLoading){
+        loadMore();
+      }
+    });
+  },{rootMargin:'300px'});
+  observer.observe(lm);
+})();
+
+/* ===== 여기에 추가 ===== */
+/* ── 스크롤 탑 버튼 표시/숨김 ── */
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scrollTopBtn');
+  if (window.scrollY > 300) btn.classList.add('show');
+  else btn.classList.remove('show');
+});
+
+/* ── 설정 모달 ── */
+function openSettingsModal() {
+  document.getElementById('settingsModal').classList.add('show');
+}
+function closeSettingsModal() {
+  document.getElementById('settingsModal').classList.remove('show');
+  document.getElementById('helpContent').style.display = 'none';
+}
+document.getElementById('helpBtn').addEventListener('click', () => {
+  const helpDiv = document.getElementById('helpContent');
+  helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
+});
+document.getElementById('settingsModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
+});
+/* ===== 추가 끝 ===== */
 
 </script>
+</body>
+</html>
+</script>
+<!-- 맨 위로 가기 버튼 -->
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
+
+<!-- 설정 모달 -->
+<div id="settingsModal" class="settings-modal">
+  <div class="settings-panel">
+    <div class="settings-header">
+      <span>설정</span>
+      <button class="settings-close" onclick="closeSettingsModal()">×</button>
+    </div>
+    <div class="settings-section">
+      <h4>📞 문의</h4>
+      <button class="settings-btn" onclick="window.location.href='mailto:nhd7890@gmail.com'">📧 이메일 문의</button>
+    </div>
+    <div class="settings-section">
+      <h4>ℹ️ 도움말</h4>
+      <button class="settings-btn" id="helpBtn">📖 사이트 정보</button>
+      <div id="helpContent" class="help-content" style="display:none;">
+        <strong>캐치이미지 (Catch Image)</strong><br>
+        © 2026 Catch Image · 무료 미디어 검색 서비스<br>
+        Pexels + Pixabay 통합 검색, 무료 이미지/동영상, 이미지 편집 기능 제공.<br>
+        모든 미디어는 각 출처의 라이선스를 따릅니다.<br><br>
+        문의: nhd7890@gmail.com
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
