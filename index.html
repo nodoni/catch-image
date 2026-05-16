@@ -47,7 +47,7 @@
 </style>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#080810;--surface:#10101c;--surface2:#18182a;--border:rgba(255,255,255,.06);--accent:#e8ff47;--text:#f0f0ff;--muted:#6b6b88;--radius:12px}
+:root{--bg:#080810;--surface:#10101c;--surface2:#18182a;--border:rgba(255,255,255,.06);--accent:#e8ff47;--text:#f0f0ff;--muted:#6b6b88;--radius:12px;--search-wrap-bg:rgba(8,8,16,.96)}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh}
 
 /* ── HEADER ── */
@@ -153,8 +153,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:1.2
 .hero-search-wrap{position:relative;z-index:10}
 body.searched .hero-search-wrap{
   position:sticky;
-  top:58px; /* 헤더 높이만큼 */
-  background:rgba(8,8,16,.96);
+  top:58px;
+  background:var(--search-wrap-bg);
   backdrop-filter:blur(14px);
   padding:.5rem 2rem;
   margin:0 -2rem;
@@ -1597,7 +1597,6 @@ function toggleTheme(){
   const root=document.documentElement;
   const isDark=getComputedStyle(root).getPropertyValue('--bg').trim()==='#080810';
   if(isDark){
-    // 다크모드 → 라이트모드
     root.style.setProperty('--bg','#f5f5f7');
     root.style.setProperty('--surface','#ffffff');
     root.style.setProperty('--surface2','#f0f0f0');
@@ -1605,11 +1604,11 @@ function toggleTheme(){
     root.style.setProperty('--text','#111111');
     root.style.setProperty('--muted','#666666');
     root.style.setProperty('--accent','#f97316');
-    root.style.setProperty('--accent-soft', 'rgba(249,115,22,0.18)');  // 주황 투명
+    root.style.setProperty('--accent-soft', 'rgba(249,115,22,0.18)');
+    root.style.setProperty('--search-wrap-bg', 'rgba(255,255,255,.96)');  // 👈 추가
     localStorage.setItem('theme','light');
     document.getElementById('themeToggleBtn').innerHTML='☀️';
   } else {
-    // 라이트모드 → 다크모드
     root.style.setProperty('--bg','#080810');
     root.style.setProperty('--surface','#10101c');
     root.style.setProperty('--surface2','#18182a');
@@ -1617,7 +1616,8 @@ function toggleTheme(){
     root.style.setProperty('--text','#f0f0ff');
     root.style.setProperty('--muted','#6b6b88');
     root.style.setProperty('--accent','#e8ff47');
-    root.style.setProperty('--accent-soft', 'rgba(232,255,71,0.18)'); // 노랑 투명
+    root.style.setProperty('--accent-soft', 'rgba(232,255,71,0.18)');
+    root.style.setProperty('--search-wrap-bg', 'rgba(8,8,16,.96)');  // 👈 추가
     localStorage.setItem('theme','dark');
     document.getElementById('themeToggleBtn').innerHTML='🌙';
   }
