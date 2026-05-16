@@ -1149,10 +1149,8 @@ async function fPixabayVid(q, page, pp, forceRandom = false){
   if(!r.ok)throw new Error('Pixabay Video '+r.status);
   const d=await r.json();
   let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
-  if(isRandomMode){
-    vids = vids.sort(()=>Math.random()-0.5);
-  }
-  const hasMore = isRandomMode ? false : (d.totalHits > page * pp);
+  if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+  const hasMore = isRandom ? false : (d.totalHits > actualPage * pp);
   return {p: vids, m: hasMore};
 }
 
