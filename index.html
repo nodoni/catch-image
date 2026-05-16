@@ -308,6 +308,8 @@ body.searched .gallery-section{margin-top:.3rem}
 #canvasWrap{position:relative;display:inline-block;line-height:0}
 #editorCanvas{display:block;border-radius:6px;max-width:100%;max-height:100%}
 #cropBox{position:absolute;top:0;left:0;right:0;bottom:0;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.55);display:none;cursor:move;touch-action:none}
+#cropBox.circle-mode{border-radius:50%;box-shadow:none}
+#cropBox.circle-mode::after{content:'';position:absolute;inset:-2px;border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none}
 .ch{position:absolute;width:14px;height:14px;background:var(--accent);border:2px solid #080810;border-radius:3px;z-index:2}
 .ch-tl{top:-7px;left:-7px;cursor:nw-resize}.ch-tc{top:-7px;left:50%;transform:translateX(-50%);cursor:n-resize}.ch-tr{top:-7px;right:-7px;cursor:ne-resize}
 .ch-ml{top:50%;left:-7px;transform:translateY(-50%);cursor:w-resize}.ch-mr{top:50%;right:-7px;transform:translateY(-50%);cursor:e-resize}
@@ -711,7 +713,10 @@ footer {
       <div class="ed-section">
         <div class="ed-section-title">✂️ 영역 선택 자르기</div>
         <div class="ed-info">자르기 박스를 켜고 핸들을 드래그해서 영역을 조정하세요.</div>
-        <button class="ed-btn mode-active" id="modeCropBtn" onclick="activateCrop()">✂️ 자르기 박스 켜기</button>
+        <div class="ed-row" style="margin-bottom:6px">
+          <button class="ed-btn mode-active" id="modeCropBtn" onclick="activateCrop('rect')" style="flex:1">✂️ 사각형</button>
+          <button class="ed-btn" id="modeCircleCropBtn" onclick="activateCrop('circle')" style="flex:1">⭕ 원형</button>
+        </div>
       <div class="ed-label" style="margin-top: 8px;">박스 크기 직접 입력</div>
       <div class="ed-row">
         <input type="number" id="cropWInput" placeholder="너비" style="flex:0.6; min-width:0; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:4px 6px; font-size:0.7rem; border-radius:7px;">
@@ -1477,7 +1482,7 @@ const cropBox=document.getElementById('cropBox');
 const canvasWrap=document.getElementById('canvasWrap');
 let edImg=null,edHistory=[],edRedoStack=[],edRotation=0,edFlipX=false,edFlipY=false,edSaveQuality=1.0,edSaveFormat='jpg';
 let enhBright=0,enhContrast=0,enhSat=0;
-let cropActive=false,cBoxL=.1,cBoxT=.1,cBoxR=.9,cBoxB=.9,dragging=null;
+let cropActive=false,cropMode='rect',cBoxL=.1,cBoxT=.1,cBoxR=.9,cBoxB=.9,dragging=null;
 let edSaveScale = 1.0;
 let customSaveWidth = null;   // 사용자 지정 너비 (null=미사용)
 let customSaveHeight = null;  // 사용자 지정 높이
@@ -1502,8 +1507,9 @@ function initEditor(name){
   enhBright=0; enhContrast=0; enhSat=0; syncSliders();
   canvas.dataset.name=name||'image';
   document.getElementById('editorModal').classList.add('open');
-  cropBox.style.display='none'; cropActive=false; showCropControls(false);
-  const mcb=document.getElementById('modeCropBtn');if(mcb){mcb.textContent='✂️ 자르기 박스 켜기';mcb.classList.remove('accent');}
+  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; showCropControls(false);
+  const mcb=document.getElementById('modeCropBtn');if(mcb){mcb.classList.remove('accent');}
+  const mcb2=document.getElementById('modeCircleCropBtn');if(mcb2){mcb2.classList.remove('accent');}
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
   const adWidget = document.getElementById('ad-widget');
   if (adWidget) adWidget.style.visibility = 'hidden';
@@ -1567,26 +1573,66 @@ function undoEdit(){
 }
 function flipH(){pushHistory();edFlipX=!edFlipX;drawImage();showToast('↔️ 좌우 반전');}
 function flipV(){pushHistory();edFlipY=!edFlipY;drawImage();showToast('↕️ 상하 반전');}
-function activateCrop(){
-  if(cropActive){
-    // 끄기
+function activateCrop(mode){
+  const rectBtn = document.getElementById('modeCropBtn');
+  const circleBtn = document.getElementById('modeCircleCropBtn');
+  // 같은 모드 버튼 다시 누르면 끄기
+  if(cropActive && mode === cropMode){
     cropActive=false;
     cropBox.style.display='none';
+    cropBox.classList.remove('circle-mode');
     showCropControls(false);
-    document.getElementById('modeCropBtn').textContent='✂️ 자르기 박스 켜기';
-    document.getElementById('modeCropBtn').classList.remove('accent');
-  } else {
-    // 켜기
-    cropActive=true;cBoxL=.1;cBoxT=.1;cBoxR=.9;cBoxB=.9;
-    positionCropBox();cropBox.style.display='block';
-    showCropControls(true);updateCropReadout();
-    document.getElementById('modeCropBtn').textContent='✂️ 자르기 박스 끄기';
-    document.getElementById('modeCropBtn').classList.add('accent');
-    showToast('핸들을 드래그해서 영역을 조절하세요');
+    rectBtn.classList.remove('accent');
+    circleBtn.classList.remove('accent');
+    return;
   }
+  // 켜기 or 모드 전환
+  cropMode = mode || 'rect';
+  cropActive = true;
+  // 원형은 정사각형으로 초기화
+  if(cropMode === 'circle'){
+    const size = Math.min(canvas.width, canvas.height);
+    const cx = canvas.width/2, cy = canvas.height/2;
+    const half = size * 0.4;
+    cBoxL = (cx - half) / canvas.width;
+    cBoxR = (cx + half) / canvas.width;
+    cBoxT = (cy - half) / canvas.height;
+    cBoxB = (cy + half) / canvas.height;
+    cropBox.classList.add('circle-mode');
+    circleBtn.classList.add('accent');
+    rectBtn.classList.remove('accent');
+    showToast('⭕ 원형 자르기 — 핸들로 크기 조절');
+  } else {
+    cBoxL=.1;cBoxT=.1;cBoxR=.9;cBoxB=.9;
+    cropBox.classList.remove('circle-mode');
+    rectBtn.classList.add('accent');
+    circleBtn.classList.remove('accent');
+    showToast('✂️ 사각형 자르기 — 핸들로 크기 조절');
+  }
+  positionCropBox();
+  cropBox.style.display='block';
+  showCropControls(true);
+  updateCropReadout();
 }
 function showCropControls(show){document.getElementById('cropReadout').style.display=show?'block':'none';document.getElementById('applyCropBtn').style.display=show?'':'none';document.getElementById('resetCropBtn').style.display=show?'':'none';}
-function positionCropBox(){const cw=canvas.width,ch=canvas.height;cropBox.style.left=Math.round(cBoxL*cw)+'px';cropBox.style.top=Math.round(cBoxT*ch)+'px';cropBox.style.width=Math.round((cBoxR-cBoxL)*cw)+'px';cropBox.style.height=Math.round((cBoxB-cBoxT)*ch)+'px';}
+function positionCropBox(){
+  const cw=canvas.width, ch=canvas.height;
+  if(cropMode==='circle'){
+    // 픽셀 기준 정원: width px = height px
+    const sizePx=Math.round((cBoxR-cBoxL)*cw);
+    const cx=Math.round((cBoxL+cBoxR)/2*cw);
+    const cy=Math.round((cBoxT+cBoxB)/2*ch);
+    cropBox.style.left=(cx-sizePx/2)+'px';
+    cropBox.style.top=(cy-sizePx/2)+'px';
+    cropBox.style.width=sizePx+'px';
+    cropBox.style.height=sizePx+'px';
+  } else {
+    cropBox.style.left=Math.round(cBoxL*cw)+'px';
+    cropBox.style.top=Math.round(cBoxT*ch)+'px';
+    cropBox.style.width=Math.round((cBoxR-cBoxL)*cw)+'px';
+    cropBox.style.height=Math.round((cBoxB-cBoxT)*ch)+'px';
+  }
+}
 function updateCropReadout(){
   const pw=Math.round((cBoxR-cBoxL)*(edImg?edImg.width:canvas.width));
   const ph=Math.round((cBoxB-cBoxT)*(edImg?edImg.height:canvas.height));
@@ -1684,12 +1730,47 @@ function startDragTouch(e){const dir=e.target.dataset.dir;if(!dir&&e.target!==cr
 function onDragTouch(e){e.preventDefault();onDrag(e.touches[0]);}
 function onDrag(e){
   if(!dragging)return;
-  const cw=canvas.width,ch=canvas.height;
-  const dx=(e.clientX-dragging.x)/cw,dy=(e.clientY-dragging.y)/ch;
-  const min=.05,d=dragging.dir;
-  let l=dragging.l,t=dragging.t,r=dragging.r,b=dragging.b;
-  if(d==='move'){l=Math.max(0,Math.min(1-(r-l),l+dx));t=Math.max(0,Math.min(1-(b-t),t+dy));r=l+(dragging.r-dragging.l);b=t+(dragging.b-dragging.t);}
-  else{if(d.includes('l'))l=Math.max(0,Math.min(r-min,l+dx));if(d.includes('r'))r=Math.max(l+min,Math.min(1,r+dx));if(d.includes('t'))t=Math.max(0,Math.min(b-min,t+dy));if(d.includes('b'))b=Math.max(t+min,Math.min(1,b+dy));}
+  const cw=canvas.width, ch=canvas.height;
+  const dx=(e.clientX-dragging.x)/cw, dy=(e.clientY-dragging.y)/ch;
+  const minPx=20, d=dragging.dir;
+  let l=dragging.l, t=dragging.t, r=dragging.r, b=dragging.b;
+
+  if(d==='move'){
+    l=Math.max(0,Math.min(1-(r-l),l+dx));
+    t=Math.max(0,Math.min(1-(b-t),t+dy));
+    r=l+(dragging.r-dragging.l);
+    b=t+(dragging.b-dragging.t);
+  } else if(cropMode==='circle'){
+    // 픽셀 단위로 계산 — 정원(pixel 기준 정사각형) 유지
+    const prevSizePx=(dragging.r-dragging.l)*cw; // 초기 원의 픽셀 너비
+    const cx=((dragging.l+dragging.r)/2)*cw;     // 중심 픽셀 X
+    const cy=((dragging.t+dragging.b)/2)*ch;     // 중심 픽셀 Y
+    const dxPx=e.clientX-dragging.x;
+    const dyPx=e.clientY-dragging.y;
+    // 핸들 방향에 따라 delta 결정
+    let delta=0;
+    if(d==='br'||d==='tr') delta= Math.abs(dxPx)>=Math.abs(dyPx)?dxPx:dyPx;
+    else if(d==='bl'||d==='tl') delta= Math.abs(dxPx)>=Math.abs(dyPx)?-dxPx:-dyPx;
+    else if(d==='mr') delta=dxPx;
+    else if(d==='ml') delta=-dxPx;
+    else if(d==='bc') delta=dyPx;
+    else if(d==='tc') delta=-dyPx;
+    const newSizePx=Math.max(minPx, prevSizePx+delta);
+    const halfW=newSizePx/2/cw;
+    const halfH=newSizePx/2/ch;
+    l=cx/cw-halfW; r=cx/cw+halfW;
+    t=cy/ch-halfH; b=cy/ch+halfH;
+    // 경계 클램핑 (원형 유지하면서 밀어내기)
+    if(l<0){r-=l;l=0;} if(r>1){l-=r-1;r=1;}
+    if(t<0){b-=t;t=0;} if(b>1){t-=b-1;b=1;}
+    l=Math.max(0,l); r=Math.min(1,r); t=Math.max(0,t); b=Math.min(1,b);
+  } else {
+    const min=minPx/Math.min(cw,ch);
+    if(d.includes('l'))l=Math.max(0,Math.min(r-min,l+dx));
+    if(d.includes('r'))r=Math.max(l+min,Math.min(1,r+dx));
+    if(d.includes('t'))t=Math.max(0,Math.min(b-min,t+dy));
+    if(d.includes('b'))b=Math.max(t+min,Math.min(1,b+dy));
+  }
   cBoxL=l;cBoxT=t;cBoxR=r;cBoxB=b;positionCropBox();updateCropReadout();
 }
 function endDrag(){dragging=null;window.removeEventListener('mousemove',onDrag);window.removeEventListener('mouseup',endDrag);window.removeEventListener('touchmove',onDragTouch);window.removeEventListener('touchend',endDrag);}
@@ -1700,10 +1781,29 @@ function applyCrop(){
   const x=Math.round(cBoxL*sw),y=Math.round(cBoxT*sh),w=Math.round((cBoxR-cBoxL)*sw),h=Math.round((cBoxB-cBoxT)*sh);
   if(w<4||h<4){showToast('영역이 너무 작습니다');return;}
   const t=document.createElement('canvas');t.width=w;t.height=h;
-  t.getContext('2d').drawImage(edImg,x,y,w,h,0,0,w,h);
-  const out=new Image();out.onload=()=>{edImg=out;cropActive=false;cropBox.style.display='none';showCropControls(false);
-  const btn=document.getElementById('modeCropBtn');btn.textContent='✂️ 자르기 박스 켜기';btn.classList.remove('accent');
-  drawImage();showToast('✅ 자르기 완료!');};out.src=t.toDataURL('image/png');
+  const tc=t.getContext('2d');
+  if(cropMode==='circle'){
+    // 원형 마스킹 — 투명 배경
+    tc.save();
+    tc.beginPath();
+    tc.arc(w/2,h/2,Math.min(w,h)/2,0,Math.PI*2);
+    tc.closePath();
+    tc.clip();
+    tc.drawImage(edImg,x,y,w,h,0,0,w,h);
+    tc.restore();
+    // 원형은 PNG로 강제 (투명 지원)
+    const origFormat=edSaveFormat;
+    edSaveFormat='png';
+    const out=new Image();out.onload=()=>{edImg=out;cropActive=false;cropBox.style.display='none';cropBox.classList.remove('circle-mode');cropMode='rect';showCropControls(false);
+    document.getElementById('modeCropBtn').classList.remove('accent');
+    document.getElementById('modeCircleCropBtn').classList.remove('accent');
+    drawImage();showToast('✅ 원형 자르기 완료! (PNG로 저장됩니다)');};out.src=t.toDataURL('image/png');
+  } else {
+    tc.drawImage(edImg,x,y,w,h,0,0,w,h);
+    const out=new Image();out.onload=()=>{edImg=out;cropActive=false;cropBox.style.display='none';showCropControls(false);
+    document.getElementById('modeCropBtn').classList.remove('accent');
+    drawImage();showToast('✅ 자르기 완료!');};out.src=t.toDataURL('image/png');
+  }
 }
 function rotateBy(deg){pushHistory();edRotation=(edRotation+Number(deg)+360)%360;drawImage();showToast('🔄 '+edRotation+'° 회전');}
 function setQuality(q){['good','high','max'].forEach(k=>document.getElementById('q-'+k).className='ed-q-btn'+(k===q?' active':''));edSaveQuality=q==='good'?.75:q==='high'?.92:1.0;}
