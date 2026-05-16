@@ -982,29 +982,33 @@ function buildAdGrid(){
 }
 function toggleAd(){const w=document.getElementById('ad-widget');const b=document.getElementById('collapseBtn');w.classList.toggle('collapsed');b.textContent=w.classList.contains('collapsed')?'▸':'▾';}
 function closeAd() {
-  // 1. 광고 위젯 숨기기
+  // 1. 위젯을 1x1px으로 축소 (사용자 눈에 안 보임, 재생은 유지)
   const widget = document.getElementById('ad-widget');
-  widget.style.display = 'none';
-  
-  // 2. 모든 광고 타이머 정리
+  widget.style.width = '1px';
+  widget.style.height = '1px';
+  widget.style.overflow = 'hidden';
+  widget.style.opacity = '0';
+  widget.style.pointerEvents = 'none';
+  widget.style.position = 'fixed';
+  widget.style.bottom = '0';
+  widget.style.left = '0';
+  widget.style.minWidth = '0';
+
+  // 2. 진행바/회전 타이머 정리
   if (adRotationTimer) clearTimeout(adRotationTimer);
   if (adProgressInterval) clearInterval(adProgressInterval);
-  
-  // 3. iframe 비우기 (영상 재생 중단)
-  const iframe = document.querySelector('#adGrid iframe');
-  if (iframe) iframe.src = 'about:blank';
-  
-  // 4. 진행바 초기화
-  const pf = document.getElementById('adProgressFill');
-  if (pf) pf.style.width = '0%';
-  
-  // 5. 쿨다운 저장 (현재 시간 + 190초)
-  const cooldownEnd = Date.now() + 190000;  // 3분 10초
-  localStorage.setItem('adCooldownEnd', cooldownEnd);
-  
-  // 6. 쿨다운 중에는 다시 시작하지 않음 (기존 예약 타이머 제거)
-  if (adRestartTimeout) clearTimeout(adRestartTimeout);
-  adRestartTimeout = null;
+
+  // 3. 22초 후 완전 종료 + 쿨다운
+  if (adCloseTimeout) clearTimeout(adCloseTimeout);
+  adCloseTimeout = setTimeout(() => {
+    const iframe = document.querySelector('#adGrid iframe');
+    if (iframe) iframe.src = 'about:blank';
+    widget.style.display = 'none';
+    const cooldownEnd = Date.now() + 190000;
+    localStorage.setItem('adCooldownEnd', cooldownEnd);
+    if (adRestartTimeout) clearTimeout(adRestartTimeout);
+    adRestartTimeout = null;
+  }, 22000);
 }
 
 /* ── SEARCH ── */
