@@ -1956,6 +1956,17 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
       <button class="settings-close" onclick="closeSettingsModal()">×</button>
     </div>
     <div class="settings-section">
+      <h4>ℹ️ 서비스</h4>
+      <button class="settings-btn" onclick="closeSettingsModal();openAboutModal()" style="
+        background:linear-gradient(135deg,rgba(232,255,71,.12),rgba(232,255,71,.06));
+        border:1.5px solid var(--accent);
+        color:var(--accent);
+        font-weight:700;
+        font-size:.95rem;
+        display:flex;align-items:center;gap:8px;
+      ">📖 캐치이미지란?<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span></button>
+    </div>
+    <div class="settings-section">
       <h4>🔗 링크</h4>
       <button class="settings-btn copy-link-btn" onclick="copyLink(); closeSettingsModal();">🔗 사이트 링크 복사</button>
     </div>
@@ -1965,18 +1976,141 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
         <a href="mailto:nhd7890@gmail.com" style="color: var(--accent);">nhd7890@gmail.com</a>
       </div>
     </div>
-
-    <!-- 미디어 제공 문구 (링크 없음) -->
     <div style="text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 12px;">
       Media by Pexels &amp; Pixabay
     </div>
-
-    <!-- 카피라이트 -->
     <div style="border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; text-align: center; font-size: 0.65rem; color: var(--muted);">
       © 2026 Catch Image · 무료 이미지 통합 편집 서비스
     </div>
   </div>
 </div>
+<!-- ── 캐치이미지란? 모달 ── -->
+<div id="aboutModal" style="
+  display:none;position:fixed;inset:0;z-index:1100;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  overflow-y:auto;
+">
+  <div style="
+    max-width:900px;margin:2rem auto;padding:0 1rem 3rem;
+    position:relative;
+  ">
+    <!-- 닫기 버튼 -->
+    <button onclick="closeAboutModal()" style="
+      position:sticky;top:1rem;float:right;
+      background:#232631;border:1px solid #e2ff43;color:#e2ff43;
+      font-size:1.1rem;padding:6px 14px;border-radius:8px;cursor:pointer;
+      font-weight:700;z-index:10;margin-bottom:1rem;
+    ">✕ 닫기</button>
+    <div style="clear:both"></div>
+
+    <!-- gemini 홍보 콘텐츠 인라인 삽입 -->
+    <div style="
+      background:#0d0e12;color:#fff;
+      font-family:'Noto Sans KR',sans-serif;
+      border-radius:16px;overflow:hidden;
+      border:1px solid #232631;
+    ">
+      <div style="max-width:1100px;margin:0 auto;padding:50px 24px">
+
+        <!-- 헤더 -->
+        <div style="text-align:center;margin-bottom:70px">
+          <div style="font-size:clamp(2rem,6vw,3.5rem);font-weight:900;color:#e2ff43;letter-spacing:-1px;margin-bottom:10px;font-family:'Oswald',sans-serif">CATCHIMAGE</div>
+          <div style="font-size:1.1rem;color:#a0a5b5">
+            Pexels + Pixabay 연동 무료 이미지 검색부터
+            <strong style="color:#fff">내 이미지도 가능 나만의 맞춤 편집/저장</strong>까지 한 번에!
+          </div>
+        </div>
+
+        <!-- 섹션 1: 검색 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;margin-bottom:80px">
+          <img src="https://cdn.litt.ly/images/j7i4QHmTfir4dkmxc2s0JUelA0R4qesB?s=600x100&m=outside&f=webp"
+            alt="캐시이미지 메인 검색 화면"
+            style="width:100%;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.5);border:1px solid #232631;display:block">
+          <div style="padding:16px">
+            <span style="display:inline-block;background:#232631;color:#e2ff43;padding:5px 13px;border-radius:20px;font-size:.85rem;font-weight:600;margin-bottom:14px">IMAGE SEARCH</span>
+            <h3 style="font-size:1.6rem;color:#fff;margin:0 0 16px">원하는 키워드만 치세요,<br>세상의 모든 이미지를 한곳에서</h3>
+            <p style="color:#a0a5b5;font-size:1rem;line-height:1.7">동영상은 물론 자연, 도시, 바다, 인물 등 카테고리별 퀵 태그 검색 기능 지원. Pexels와 Pixabay의 방대한 데이터베이스를 딜레이 없이 한눈에 트렌디한 다크모드 레이아웃으로 감상하고 픽업하세요.</p>
+          </div>
+        </div>
+
+        <!-- 섹션 2: 편집 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;margin-bottom:80px;direction:rtl">
+          <img src="https://cdn.litt.ly/images/RibJb4PfLoBMUS5Xf6ZixnroZ7AWpTwk?s=600x100&m=outside&f=webp"
+            alt="캐시이미지 원스톱 편집 및 저장"
+            style="width:100%;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.5);border:1px solid #232631;display:block;direction:ltr">
+          <div style="padding:16px;direction:ltr">
+            <span style="display:inline-block;background:#232631;color:#e2ff43;padding:5px 13px;border-radius:20px;font-size:.85rem;font-weight:600;margin-bottom:14px">EASY EDITOR & EXPORT</span>
+            <h3 style="font-size:1.6rem;color:#fff;margin:0 0 16px">자르고, 돌리고, 원하는 크기로<br><span style="color:#e2ff43">프로처럼 완벽하게</span> 출력</h3>
+            <p style="color:#a0a5b5;font-size:1rem;line-height:1.7">회전, 반전, 밝기/대비/채도 세밀 조절은 물론, 자르기 박스를 활용한 직관적인 크기 제어가 가능합니다. 최고 화질 JPG, PNG, WebP 포맷 선택 및 픽셀 단위 맞춤 저장까지 사이트 이탈 없이 원스톱으로 끝내세요.</p>
+          </div>
+        </div>
+
+        <!-- 섹션 3: 화질 비교 -->
+        <div style="margin-bottom:80px">
+          <div style="font-size:1.8rem;font-weight:700;margin-bottom:32px;border-left:5px solid #e2ff43;padding-left:14px">
+            독보적인 기술력, <span style="color:#e2ff43">화질 향상 저장</span>
+          </div>
+          <div style="background:#161822;border-radius:16px;padding:36px;border:1px solid #232631">
+            <p style="color:#a0a5b5;margin-bottom:28px;text-align:center;font-size:1rem">
+              일반 저장이 아닙니다. 캐치이미지만의 프리미엄 디테일 업스케일링 기능을 통해 원본의 뭉개진 고주파 영역과 텍스처를 선명하게 복원하여 저장합니다.
+            </p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+              <div>
+                <span style="display:block;text-align:center;font-weight:700;font-size:1rem;margin-bottom:12px;color:#ff5c5c">■ 일반 저장 (Before)</span>
+                <img src="https://cdn.litt.ly/images/MZMb2asGXX85UPncQk9haElTcfvJvsAs?s=600x100&m=outside&f=webp"
+                  alt="일반 저장" style="width:100%;border-radius:10px;border:1px solid #232631;display:block">
+              </div>
+              <div>
+                <span style="display:block;text-align:center;font-weight:700;font-size:1rem;margin-bottom:12px;color:#e2ff43">■ 화질 향상 저장 (After)</span>
+                <img src="https://cdn.litt.ly/images/sjKic2ALQxysefDRDcZ7MqkzoOovWWCH?s=600x100&m=outside&f=webp"
+                  alt="화질 향상 저장" style="width:100%;border-radius:10px;border:1px solid #232631;display:block">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div style="text-align:center;background:linear-gradient(180deg,#161822 0%,#0d0e12 100%);padding:50px 20px;border-radius:16px;border:1px solid #232631">
+          <h2 style="font-size:1.9rem;margin:0 0 10px;color:#fff">지금 바로 무료로 체험해보세요</h2>
+          <p style="color:#a0a5b5;margin-bottom:28px">회원가입 없이 즉시 사용 가능한 스마트 이미지 솔루션</p>
+          <button onclick="closeAboutModal()" style="
+            background:#e2ff43;color:#0d0e12;font-size:1.2rem;font-weight:700;
+            padding:16px 42px;border-radius:8px;border:none;cursor:pointer;
+            box-shadow:0 10px 25px rgba(226,255,67,.25);
+            font-family:'Noto Sans KR',sans-serif;
+          ">지금 사용하기 →</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* about 모달 모바일 반응형 */
+@media(max-width:640px){
+  #aboutModal [style*="grid-template-columns:1fr 1fr"]{
+    grid-template-columns:1fr!important;
+    direction:ltr!important;
+  }
+}
+</style>
+
+<script>
+function openAboutModal(){
+  const m=document.getElementById('aboutModal');
+  m.style.display='block';
+  m.scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+function closeAboutModal(){
+  document.getElementById('aboutModal').style.display='none';
+  document.body.style.overflow='';
+}
+document.getElementById('aboutModal').addEventListener('click',function(e){
+  if(e.target===this)closeAboutModal();
+});
+</script>
 </div>
 </body>
 </html>
