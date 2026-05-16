@@ -1341,7 +1341,7 @@ function openLightbox(src, alt, dl, index){
  
 }
 function onPopState(e) {
-  // 동영상 모달이 열려 있으면 닫기
+  // 동영상 모달
   if (videoModalOpen && _videoModalEl && _videoModalEl.style.display === 'flex') {
     _videoModalEl.style.display = 'none';
     _videoModalEl.querySelector('#_vmVideo').pause();
@@ -1352,7 +1352,6 @@ function onPopState(e) {
     document.getElementById('editorModal').classList.remove('open');
     const adWidget = document.getElementById('ad-widget');
     if (adWidget) adWidget.style.visibility = '';
-    window.removeEventListener('popstate', onPopState);
   } 
   else if (lightboxOpen) {
     closeLightboxBtn();
