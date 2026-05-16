@@ -946,16 +946,14 @@ function startAd(rand, visible = true) {
     return;
   }
   
+
   if (adCloseTimeout) clearTimeout(adCloseTimeout);
   if (adRestartTimeout) clearTimeout(adRestartTimeout);
   const widget = document.getElementById('ad-widget');
   if (widget) {
-    if (visible) {
-      widget.style.display = '';
-      widget.style.visibility = '';
-    } else {
-      widget.style.display = 'none';
-    }
+    // 인라인 스타일 완전 초기화 (1x1 축소 상태 복원)
+    widget.style.cssText = '';
+    if (!visible) widget.style.display = 'none';
   }
   if (rand) adIdx = Math.floor(Math.random() * VIDEO_IDS.length);
   buildAdGrid();
