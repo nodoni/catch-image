@@ -662,6 +662,12 @@ footer{text-align:center;padding:2rem 1rem 1.5rem;...}
         <div class="ed-section-title">✂️ 영역 선택 자르기</div>
         <div class="ed-info">자르기 박스를 켜고 핸들을 드래그해서 영역을 조정하세요.</div>
         <button class="ed-btn mode-active" id="modeCropBtn" onclick="activateCrop()">✂️ 자르기 박스 켜기</button>
+      <div class="ed-label" style="margin-top: 8px;">박스 크기 직접 입력</div>
+      <div class="ed-row">
+        <input type="number" id="cropWInput" placeholder="너비" style="flex:0.6; min-width:0; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:4px 6px; font-size:0.7rem; border-radius:7px;">
+        <input type="number" id="cropHInput" placeholder="높이" style="flex:0.6; min-width:0; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:4px 6px; font-size:0.7rem; border-radius:7px;">
+        <button class="ed-btn" style="flex:0.4; min-width:0; margin:0; justify-content:center; padding:4px 6px; font-size:0.7rem;" onclick="setCropBoxSize()">적용</button>
+      </div>
         <div id="cropReadout" style="display:none">W — H —</div>
         <button class="ed-btn accent" id="applyCropBtn" onclick="applyCrop()" style="display:none">✅ 이 영역으로 자르기</button>
         <button class="ed-btn" id="resetCropBtn" onclick="resetCropBox()" style="display:none">↩️ 박스 초기화</button>
@@ -1470,9 +1476,69 @@ function activateCrop(){
 }
 function showCropControls(show){document.getElementById('cropReadout').style.display=show?'block':'none';document.getElementById('applyCropBtn').style.display=show?'':'none';document.getElementById('resetCropBtn').style.display=show?'':'none';}
 function positionCropBox(){const cw=canvas.width,ch=canvas.height;cropBox.style.left=Math.round(cBoxL*cw)+'px';cropBox.style.top=Math.round(cBoxT*ch)+'px';cropBox.style.width=Math.round((cBoxR-cBoxL)*cw)+'px';cropBox.style.height=Math.round((cBoxB-cBoxT)*ch)+'px';}
-function updateCropReadout(){const pw=Math.round((cBoxR-cBoxL)*(edImg?edImg.width:canvas.width));const ph=Math.round((cBoxB-cBoxT)*(edImg?edImg.height:canvas.height));document.getElementById('cropReadout').textContent='W '+pw+' H '+ph;}
+function updateCropReadout(){
+  const pw=Math.round((cBoxR-cBoxL)*(edImg?edImg.width:canvas.width));
+  const ph=Math.round((cBoxB-cBoxT)*(edImg?edImg.height:canvas.height));
+  document.getElementById('cropReadout').textContent='W '+pw+' H '+ph;
+  // 입력 필드에도 현재 크기 반영
+  const wInput = document.getElementById('cropWInput');
+  const hInput = document.getElementById('cropHInput');
+  if (wInput && hInput) {
+    wInput.value = pw;
+    hInput.value = ph;
+  }
+}
 function resetCropBox(){cBoxL=.1;cBoxT=.1;cBoxR=.9;cBoxB=.9;positionCropBox();updateCropReadout();}
+
+// ===== 추가할 함수 =====
+function setCropBoxSize() {
+  if (!cropActive) {
+    showToast('자르기 박스를 먼저 켜주세요');
+    return;
+  }
+  const wInput = document.getElementById('cropWInput');
+  const hInput = document.getElementById('cropHInput');
+  let newW = parseInt(wInput.value);
+  let newH = parseInt(hInput.value);
+  if (isNaN(newW) || isNaN(newH) || newW <= 0 || newH <= 0) {
+    showToast('올바른 숫자를 입력하세요');
+    return;
+  }
+  const imgW = edImg.naturalWidth || edImg.width;
+  const imgH = edImg.naturalHeight || edImg.height;
+  let centerX = (cBoxL + cBoxR) / 2;
+  let centerY = (cBoxT + cBoxB) / 2;
+  let newL = centerX - (newW / imgW) / 2;
+  let newR = centerX + (newW / imgW) / 2;
+  let newT = centerY - (newH / imgH) / 2;
+  let newB = centerY + (newH / imgH) / 2;
+  newL = Math.max(0, newL);
+  newR = Math.min(1, newR);
+  newT = Math.max(0, newT);
+  newB = Math.min(1, newB);
+  let finalW = (newR - newL) * imgW;
+  let finalH = (newB - newT) * imgH;
+  if (finalW < 4 || finalH < 4) {
+    showToast('크기가 너무 작습니다 (최소 4px)');
+    return;
+  }
+  cBoxL = newL;
+  cBoxR = newR;
+  cBoxT = newT;
+  cBoxB = newB;
+  positionCropBox();
+  updateCropReadout();
+  wInput.value = Math.round(finalW);
+  hInput.value = Math.round(finalH);
+  showToast('박스 크기가 변경되었습니다');
+}
+// ===== 추가 끝 =====
+
+cropBox.addEventListener('mousedown',startDrag);
+cropBox.addEventListener('touchstart',startDragTouch,{passive:false});
 cropBox.addEventListener('mousedown',startDrag);cropBox.addEventListener('touchstart',startDragTouch,{passive:false});
+
+
 function startDrag(e){const dir=e.target.dataset.dir;if(!dir&&e.target!==cropBox)return;e.preventDefault();e.stopPropagation();dragging={dir:dir||'move',x:e.clientX,y:e.clientY,l:cBoxL,t:cBoxT,r:cBoxR,b:cBoxB};window.addEventListener('mousemove',onDrag);window.addEventListener('mouseup',endDrag);}
 function startDragTouch(e){const dir=e.target.dataset.dir;if(!dir&&e.target!==cropBox)return;e.preventDefault();e.stopPropagation();const t=e.touches[0];dragging={dir:dir||'move',x:t.clientX,y:t.clientY,l:cBoxL,t:cBoxT,r:cBoxR,b:cBoxB};window.addEventListener('touchmove',onDragTouch,{passive:false});window.addEventListener('touchend',endDrag);}
 function onDragTouch(e){e.preventDefault();onDrag(e.touches[0]);}
