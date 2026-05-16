@@ -630,7 +630,6 @@ footer {
     </div>
     <div class="gallery-controls" style="display:flex;gap:8px;align-items:center">
       <select id="sortOrder" onchange="reSearch()">
-        <option value="random">🔀 랜덤</option>
         <option value="latest">🕐 최신순</option>
         <option value="popular" selected>🔥 인기순</option>
       </select>
@@ -639,6 +638,9 @@ footer {
         <option value="30" selected>30개</option>
         <option value="60">60개</option>
       </select>
+      <!-- 랜덤셔플 버튼 추가 -->
+      <button class="hdr-btn" onclick="randomShuffle()" style="background:var(--surface2);">🔀 랜덤셔플</button>
+      <div class="media-type-mobile" id="mediaTypeMobile">
       <!-- 모바일에서만 보이는 탭 (select 오른쪽) -->
       <div class="media-type-mobile" id="mediaTypeMobile">
         <button class="mt-btn active" id="mt-image-m" onclick="setMediaType('image')">🖼️</button>
@@ -966,6 +968,14 @@ function startAd(rand, visible = true) {
   startAdRotation();
 }
 
+function randomShuffle() {
+  if (!currentQuery) return;
+  // 현재 검색어 유지, 랜덤 모드로 강제 새로고침
+  currentPage = 1;
+  currentPhotos = [];
+  currentPhotoIndex = -1;
+  fetchAll(currentQuery, 1, true, true);   // 네 번째 인자 forceRandom = true
+}
 
 function buildAdGrid(){
   if(!VIDEO_IDS.length)return;
@@ -1046,12 +1056,12 @@ function startSearch(q){
   fetchAll(q,1,true);
 }
 function loadMore(){
-  if(currentSort==='random'){fetchAll(currentQuery,1,false);}
-  else{currentPage++;fetchAll(currentQuery,currentPage,false);}
+  currentPage++;
+  fetchAll(currentQuery, currentPage, false);
 }
 
 /* ── 통합 Fetch ── */
-async function fetchAll(q,page,clear){
+async function fetchAll(q, page, clear, forceRandom = false){
   if(isLoading)return;isLoading=true;
   const pp=parseInt(document.getElementById('perPage').value);
   const st=document.getElementById('status');const lm=document.getElementById('loadMore');
@@ -1062,13 +1072,13 @@ async function fetchAll(q,page,clear){
     const mt=currentMediaType;
 
     if(mt==='image'){
-      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp);items=r.p;hasMore=r.m;}
-      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp);items=r.p;hasMore=r.m;}
-      else{const h=Math.floor(pp/2);const[a,b]=await Promise.all([fPexelsImg(q,page,h),fPixabayImg(q,page,h)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
+      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsImg(q,page,h, forceRandom), fPixabayImg(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
     } else if(mt==='video'){
-      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp);items=r.p;hasMore=r.m;}
-      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp);items=r.p;hasMore=r.m;}
-      else{const h=Math.floor(pp/2);const[a,b]=await Promise.all([fPexelsVid(q,page,h),fPixabayVid(q,page,h)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
+      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsVid(q,page,h, forceRandom), fPixabayVid(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
 
     } else if(mt==='music'){
       const r=await fPixabayMusic(q,page,pp);items=r.p;hasMore=r.m;
@@ -1091,52 +1101,77 @@ async function fetchAll(q,page,clear){
 }
 
 /* ── API: 이미지 ── */
-async function fPexelsImg(q,page,pp){
-  // '인기순' 또는 '최신순'일 때도 랜덤 페이지 사용 (1~20)
+async function fPexelsImg(q, page, pp, forceRandom = false){
+  const isRandomMode = forceRandom;   // 랜덤셔플 버튼 누르면 true
   let actualPage = page;
-  if (currentSort === 'random' || currentSort === 'popular' || currentSort === 'latest') {
+  if (isRandomMode) {
     actualPage = Math.floor(Math.random() * 20) + 1;
+  } else {
+    // 원래 페이지 사용 (인기순/최신순 그대로)
+    actualPage = page;
   }
   const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
   if(!r.ok)throw new Error('Pexels '+r.status);
   const d=await r.json();
   let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
-  if(currentSort==='random')photos=photos.sort(()=>Math.random()-.5);
-  return{p:photos,m:currentSort==='random'?false:d.total_results>page*pp};
+  if(isRandomMode){
+    photos = photos.sort(()=>Math.random()-0.5);
+  }
+  // 랜덤 모드에서는 더보기 비활성화
+  const hasMore = isRandomMode ? false : (d.total_results > page * pp);
+  return {p: photos, m: hasMore};
 }
-async function fPixabayImg(q,page,pp){
-  const order=currentSort==='latest'?'latest':'popular';
+async function fPixabayImg(q, page, pp, forceRandom = false){
+  const isRandomMode = forceRandom;
+  const order = (isRandomMode || currentSort==='latest') ? 'latest' : 'popular'; // 랜덤 모드에서는 최신순? 상관없음
   let actualPage = page;
-  if (currentSort === 'random' || currentSort === 'popular' || currentSort === 'latest') {
+  if (isRandomMode) {
     actualPage = Math.floor(Math.random() * 20) + 1;
   }
   const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
   if(!r.ok)throw new Error('Pixabay '+r.status);
   const d=await r.json();
   let photos=(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
-  if(currentSort==='random')photos=photos.sort(()=>Math.random()-.5);
-  return{p:photos,m:currentSort==='random'?false:d.totalHits>page*pp};
+  if(isRandomMode){
+    photos = photos.sort(()=>Math.random()-0.5);
+  }
+  const hasMore = isRandomMode ? false : (d.totalHits > page * pp);
+  return {p: photos, m: hasMore};
 }
 
 /* ── API: 동영상 ── */
-async function fPexelsVid(q,page,pp){
-  const actualPage=currentSort==='random'?Math.floor(Math.random()*10)+1:page;
+async function fPexelsVid(q, page, pp, forceRandom = false){
+  const isRandomMode = forceRandom;
+  let actualPage = page;
+  if (isRandomMode) {
+    actualPage = Math.floor(Math.random() * 10) + 1;
+  }
   const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
   if(!r.ok)throw new Error('Pexels Video '+r.status);
   const d=await r.json();
   let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
-  if(currentSort==='random')vids=vids.sort(()=>Math.random()-.5);
-  return{p:vids,m:currentSort==='random'?false:d.total_results>page*pp};
+  if(isRandomMode){
+    vids = vids.sort(()=>Math.random()-0.5);
+  }
+  const hasMore = isRandomMode ? false : (d.total_results > page * pp);
+  return {p: vids, m: hasMore};
 }
-async function fPixabayVid(q,page,pp){
-  const order=currentSort==='latest'?'latest':'popular';
-  const actualPage=currentSort==='random'?Math.floor(Math.random()*10)+1:page;
+async function fPixabayVid(q, page, pp, forceRandom = false){
+  const isRandomMode = forceRandom;
+  const order = (isRandomMode || currentSort==='latest') ? 'latest' : 'popular';
+  let actualPage = page;
+  if (isRandomMode) {
+    actualPage = Math.floor(Math.random() * 10) + 1;
+  }
   const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&safesearch=true&order='+order);
   if(!r.ok)throw new Error('Pixabay Video '+r.status);
   const d=await r.json();
   let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
-  if(currentSort==='random')vids=vids.sort(()=>Math.random()-.5);
-  return{p:vids,m:currentSort==='random'?false:d.totalHits>page*pp};
+  if(isRandomMode){
+    vids = vids.sort(()=>Math.random()-0.5);
+  }
+  const hasMore = isRandomMode ? false : (d.totalHits > page * pp);
+  return {p: vids, m: hasMore};
 }
 
 /* ── API: GIF ── */
