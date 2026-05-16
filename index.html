@@ -964,7 +964,6 @@ function reSearch(){
   if(currentQuery) startSearch(currentQuery);
 }
 function resetHome(){
-  copyLink(); 
   document.getElementById('heroSearch').value='';
   document.body.classList.remove('searched');
   document.getElementById('ad-widget').style.display='';
@@ -1733,18 +1732,16 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
       <button class="settings-close" onclick="closeSettingsModal()">×</button>
     </div>
     <div class="settings-section">
+      <h4>🔗 링크</h4>
+      <button class="settings-btn" onclick="copyLink(); closeSettingsModal();">🔗 사이트 링크 복사</button>
+    </div>
+    <div class="settings-section">
       <h4>📞 문의</h4>
-      <div style="background: var(--surface2); padding: 10px; border-radius: 12px; text-align: center; font-size: 0.85rem;">
-        <a href="mailto:nhd7890@gmail.com" style="color: var(--accent); text-decoration: none;">nhd7890@gmail.com</a>
+      <div style="background: var(--surface2); padding: 10px; border-radius: 12px; text-align: center;">
+        <a href="mailto:nhd7890@gmail.com" style="color: var(--accent);">nhd7890@gmail.com</a>
       </div>
     </div>
-    <!-- 하단 고정 정보 -->
-    <div class="settings-section" style="margin-bottom: 0;">
-      <div style="border-top: 1px solid var(--border); padding-top: 12px; text-align: center; font-size: 0.7rem; color: var(--muted);">
-        © 2026 Catch Image · 무료 미디어 검색 서비스<br>
-        Pexels + Pixabay 통합 검색 | 이미지 편집 기능 제공
-      </div>
-    </div>
+    <!-- 나중에 언어 설정 추가할 공간 -->
   </div>
 </div>
 </body>
