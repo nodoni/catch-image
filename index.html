@@ -1782,7 +1782,7 @@ function saveImage(withEnhance) {
   octx.drawImage(edImg, -sw / 2, -sh / 2, sw, sh);
   octx.restore();
 
-  if (withEnhance) applySharpness(octx, outW, outH, 0.35);
+  if (withEnhance) applySharpness(octx, outW, outH, 0.20);
 
   const mime = edSaveFormat === 'png' ? 'image/png' : edSaveFormat === 'webp' ? 'image/webp' : 'image/jpeg';
   const dataUrl = oc.toDataURL(mime, edSaveFormat === 'png' ? undefined : edSaveQuality);
