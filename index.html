@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9957606428071156" crossorigin="anonymous"></script>
-</head>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>캐치이미지 - Pexels Pixabay 무료 고화질 이미지/영상 한번에 검색 | Catch Image</title>
@@ -18,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://www.catch-image.com/logo-share.png">
 <meta name="twitter:title" content="캐치이미지 - Pexels Pixabay 무료 이미지 통합 검색">
-<meta name="twitter:description" content="Pexels, Pixabay 수백만 장의 무료 고화질 이미지를 한 번에 검색하고 편집하세요."
+<meta name="twitter:description" content="Pexels, Pixabay 수백만 장의 무료 고화질 이미지를 한 번에 검색하고 편집하세요.">
 <link rel="canonical" href="https://www.catch-image.com/">
 <script type="application/ld+json">
 {
@@ -46,13 +45,12 @@
 <!-- 애플 터치 아이콘 (홈 화면) -->
 <link rel="apple-touch-icon" href="https://www.catch-image.com/logo-share.png">
 
-<!-- 소셜 미디어 공유 (페이스북, 카카오톡 등) -->
-<meta property="og:image" content="https://www.catch-image.com/logo-share.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+KR:wght@400;700&display=block" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+KR:wght@400;700&display=block">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+KR:wght@400;700&display=block"></noscript>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9957606428071156" crossorigin="anonymous"></script>
 <style>
   /* FOUT 방지: 폰트 로드 전 fallback 폰트를 최대한 비슷하게 */
   body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
@@ -371,6 +369,9 @@ body.searched .gallery-section{margin-top:.3rem}
   .header-actions .hdr-btn.main{width:auto;padding:7px 14px;font-size:.8rem}
 }
 
+/* ── 스켈레톤 & 이미지 페이드인 ── */
+.photo-card img{opacity:0;transition:opacity .3s ease;}
+.photo-card img.loaded{opacity:1;}
 /* ── TOAST ── */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:10px;font-size:.82rem;z-index:700;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
@@ -699,10 +700,13 @@ footer {
   <div class="editor-body">
     <div class="editor-canvas-area" id="canvasArea">
       <div id="zoomControls">
-        <button onclick="setZoom(edZoom-0.1)" title="축소">－</button>
+        <button onclick="zoomOut()" title="축소">－</button>
+        <input id="zoomSlider" type="range" min="0.1" max="5" step="0.05" value="1"
+          oninput="setZoom(parseFloat(this.value))"
+          style="width:90px;accent-color:#e8ff47;cursor:pointer;vertical-align:middle">
         <span id="zoomLabel">100%</span>
-        <button onclick="setZoom(edZoom+0.1)" title="확대">＋</button>
-        <button onclick="setZoom(1)" title="원래 크기" style="font-size:.7rem;color:#a0a5b5">↺</button>
+        <button onclick="zoomIn()" title="확대">＋</button>
+        <button onclick="zoomReset()" title="원래 크기" style="font-size:.7rem;color:#a0a5b5">↺</button>
       </div>
       <div id="canvasWrap">
         <canvas id="editorCanvas"></canvas>
@@ -1119,58 +1123,69 @@ async function fetchAll(q, page, clear, forceRandom = false){
 }
 
 /* ── API: 이미지 ── */
+const _apiCache = new Map();
+function _cacheKey(fn,q,pg,pp,sort,src){return [fn,q,pg,pp,sort,src].join('|');}
+async function _cachedFetch(key,fetcher){
+  if(_apiCache.has(key))return _apiCache.get(key);
+  const r=await fetcher();
+  if(_apiCache.size>80){_apiCache.delete(_apiCache.keys().next().value);}
+  _apiCache.set(key,r);return r;
+}
 async function fPexelsImg(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*20)+1
-    : page + pageOffset;
-  const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
-  if(!r.ok)throw new Error('Pexels '+r.status);
-  const d=await r.json();
-  let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
-  if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
-  return{p:photos, m:isRandom?false:(d.total_results>actualPage*pp)};
+  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page + pageOffset;
+  const key = _cacheKey('pexImg',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+    if(!r.ok)throw new Error('Pexels '+r.status);
+    const d=await r.json();
+    let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
+    if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
+    return{p:photos, m:isRandom?false:(d.total_results>actualPage*pp)};
+  });
 }
 async function fPixabayImg(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
   const order = currentSort==='latest' ? 'latest' : 'popular';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*20)+1
-    : page + pageOffset;
-  const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
-  if(!r.ok)throw new Error('Pixabay '+r.status);
-  const d=await r.json();
-  let photos=(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
-  if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
-  return{p:photos, m:isRandom?false:(d.totalHits>actualPage*pp)};
+  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page + pageOffset;
+  const key = _cacheKey('pbImg',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
+    if(!r.ok)throw new Error('Pixabay '+r.status);
+    const d=await r.json();
+    let photos=(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
+    if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
+    return{p:photos, m:isRandom?false:(d.totalHits>actualPage*pp)};
+  });
 }
 
 /* ── API: 동영상 ── */
 async function fPexelsVid(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*10)+1
-    : page + pageOffset;
-  const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
-  if(!r.ok)throw new Error('Pexels Video '+r.status);
-  const d=await r.json();
-  let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
-  if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
-  return{p:vids, m:isRandom?false:(d.total_results>actualPage*pp)};
+  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page + pageOffset;
+  const key = _cacheKey('pxVid',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+    if(!r.ok)throw new Error('Pexels Video '+r.status);
+    const d=await r.json();
+    let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
+    if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+    return{p:vids, m:isRandom?false:(d.total_results>actualPage*pp)};
+  });
 }
 async function fPixabayVid(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
   const order = currentSort==='latest' ? 'latest' : 'popular';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*10)+1
-    : page + pageOffset;
-  const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&safesearch=true&order='+order);
-  if(!r.ok)throw new Error('Pixabay Video '+r.status);
-  const d=await r.json();
-  let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
-  if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
-  const hasMore = isRandom ? false : (d.totalHits > actualPage * pp);
-  return {p: vids, m: hasMore};
+  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page + pageOffset;
+  const key = _cacheKey('pbVid',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&safesearch=true&order='+order);
+    if(!r.ok)throw new Error('Pixabay Video '+r.status);
+    const d=await r.json();
+    let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
+    if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+    return{p:vids, m:isRandom?false:(d.totalHits>actualPage*pp)};
+  });
 }
 
 /* ── API: GIF ── */
@@ -1195,9 +1210,11 @@ function renderPhotoCard(g, ph, idx){
 
   // 이미지
   const img = document.createElement('img');
-  img.src = ph.th;
   img.alt = (ph.alt||'').replace(/"/g,'').replace(/'/g,'');
   img.loading = 'lazy';
+  img.onload = ()=>img.classList.add('loaded');
+  img.onerror = ()=>img.classList.add('loaded');
+  img.src = ph.th;
   img.style.cursor = 'pointer';
   img.style.width = '100%';
   img.style.display = 'block';
@@ -1241,35 +1258,16 @@ function renderPhotoCard(g, ph, idx){
   overlay.appendChild(btns);
   card.appendChild(overlay);
 
-// ── 터치 이동 감지 (스크롤 시 열리지 않음) ──
-let touchStartX = 0, touchStartY = 0;
-
-function onImageTouchStart(e) {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-}
-
-function onImageTouchEnd(e) {
-  const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartX);
-  const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
-  // 10px 미만 이동했을 때만 터치(탭)로 간주
-  if (deltaX < 10 && deltaY < 10) {
-    e.preventDefault();
-    e.stopPropagation();
-    openLightbox(ph.or, ph.alt||'', ph.dl, idx);
+// 이벤트 위임 — 함수 재선언 없이 클로저로 처리
+let _tsx=0,_tsy=0;
+img.addEventListener('touchstart',e=>{_tsx=e.touches[0].clientX;_tsy=e.touches[0].clientY;},{passive:true});
+img.addEventListener('touchend',e=>{
+  if(Math.abs(e.changedTouches[0].clientX-_tsx)<10&&Math.abs(e.changedTouches[0].clientY-_tsy)<10){
+    e.preventDefault();openLightbox(ph.or,ph.alt||'',ph.dl,idx);
   }
-}
-
-function openThis(e){ e.stopPropagation(); openLightbox(ph.or, ph.alt||'', ph.dl, idx); }
-
-img.addEventListener('click', openThis);
-img.addEventListener('touchstart', onImageTouchStart, {passive: true});
-img.addEventListener('touchend', onImageTouchEnd, {passive: false});
-
-// 카드 전체 클릭도 동일하게 처리 (터치는 위에서 이미 처리, click은 그대로)
-card.addEventListener('click', e => {
-  if (!e.target.closest('.ov-btn')) openThis(e);
-});
+},{passive:false});
+img.addEventListener('click',e=>{e.stopPropagation();openLightbox(ph.or,ph.alt||'',ph.dl,idx);});
+card.addEventListener('click',e=>{if(!e.target.closest('.ov-btn'))openLightbox(ph.or,ph.alt||'',ph.dl,idx);});
 
   g.appendChild(card);
 }
@@ -1486,13 +1484,20 @@ async function directDownload(url,filename){
 /* ════════════════════════════════════════════
    EDITOR
 ════════════════════════════════════════════ */
-let edZoom=1;
+let edZoom=1,_zoomRaf=null;
 function setZoom(z){
-  edZoom=Math.min(4,Math.max(0.1,Math.round(z*10)/10));
-  const wrap=document.getElementById('canvasWrap');
-  wrap.style.transform=`scale(${edZoom})`;
-  document.getElementById('zoomLabel').textContent=Math.round(edZoom*100)+'%';
+  edZoom=Math.min(5,Math.max(0.1,Math.round(z*20)/20));
+  if(_zoomRaf)cancelAnimationFrame(_zoomRaf);
+  _zoomRaf=requestAnimationFrame(()=>{
+    document.getElementById('canvasWrap').style.transform=`scale(${edZoom})`;
+    const pct=Math.round(edZoom*100);
+    document.getElementById('zoomLabel').textContent=pct+'%';
+    const sl=document.getElementById('zoomSlider');if(sl)sl.value=edZoom;
+  });
 }
+function zoomIn(){setZoom(edZoom+0.25);}
+function zoomOut(){setZoom(edZoom-0.25);}
+function zoomReset(){setZoom(1);}
 
 const canvas=document.getElementById('editorCanvas');
 const ctx=canvas.getContext('2d');
@@ -1525,7 +1530,7 @@ function initEditor(name){
   enhBright=0; enhContrast=0; enhSat=0; syncSliders();
   canvas.dataset.name=name||'image';
   document.getElementById('editorModal').classList.add('open');
-  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; edZoom=1; setZoom(1); showCropControls(false);
+  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; edZoom=1; setZoom(1); const zsl=document.getElementById('zoomSlider');if(zsl)zsl.value=1; showCropControls(false);
   const mcb=document.getElementById('modeCropBtn');if(mcb){mcb.classList.remove('accent');}
   const mcb2=document.getElementById('modeCircleCropBtn');if(mcb2){mcb2.classList.remove('accent');}
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
@@ -1539,6 +1544,26 @@ function initEditor(name){
   }
   // 👇 배경 스크롤 차단
   
+  // 휠+핀치 줌 (한 번만 등록)
+  if(!document.getElementById('canvasArea')._zoomBound){
+    document.getElementById('canvasArea')._zoomBound=true;
+    document.getElementById('canvasArea').addEventListener('wheel',(e)=>{
+      if(!edImg)return;
+      e.preventDefault();
+      const step=e.ctrlKey?0.25:0.05;
+      setZoom(edZoom+(e.deltaY<0?step:-step));
+    },{passive:false});
+  }
+  if(!canvasWrap._pinchBound){
+    canvasWrap._pinchBound=true;
+    let _pd=0,_pz=1;
+    canvasWrap.addEventListener('touchstart',(e)=>{
+      if(e.touches.length===2){_pd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);_pz=edZoom;}
+    },{passive:true});
+    canvasWrap.addEventListener('touchmove',(e)=>{
+      if(e.touches.length===2&&_pd){e.preventDefault();const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);setZoom(_pz*(d/_pd));}
+    },{passive:false});
+  }
   drawImage(); showToast('✅ 편집기 열림');
   document.body.style.overflow = 'hidden';
 }
@@ -1740,7 +1765,6 @@ function setCropBoxSize() {
 
 cropBox.addEventListener('mousedown',startDrag);
 cropBox.addEventListener('touchstart',startDragTouch,{passive:false});
-cropBox.addEventListener('mousedown',startDrag);cropBox.addEventListener('touchstart',startDragTouch,{passive:false});
 
 
 function startDrag(e){const dir=e.target.dataset.dir;if(!dir&&e.target!==cropBox)return;e.preventDefault();e.stopPropagation();dragging={dir:dir||'move',x:e.clientX,y:e.clientY,l:cBoxL,t:cBoxT,r:cBoxR,b:cBoxB};window.addEventListener('mousemove',onDrag);window.addEventListener('mouseup',endDrag);}
@@ -2005,21 +2029,7 @@ checkAdCooldown();
   const lm = document.getElementById('loadMore');
   const observer = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{
-      if(e.isIntersecting && lm.style.display!=='none' && !isLoading){
-        loadMore();
-      }
-    });
-  },{rootMargin:'300px'});
-  observer.observe(lm);
-})();
-/* ── 무한 스크롤 ── */
-(function initInfiniteScroll(){
-  const lm = document.getElementById('loadMore');
-  const observer = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting && lm.style.display!=='none' && !isLoading){
-        loadMore();
-      }
+      if(e.isIntersecting && lm.style.display!=='none' && !isLoading) loadMore();
     });
   },{rootMargin:'300px'});
   observer.observe(lm);
@@ -2047,9 +2057,6 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
 });
 /* ===== 추가 끝 ===== */
 
-</script>
-</body>
-</html>
 </script>
 <!-- 맨 위로 가기 버튼 -->
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
