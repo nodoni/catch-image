@@ -305,7 +305,11 @@ body.searched .gallery-section{margin-top:.3rem}
 .editor-close:hover{color:var(--text)}
 .editor-body{display:flex;flex:1;min-height:0;overflow:hidden;position:relative}
 .editor-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:hidden;min-width:0;position:relative;transition:flex .3s}
-#canvasWrap{position:relative;display:inline-block;line-height:0}
+#canvasWrap{position:relative;display:inline-block;line-height:0;transform-origin:center center;transition:transform .15s ease}
+#zoomControls{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:6px 12px;z-index:200;user-select:none}
+#zoomControls button{background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;transition:background .15s}
+#zoomControls button:hover{background:rgba(255,255,255,.15)}
+#zoomLabel{color:#e2ff43;font-size:.78rem;font-weight:700;min-width:38px;text-align:center}
 #editorCanvas{display:block;border-radius:6px;max-width:100%;max-height:100%}
 #cropBox{position:absolute;top:0;left:0;right:0;bottom:0;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.55);display:none;cursor:move;touch-action:none}
 #cropBox.circle-mode{border-radius:50%;box-shadow:none}
@@ -694,6 +698,12 @@ footer {
   </div>
   <div class="editor-body">
     <div class="editor-canvas-area" id="canvasArea">
+      <div id="zoomControls">
+        <button onclick="setZoom(edZoom-0.1)" title="축소">－</button>
+        <span id="zoomLabel">100%</span>
+        <button onclick="setZoom(edZoom+0.1)" title="확대">＋</button>
+        <button onclick="setZoom(1)" title="원래 크기" style="font-size:.7rem;color:#a0a5b5">↺</button>
+      </div>
       <div id="canvasWrap">
         <canvas id="editorCanvas"></canvas>
         <div id="cropBox">
@@ -1476,6 +1486,14 @@ async function directDownload(url,filename){
 /* ════════════════════════════════════════════
    EDITOR
 ════════════════════════════════════════════ */
+let edZoom=1;
+function setZoom(z){
+  edZoom=Math.min(4,Math.max(0.1,Math.round(z*10)/10));
+  const wrap=document.getElementById('canvasWrap');
+  wrap.style.transform=`scale(${edZoom})`;
+  document.getElementById('zoomLabel').textContent=Math.round(edZoom*100)+'%';
+}
+
 const canvas=document.getElementById('editorCanvas');
 const ctx=canvas.getContext('2d');
 const cropBox=document.getElementById('cropBox');
@@ -1507,7 +1525,7 @@ function initEditor(name){
   enhBright=0; enhContrast=0; enhSat=0; syncSliders();
   canvas.dataset.name=name||'image';
   document.getElementById('editorModal').classList.add('open');
-  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; showCropControls(false);
+  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; edZoom=1; setZoom(1); showCropControls(false);
   const mcb=document.getElementById('modeCropBtn');if(mcb){mcb.classList.remove('accent');}
   const mcb2=document.getElementById('modeCircleCropBtn');if(mcb2){mcb2.classList.remove('accent');}
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
@@ -2123,7 +2141,7 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
 
         <!-- 섹션 2: 편집 -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;margin-bottom:80px;direction:rtl">
-          <img src="https://cdn.litt.ly/images/uT9YOmIxCIMAnQqpfvk12ixOiWxey236?s=600x100&m=outside&f=webp"
+          <img src="https://cdn.litt.ly/images/RibJb4PfLoBMUS5Xf6ZixnroZ7AWpTwk?s=600x100&m=outside&f=webp"
             alt="캐시이미지 원스톱 편집 및 저장"
             style="width:100%;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.5);border:1px solid #232631;display:block;direction:ltr">
           <div style="padding:16px;direction:ltr">
