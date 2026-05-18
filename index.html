@@ -302,13 +302,13 @@ body.searched .gallery-section{margin-top:.3rem}
 .editor-close{background:none;border:none;color:var(--muted);font-size:1.8rem;cursor:pointer;line-height:1}
 .editor-close:hover{color:var(--text)}
 .editor-body{display:flex;flex:1;min-height:0;overflow:hidden;position:relative}
-.editor-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:hidden;min-width:0;position:relative;transition:flex .3s}
+.editor-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:auto;min-width:0;position:relative;transition:flex .3s}
 #canvasWrap{position:relative;display:inline-block;line-height:0;transform-origin:center center;transition:transform .15s ease}
 #zoomControls{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:6px 12px;z-index:200;user-select:none}
 #zoomControls button{background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;transition:background .15s}
 #zoomControls button:hover{background:rgba(255,255,255,.15)}
 #zoomLabel{color:#e2ff43;font-size:.78rem;font-weight:700;min-width:38px;text-align:center}
-#editorCanvas{display:block;border-radius:6px;max-width:100%;max-height:100%}
+#editorCanvas{display:block;border-radius:6px;}
 #cropBox{position:absolute;top:0;left:0;right:0;bottom:0;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.55);display:none;cursor:move;touch-action:none}
 #cropBox.circle-mode{border-radius:50%;box-shadow:none}
 #cropBox.circle-mode::after{content:'';position:absolute;inset:-2px;border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none}
