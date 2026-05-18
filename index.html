@@ -570,16 +570,11 @@ footer {
   <div class="logo" onclick="resetHome()">
     <span class="logo-catch">CATCH</span><span class="logo-image">IMAGE</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
     <button class="hdr-btn main" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
     <div class="mobile-btn-group" style="display:flex;gap:8px">
-      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙</button> 
-       <button class="hdr-btn small" onclick="openSettingsModal()" id="settingsBtn" title="설정">⚙️</button>
-    </div>
-    <div class="source-toggle" id="sourceToggle">
-      <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
-      <button class="src-btn"        id="btn-pexels"  onclick="setSource('pexels')">Pexels</button>
-      <button class="src-btn"        id="btn-pixabay" onclick="setSource('pixabay')">Pixabay</button>
+      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙</button>
+      <button class="hdr-btn small" onclick="openSettingsModal()" id="settingsBtn" title="설정">⚙️</button>
     </div>
   </div>
 </header>
@@ -901,19 +896,7 @@ function setMediaType(type) {
     const mBtn = document.getElementById('mt-' + t + '-m');
     if (mBtn) mBtn.classList.toggle('active', t === type);
   });
-  // 소스 토글: GIF/일러스트는 Pixabay only
-  const srcToggle = document.getElementById('sourceToggle');
-  const pixabayOnly = ['illustration'];
-  if (pixabayOnly.includes(type)) {
-    srcToggle.style.opacity = '.35';
-    srcToggle.style.pointerEvents = 'none';
-    currentSource = 'pixabay';
-    ['all','pexels','pixabay'].forEach(k =>
-      document.getElementById('btn-' + k).className = 'src-btn' + (k === 'pixabay' ? ' active' : ''));
-  } else {
-    srcToggle.style.opacity = '';
-    srcToggle.style.pointerEvents = '';
-  }
+  currentSource = 'all';
   reSearch();
 }
 
@@ -1034,7 +1017,7 @@ function closeAd() {
 }
 
 /* ── SEARCH ── */
-function setSource(s){currentSource=s;['all','pexels','pixabay'].forEach(k=>document.getElementById('btn-'+k).className='src-btn'+(k===s?' active':''));reSearch();}
+function setSource(s){currentSource=s;reSearch();}
 document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('hero');});
 
 function quickSearch(q){
@@ -1059,12 +1042,10 @@ function resetHome(){
   document.getElementById('ad-widget').style.display='';
   startAd(true);
   const randomTag=randomTags[Math.floor(Math.random()*randomTags.length)];
-  currentMediaType='image';
+  currentMediaType='image'; currentSource='all';
   ALL_TYPES.forEach(t=>document.getElementById('mt-'+t).classList.toggle('active',t==='image'));
   const mBtn0=document.getElementById('mt-image-m');if(mBtn0)mBtn0.classList.add('active');
   const mBtn1=document.getElementById('mt-video-m');if(mBtn1)mBtn1.classList.remove('active');
-  const srcToggle=document.getElementById('sourceToggle');
-  srcToggle.style.opacity='';srcToggle.style.pointerEvents='';
   startSearch(randomTag);
   window.scrollTo({top:0,behavior:'smooth'});
 }
