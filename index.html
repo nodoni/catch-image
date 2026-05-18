@@ -1535,11 +1535,17 @@ async function directDownload(url,filename){
    EDITOR
 ════════════════════════════════════════════ */
 let edZoom=1,_zoomRaf=null;
+// ── 패닝 상태
+let _panX=0,_panY=0,_panDragging=false,_panStartX=0,_panStartY=0,_panOriginX=0,_panOriginY=0;
+
+function _applyTransform(){
+  document.getElementById('canvasWrap').style.transform=`translate(${_panX}px,${_panY}px) scale(${edZoom})`;
+}
 function setZoom(z){
   edZoom=Math.min(5,Math.max(0.1,Math.round(z*20)/20));
   if(_zoomRaf)cancelAnimationFrame(_zoomRaf);
   _zoomRaf=requestAnimationFrame(()=>{
-    document.getElementById('canvasWrap').style.transform=`scale(${edZoom})`;
+    _applyTransform();
     const pct=Math.round(edZoom*100);
     document.getElementById('zoomLabel').textContent=pct+'%';
     const sl=document.getElementById('zoomSlider');if(sl)sl.value=edZoom;
@@ -1547,7 +1553,56 @@ function setZoom(z){
 }
 function zoomIn(){setZoom(edZoom+0.25);}
 function zoomOut(){setZoom(edZoom-0.25);}
-function zoomReset(){setZoom(1);}
+function zoomReset(){_panX=0;_panY=0;setZoom(1);}
+
+// ── 패닝 이벤트 (canvasArea에 등록)
+(function initPan(){
+  const area = document.getElementById('canvasArea');
+
+  // 마우스
+  area.addEventListener('mousedown', e=>{
+    if(e.target.closest('#zoomControls'))return;
+    if(e.target.closest('#cropBox'))return;
+    if(e.button!==0)return;
+    _panDragging=true;
+    _panStartX=e.clientX; _panStartY=e.clientY;
+    _panOriginX=_panX;   _panOriginY=_panY;
+    area.style.cursor='grabbing';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!_panDragging)return;
+    _panX=_panOriginX+(e.clientX-_panStartX);
+    _panY=_panOriginY+(e.clientY-_panStartY);
+    _applyTransform();
+  });
+  window.addEventListener('mouseup', ()=>{
+    if(!_panDragging)return;
+    _panDragging=false;
+    area.style.cursor='grab';
+  });
+
+  // 터치 (한 손가락)
+  area.addEventListener('touchstart', e=>{
+    if(e.touches.length!==1)return;
+    if(e.target.closest('#zoomControls'))return;
+    if(e.target.closest('#cropBox'))return;
+    _panDragging=true;
+    _panStartX=e.touches[0].clientX; _panStartY=e.touches[0].clientY;
+    _panOriginX=_panX; _panOriginY=_panY;
+  },{passive:true});
+  area.addEventListener('touchmove', e=>{
+    if(!_panDragging||e.touches.length!==1)return;
+    _panX=_panOriginX+(e.touches[0].clientX-_panStartX);
+    _panY=_panOriginY+(e.touches[0].clientY-_panStartY);
+    _applyTransform();
+    e.preventDefault();
+  },{passive:false});
+  area.addEventListener('touchend', ()=>{ _panDragging=false; },{passive:true});
+
+  // 커서 스타일
+  area.style.cursor='grab';
+})();
 
 const canvas=document.getElementById('editorCanvas');
 const ctx=canvas.getContext('2d');
@@ -1606,7 +1661,7 @@ function initEditor(name){
   enhBright=0; enhContrast=0; enhSat=0; syncSliders();
   canvas.dataset.name=name||'image';
   document.getElementById('editorModal').classList.add('open');
-  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; edZoom=1; setZoom(1); const zsl=document.getElementById('zoomSlider');if(zsl)zsl.value=1; showCropControls(false);
+  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; edZoom=1; _panX=0; _panY=0; setZoom(1); const zsl=document.getElementById('zoomSlider');if(zsl)zsl.value=1; showCropControls(false);
   const mcb=document.getElementById('modeCropBtn');if(mcb){mcb.classList.remove('accent');}
   const mcb2=document.getElementById('modeCircleCropBtn');if(mcb2){mcb2.classList.remove('accent');}
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
@@ -1705,9 +1760,9 @@ function undoEdit(){
 function flipH(){pushHistory();edFlipX=!edFlipX;drawImage();showToast('↔️ 좌우 반전');}
 function flipV(){pushHistory();edFlipY=!edFlipY;drawImage();showToast('↕️ 상하 반전');}
 function activateCrop(mode){
+  const area = document.getElementById('canvasArea');
   const rectBtn = document.getElementById('modeCropBtn');
   const circleBtn = document.getElementById('modeCircleCropBtn');
-  // 같은 모드 버튼 다시 누르면 끄기
   if(cropActive && mode === cropMode){
     cropActive=false;
     cropBox.style.display='none';
@@ -1715,8 +1770,10 @@ function activateCrop(mode){
     showCropControls(false);
     rectBtn.classList.remove('accent');
     circleBtn.classList.remove('accent');
+    area.style.cursor='grab';
     return;
   }
+  area.style.cursor='default';
   // 켜기 or 모드 전환
   cropMode = mode || 'rect';
   cropActive = true;
