@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9957606428071156" crossorigin="anonymous"></script>
-</head>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>캐치이미지 - Pexels Pixabay 무료 고화질 이미지/영상 한번에 검색 | Catch Image</title>
@@ -18,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://www.catch-image.com/logo-share.png">
 <meta name="twitter:title" content="캐치이미지 - Pexels Pixabay 무료 이미지 통합 검색">
-<meta name="twitter:description" content="Pexels, Pixabay 수백만 장의 무료 고화질 이미지를 한 번에 검색하고 편집하세요."
+<meta name="twitter:description" content="Pexels, Pixabay 수백만 장의 무료 고화질 이미지를 한 번에 검색하고 편집하세요.">
 <link rel="canonical" href="https://www.catch-image.com/">
 <script type="application/ld+json">
 {
@@ -46,13 +45,12 @@
 <!-- 애플 터치 아이콘 (홈 화면) -->
 <link rel="apple-touch-icon" href="https://www.catch-image.com/logo-share.png">
 
-<!-- 소셜 미디어 공유 (페이스북, 카카오톡 등) -->
-<meta property="og:image" content="https://www.catch-image.com/logo-share.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+KR:wght@400;700&display=block" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+KR:wght@400;700&display=block">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+KR:wght@400;700&display=block"></noscript>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9957606428071156" crossorigin="anonymous"></script>
 <style>
   /* FOUT 방지: 폰트 로드 전 fallback 폰트를 최대한 비슷하게 */
   body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
@@ -304,13 +302,13 @@ body.searched .gallery-section{margin-top:.3rem}
 .editor-close{background:none;border:none;color:var(--muted);font-size:1.8rem;cursor:pointer;line-height:1}
 .editor-close:hover{color:var(--text)}
 .editor-body{display:flex;flex:1;min-height:0;overflow:hidden;position:relative}
-.editor-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:hidden;min-width:0;position:relative;transition:flex .3s}
+.editor-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:auto;min-width:0;position:relative;transition:flex .3s}
 #canvasWrap{position:relative;display:inline-block;line-height:0;transform-origin:center center;transition:transform .15s ease}
 #zoomControls{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:6px 12px;z-index:200;user-select:none}
 #zoomControls button{background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;transition:background .15s}
 #zoomControls button:hover{background:rgba(255,255,255,.15)}
 #zoomLabel{color:#e2ff43;font-size:.78rem;font-weight:700;min-width:38px;text-align:center}
-#editorCanvas{display:block;border-radius:6px;max-width:100%;max-height:100%}
+#editorCanvas{display:block;border-radius:6px;}
 #cropBox{position:absolute;top:0;left:0;right:0;bottom:0;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.55);display:none;cursor:move;touch-action:none}
 #cropBox.circle-mode{border-radius:50%;box-shadow:none}
 #cropBox.circle-mode::after{content:'';position:absolute;inset:-2px;border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none}
@@ -371,6 +369,10 @@ body.searched .gallery-section{margin-top:.3rem}
   .header-actions .hdr-btn.main{width:auto;padding:7px 14px;font-size:.8rem}
 }
 
+/* ── 스켈레톤 & 이미지 페이드인 ── */
+.photo-card img{opacity:0;transition:opacity .3s ease;}
+.photo-card img.loaded{opacity:1;}
+.video-card img{opacity:1;transition:none;}
 /* ── TOAST ── */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:10px;font-size:.82rem;z-index:700;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
@@ -555,6 +557,141 @@ footer {
   background: transparent;
   color: var(--accent);
 }
+
+/* ══════════════════════════════════
+   다국어 지원 (한국어 / English / 日本語 / 中文)
+══════════════════════════════════ */
+const I18N = {
+  ko: {
+    searchPlaceholder: '이미지 검색어를 입력하세요',
+    settingsTitle: '설정',
+    settingsService: 'ℹ️ 서비스',
+    settingsAbout: '📖 캐치이미지란?',
+    settingsLink: '🔗 링크',
+    settingsCopyLink: '🔗 사이트 링크 복사',
+    settingsContact: '📞 문의',
+    settingsLang: '🌐 언어',
+    sortPopular: '인기순', sortLatest: '최신순', sortRandom: '🔀 랜덤',
+    srcAll: '전체', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 이미지', typeVideo: '🎬 동영상', typeMusic: '🎵 음악', typeSfx: '🔊 효과음',
+    loadMore: '더 보기 →', loadRandom: '🔀 더 불러오기',
+    editBtn: '✏️ 편집', dlBtn: '⬇ 저장', viewBtn: '▶ 재생',
+    editorTitle: '편집기 열림', copied: '링크 복사됨!',
+    copyright: '© 2026 Catch Image · 무료 이미지 통합 편집 서비스',
+  },
+  en: {
+    searchPlaceholder: 'Search images...',
+    settingsTitle: 'Settings',
+    settingsService: 'ℹ️ Service',
+    settingsAbout: '📖 About CatchImage',
+    settingsLink: '🔗 Link',
+    settingsCopyLink: '🔗 Copy site link',
+    settingsContact: '📞 Contact',
+    settingsLang: '🌐 Language',
+    sortPopular: 'Popular', sortLatest: 'Latest', sortRandom: '🔀 Random',
+    srcAll: 'All', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 Images', typeVideo: '🎬 Videos', typeMusic: '🎵 Music', typeSfx: '🔊 SFX',
+    loadMore: 'Load more →', loadRandom: '🔀 Shuffle more',
+    editBtn: '✏️ Edit', dlBtn: '⬇ Save', viewBtn: '▶ Play',
+    editorTitle: 'Editor opened', copied: 'Link copied!',
+    copyright: '© 2026 Catch Image · Free Image Search & Editor',
+  },
+  ja: {
+    searchPlaceholder: '画像を検索...',
+    settingsTitle: '設定',
+    settingsService: 'ℹ️ サービス',
+    settingsAbout: '📖 CatchImageとは？',
+    settingsLink: '🔗 リンク',
+    settingsCopyLink: '🔗 サイトリンクをコピー',
+    settingsContact: '📞 お問い合わせ',
+    settingsLang: '🌐 言語',
+    sortPopular: '人気順', sortLatest: '最新順', sortRandom: '🔀 ランダム',
+    srcAll: '全て', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 画像', typeVideo: '🎬 動画', typeMusic: '🎵 音楽', typeSfx: '🔊 効果音',
+    loadMore: 'もっと見る →', loadRandom: '🔀 シャッフル',
+    editBtn: '✏️ 編集', dlBtn: '⬇ 保存', viewBtn: '▶ 再生',
+    editorTitle: 'エディター起動', copied: 'コピーしました！',
+    copyright: '© 2026 Catch Image · 無料画像検索＆編集サービス',
+  },
+  zh: {
+    searchPlaceholder: '搜索图片...',
+    settingsTitle: '设置',
+    settingsService: 'ℹ️ 服务',
+    settingsAbout: '📖 关于CatchImage',
+    settingsLink: '🔗 链接',
+    settingsCopyLink: '🔗 复制网站链接',
+    settingsContact: '📞 联系我们',
+    settingsLang: '🌐 语言',
+    sortPopular: '热门', sortLatest: '最新', sortRandom: '🔀 随机',
+    srcAll: '全部', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 图片', typeVideo: '🎬 视频', typeMusic: '🎵 音乐', typeSfx: '🔊 音效',
+    loadMore: '加载更多 →', loadRandom: '🔀 随机加载',
+    editBtn: '✏️ 编辑', dlBtn: '⬇ 保存', viewBtn: '▶ 播放',
+    editorTitle: '编辑器已打开', copied: '链接已复制！',
+    copyright: '© 2026 Catch Image · 免费图片搜索与编辑服务',
+  }
+};
+
+let currentLang = localStorage.getItem('ciLang') || 'ko';
+
+function _set(id, text){ const el=document.getElementById(id); if(el) el.textContent=text; }
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('ciLang', lang);
+  const t = I18N[lang];
+  if(!t) return;
+
+  // 검색창
+  const sp = document.getElementById('heroSearch');
+  if(sp) sp.placeholder = t.searchPlaceholder;
+
+  // 설정 모달
+  _set('settingsTitle', t.settingsTitle);
+  _set('settingsServiceLabel', t.settingsService);
+  _set('settingsLinkLabel', t.settingsLink);
+  _set('settingsContactLabel', t.settingsContact);
+  _set('settingsLangLabel', t.settingsLang);
+  _set('settingsCopyBtn', t.settingsCopyLink);
+  _set('settingsCopyright', t.copyright);
+  const stAbout = document.getElementById('settingsAboutBtn');
+  if(stAbout) stAbout.innerHTML = t.settingsAbout + '<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span>';
+
+  // 소스 버튼 (id 기반)
+  _set('btn-all', t.srcAll);
+
+  // 미디어 타입 버튼 (id 기반)
+  const imgLabel = t.typeImage;
+  const vidLabel = t.typeVideo;
+  ['mt-image','mt-image-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = id.includes('-m') ? (lang==='ko'?'🖼️':'🖼') : imgLabel; });
+  ['mt-video','mt-video-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = id.includes('-m') ? (lang==='ko'?'🎬':'🎬') : vidLabel; });
+
+  // 정렬 select option
+  const sortSel = document.getElementById('sortOrder');
+  if(sortSel){
+    sortSel.options[0].text = (lang==='ko'?'🕐 최신순': lang==='en'?'🕐 Latest': lang==='ja'?'🕐 最新順':'🕐 最新');
+    sortSel.options[1].text = (lang==='ko'?'🔥 인기순': lang==='en'?'🔥 Popular': lang==='ja'?'🔥 人気順':'🔥 热门');
+  }
+
+  // 랜덤 버튼
+  const randBtn = document.querySelector('button[onclick="randomShuffle()"]');
+  if(randBtn) randBtn.textContent = t.sortRandom;
+
+  // 더보기 버튼
+  const lmBtn = document.querySelector('#loadMore button');
+  if(lmBtn) lmBtn.textContent = currentSort==='random' ? t.loadRandom : t.loadMore;
+
+  // 언어 버튼 활성화 표시
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    const active = b.dataset.lang === lang;
+    b.style.background = active ? 'var(--accent)' : 'var(--surface2)';
+    b.style.color = active ? '#000' : 'var(--text)';
+    b.style.fontWeight = active ? '900' : '700';
+  });
+}
+
+// 페이지 로드 시 저장된 언어 적용
+document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
+
 /* ===== 추가 끝 ===== */
 </style>
 
@@ -691,18 +828,23 @@ footer {
     <div class="editor-top-left">
       <div class="editor-logo"><span class="logo-catch">CATCH</span><span class="logo-image">IMAGE</span></div>
       <div class="editor-dim" id="edDimInfo">—</div>
+      <span id="edQualityBadge" style="display:none;font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px"></span>
     </div>
     <div class="editor-top-right">
+      <button id="edReloadOrigBtn" onclick="reloadOriginalQuality()" style="display:none;background:rgba(232,255,71,.15);color:#e8ff47;border:1px solid rgba(232,255,71,.4);padding:5px 12px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px">🔍 원본 화질로</button>
       <button class="editor-close" onclick="closeEditor()">×</button>
     </div>
   </div>
   <div class="editor-body">
     <div class="editor-canvas-area" id="canvasArea">
       <div id="zoomControls">
-        <button onclick="setZoom(edZoom-0.1)" title="축소">－</button>
+        <button onclick="zoomOut()" title="축소">－</button>
+        <input id="zoomSlider" type="range" min="0.1" max="5" step="0.05" value="1"
+          oninput="setZoom(parseFloat(this.value))"
+          style="width:90px;accent-color:#e8ff47;cursor:pointer;vertical-align:middle">
         <span id="zoomLabel">100%</span>
-        <button onclick="setZoom(edZoom+0.1)" title="확대">＋</button>
-        <button onclick="setZoom(1)" title="원래 크기" style="font-size:.7rem;color:#a0a5b5">↺</button>
+        <button onclick="zoomIn()" title="확대">＋</button>
+        <button onclick="zoomReset()" title="원래 크기" style="font-size:.7rem;color:#a0a5b5">↺</button>
       </div>
       <div id="canvasWrap">
         <canvas id="editorCanvas"></canvas>
@@ -1089,14 +1231,23 @@ async function fetchAll(q, page, clear, forceRandom = false){
     let items=[],hasMore=false;
     const mt=currentMediaType;
 
+    // 두 API 중 하나 실패해도 나머지 결과는 표시
+    function mergeSettled(results, h){
+      const [ra, rb] = results;
+      const a = ra.status==='fulfilled' ? ra.value : {p:[],m:false};
+      const b = rb.status==='fulfilled' ? rb.value : {p:[],m:false};
+      const ml=Math.max(a.p.length,b.p.length);
+      for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}
+      hasMore=a.m||b.m;
+    }
     if(mt==='image'){
-      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsImg(q,page,h, forceRandom), fPixabayImg(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
+      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else{const h=Math.floor(pp/2);mergeSettled(await Promise.allSettled([fPexelsImg(q,page,h,forceRandom),fPixabayImg(q,page,h,forceRandom)]),h);}
     } else if(mt==='video'){
-      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsVid(q,page,h, forceRandom), fPixabayVid(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
+      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else{const h=Math.floor(pp/2);mergeSettled(await Promise.allSettled([fPexelsVid(q,page,h,forceRandom),fPixabayVid(q,page,h,forceRandom)]),h);}
 
     } else if(mt==='music'){
       const r=await fPixabayMusic(q,page,pp);items=r.p;hasMore=r.m;
@@ -1114,63 +1265,80 @@ async function fetchAll(q, page, clear, forceRandom = false){
       lm.style.display='flex';
       lm.querySelector('button').textContent=currentSort==='random'?'🔀 더 불러오기':'더 보기 →';
     }
-  }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
+  }catch(e){
+    const msg = e.message==='Failed to fetch'
+      ? '❌ 네트워크 오류 — 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.'
+      : '❌ '+e.message;
+    st.textContent=msg;st.className='status error';st.style.display='block';
+    document.getElementById('moreSpinner')?.remove();
+  }
   isLoading=false;
 }
 
 /* ── API: 이미지 ── */
+const _apiCache = new Map();
+function _cacheKey(fn,q,pg,pp,sort,src){return [fn,q,pg,pp,sort,src].join('|');}
+async function _cachedFetch(key,fetcher){
+  if(_apiCache.has(key))return _apiCache.get(key);
+  const r=await fetcher();
+  if(_apiCache.size>80){_apiCache.delete(_apiCache.keys().next().value);}
+  _apiCache.set(key,r);return r;
+}
 async function fPexelsImg(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*20)+1
-    : page + pageOffset;
-  const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
-  if(!r.ok)throw new Error('Pexels '+r.status);
-  const d=await r.json();
-  let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
-  if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
-  return{p:photos, m:isRandom?false:(d.total_results>actualPage*pp)};
+  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page + pageOffset;
+  const key = _cacheKey('pexImg',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+    if(!r.ok)throw new Error('Pexels '+r.status);
+    const d=await r.json();
+    let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
+    if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
+    return{p:photos, m:isRandom?false:(d.total_results>actualPage*pp)};
+  });
 }
 async function fPixabayImg(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
   const order = currentSort==='latest' ? 'latest' : 'popular';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*20)+1
-    : page + pageOffset;
-  const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
-  if(!r.ok)throw new Error('Pixabay '+r.status);
-  const d=await r.json();
-  let photos=(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
-  if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
-  return{p:photos, m:isRandom?false:(d.totalHits>actualPage*pp)};
+  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page + pageOffset;
+  const key = _cacheKey('pbImg',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
+    if(!r.ok)throw new Error('Pixabay '+r.status);
+    const d=await r.json();
+    let photos=(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
+    if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
+    return{p:photos, m:isRandom?false:(d.totalHits>actualPage*pp)};
+  });
 }
 
 /* ── API: 동영상 ── */
 async function fPexelsVid(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*10)+1
-    : page + pageOffset;
-  const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
-  if(!r.ok)throw new Error('Pexels Video '+r.status);
-  const d=await r.json();
-  let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
-  if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
-  return{p:vids, m:isRandom?false:(d.total_results>actualPage*pp)};
+  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page + pageOffset;
+  const key = _cacheKey('pxVid',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+    if(!r.ok)throw new Error('Pexels Video '+r.status);
+    const d=await r.json();
+    let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
+    if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+    return{p:vids, m:isRandom?false:(d.total_results>actualPage*pp)};
+  });
 }
 async function fPixabayVid(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
   const order = currentSort==='latest' ? 'latest' : 'popular';
-  const actualPage = isRandom
-    ? Math.floor(Math.random()*10)+1
-    : page + pageOffset;
-  const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&safesearch=true&order='+order);
-  if(!r.ok)throw new Error('Pixabay Video '+r.status);
-  const d=await r.json();
-  let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
-  if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
-  const hasMore = isRandom ? false : (d.totalHits > actualPage * pp);
-  return {p: vids, m: hasMore};
+  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page + pageOffset;
+  const key = _cacheKey('pbVid',q,actualPage,pp,currentSort,currentSource);
+  return _cachedFetch(key, async()=>{
+    const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&safesearch=true&order='+order);
+    if(!r.ok)throw new Error('Pixabay Video '+r.status);
+    const d=await r.json();
+    let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
+    if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+    return{p:vids, m:isRandom?false:(d.totalHits>actualPage*pp)};
+  });
 }
 
 /* ── API: GIF ── */
@@ -1195,9 +1363,11 @@ function renderPhotoCard(g, ph, idx){
 
   // 이미지
   const img = document.createElement('img');
-  img.src = ph.th;
   img.alt = (ph.alt||'').replace(/"/g,'').replace(/'/g,'');
   img.loading = 'lazy';
+  img.onload = ()=>img.classList.add('loaded');
+  img.onerror = ()=>img.classList.add('loaded');
+  img.src = ph.th;
   img.style.cursor = 'pointer';
   img.style.width = '100%';
   img.style.display = 'block';
@@ -1241,35 +1411,16 @@ function renderPhotoCard(g, ph, idx){
   overlay.appendChild(btns);
   card.appendChild(overlay);
 
-// ── 터치 이동 감지 (스크롤 시 열리지 않음) ──
-let touchStartX = 0, touchStartY = 0;
-
-function onImageTouchStart(e) {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-}
-
-function onImageTouchEnd(e) {
-  const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartX);
-  const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
-  // 10px 미만 이동했을 때만 터치(탭)로 간주
-  if (deltaX < 10 && deltaY < 10) {
-    e.preventDefault();
-    e.stopPropagation();
-    openLightbox(ph.or, ph.alt||'', ph.dl, idx);
+// 이벤트 위임 — 함수 재선언 없이 클로저로 처리
+let _tsx=0,_tsy=0;
+img.addEventListener('touchstart',e=>{_tsx=e.touches[0].clientX;_tsy=e.touches[0].clientY;},{passive:true});
+img.addEventListener('touchend',e=>{
+  if(Math.abs(e.changedTouches[0].clientX-_tsx)<10&&Math.abs(e.changedTouches[0].clientY-_tsy)<10){
+    e.preventDefault();openLightbox(ph.or,ph.alt||'',ph.dl,idx);
   }
-}
-
-function openThis(e){ e.stopPropagation(); openLightbox(ph.or, ph.alt||'', ph.dl, idx); }
-
-img.addEventListener('click', openThis);
-img.addEventListener('touchstart', onImageTouchStart, {passive: true});
-img.addEventListener('touchend', onImageTouchEnd, {passive: false});
-
-// 카드 전체 클릭도 동일하게 처리 (터치는 위에서 이미 처리, click은 그대로)
-card.addEventListener('click', e => {
-  if (!e.target.closest('.ov-btn')) openThis(e);
-});
+},{passive:false});
+img.addEventListener('click',e=>{e.stopPropagation();openLightbox(ph.or,ph.alt||'',ph.dl,idx);});
+card.addEventListener('click',e=>{if(!e.target.closest('.ov-btn'))openLightbox(ph.or,ph.alt||'',ph.dl,idx);});
 
   g.appendChild(card);
 }
@@ -1279,7 +1430,7 @@ function renderVideoCard(g,vid,idx){
   c.className='video-card photo-card';
   const dur=vid.duration?Math.floor(vid.duration/60)+':'+(vid.duration%60<10?'0':'')+(vid.duration%60):'';
   const thumbHtml=vid.th
-    ? `<img src="${vid.th}" alt="${vid.alt||''}" loading="lazy" style="width:100%;display:block;max-height:200px;object-fit:cover">`
+    ? `<img src="${vid.th}" alt="${vid.alt||''}" loading="lazy" style="width:100%;display:block;max-height:200px;object-fit:cover" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded')">`
     : `<div style="width:100%;height:140px;background:#111;display:flex;align-items:center;justify-content:center;color:#555;font-size:.8rem">영상 미리보기</div>`;
   c.innerHTML=`
     ${thumbHtml}
@@ -1486,19 +1637,26 @@ async function directDownload(url,filename){
 /* ════════════════════════════════════════════
    EDITOR
 ════════════════════════════════════════════ */
-let edZoom=1;
+let edZoom=1,_zoomRaf=null;
 function setZoom(z){
-  edZoom=Math.min(4,Math.max(0.1,Math.round(z*10)/10));
-  const wrap=document.getElementById('canvasWrap');
-  wrap.style.transform=`scale(${edZoom})`;
-  document.getElementById('zoomLabel').textContent=Math.round(edZoom*100)+'%';
+  edZoom=Math.min(5,Math.max(0.1,Math.round(z*20)/20));
+  if(_zoomRaf)cancelAnimationFrame(_zoomRaf);
+  _zoomRaf=requestAnimationFrame(()=>{
+    document.getElementById('canvasWrap').style.transform=`scale(${edZoom})`;
+    const pct=Math.round(edZoom*100);
+    document.getElementById('zoomLabel').textContent=pct+'%';
+    const sl=document.getElementById('zoomSlider');if(sl)sl.value=edZoom;
+  });
 }
+function zoomIn(){setZoom(edZoom+0.25);}
+function zoomOut(){setZoom(edZoom-0.25);}
+function zoomReset(){setZoom(1);}
 
 const canvas=document.getElementById('editorCanvas');
 const ctx=canvas.getContext('2d');
 const cropBox=document.getElementById('cropBox');
 const canvasWrap=document.getElementById('canvasWrap');
-let edImg=null,edHistory=[],edRedoStack=[],edRotation=0,edFlipX=false,edFlipY=false,edSaveQuality=1.0,edSaveFormat='jpg';
+let edImg=null,edHistory=[],edRedoStack=[],edRotation=0,edFlipX=false,edFlipY=false,edSaveQuality=1.0,edSaveFormat='jpg',_edOriginalUrl='';
 let enhBright=0,enhContrast=0,enhSat=0;
 let cropActive=false,cropMode='rect',cBoxL=.1,cBoxT=.1,cBoxR=.9,cBoxB=.9,dragging=null;
 let edSaveScale = 1.0;
@@ -1518,6 +1676,32 @@ function openLocalEditor(){
 
   document.getElementById('localFileInput').click();
 }
+function reloadOriginalQuality(){
+  if(!_edOriginalUrl){showToast('원본 URL 정보 없음');return;}
+  const btn=document.getElementById('edReloadOrigBtn');
+  btn.textContent='⏳ 로딩 중...';btn.disabled=true;
+  fetch(_edOriginalUrl)
+    .then(r=>r.blob())
+    .then(b=>{
+      const u=URL.createObjectURL(b);
+      const img=new Image();
+      img.onload=()=>{
+        pushHistory();
+        edImg=img;
+        drawImage();
+        btn.style.display='none';
+        const badge=document.getElementById('edQualityBadge');
+        badge.textContent='✅ 원본';
+        badge.style.background='rgba(232,255,71,.2)';
+        badge.style.color='#e8ff47';
+        badge.style.display='inline-block';
+        showToast('✅ 원본 화질로 로드 완료');
+      };
+      img.src=u;
+    })
+    .catch(()=>{btn.textContent='❌ 실패';btn.disabled=false;showToast('❌ 원본 로드 실패');});
+}
+
 function loadLocalFile(e){const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);const img=new Image();img.onload=()=>{edImg=img;initEditor(f.name.replace(/\.[^.]+$/,''));};img.src=u;e.target.value='';}
 let editorOpen = false;
 function initEditor(name){
@@ -1525,7 +1709,7 @@ function initEditor(name){
   enhBright=0; enhContrast=0; enhSat=0; syncSliders();
   canvas.dataset.name=name||'image';
   document.getElementById('editorModal').classList.add('open');
-  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; edZoom=1; setZoom(1); showCropControls(false);
+  cropBox.style.display='none'; cropBox.classList.remove('circle-mode'); cropActive=false; cropMode='rect'; edZoom=1; setZoom(1); const zsl=document.getElementById('zoomSlider');if(zsl)zsl.value=1; showCropControls(false);
   const mcb=document.getElementById('modeCropBtn');if(mcb){mcb.classList.remove('accent');}
   const mcb2=document.getElementById('modeCircleCropBtn');if(mcb2){mcb2.classList.remove('accent');}
   if(window.innerWidth<=768) document.getElementById('editorSidebar').classList.add('open');
@@ -1539,7 +1723,46 @@ function initEditor(name){
   }
   // 👇 배경 스크롤 차단
   
-  drawImage(); showToast('✅ 편집기 열림');
+  // 휠+핀치 줌 (한 번만 등록)
+  if(!document.getElementById('canvasArea')._zoomBound){
+    document.getElementById('canvasArea')._zoomBound=true;
+    document.getElementById('canvasArea').addEventListener('wheel',(e)=>{
+      if(!edImg)return;
+      e.preventDefault();
+      const step=e.ctrlKey?0.25:0.05;
+      setZoom(edZoom+(e.deltaY<0?step:-step));
+    },{passive:false});
+  }
+  if(!canvasWrap._pinchBound){
+    canvasWrap._pinchBound=true;
+    let _pd=0,_pz=1;
+    canvasWrap.addEventListener('touchstart',(e)=>{
+      if(e.touches.length===2){_pd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);_pz=edZoom;}
+    },{passive:true});
+    canvasWrap.addEventListener('touchmove',(e)=>{
+      if(e.touches.length===2&&_pd){e.preventDefault();const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);setZoom(_pz*(d/_pd));}
+    },{passive:false});
+  }
+  drawImage();
+  // 화질 상태 표시 (저화질만 표시)
+  const badge=document.getElementById('edQualityBadge');
+  const reloadBtn=document.getElementById('edReloadOrigBtn');
+  if(badge && reloadBtn){
+    const w=edImg.naturalWidth||edImg.width;
+    if(w < 1000){
+      badge.textContent='⚠️ 저화질';
+      badge.style.background='rgba(255,160,0,.15)';
+      badge.style.color='#ffa500';
+      badge.style.display='inline-block';
+      reloadBtn.style.display='inline-block';
+      reloadBtn.textContent='🔍 원본 화질로';
+      reloadBtn.disabled=false;
+    } else {
+      badge.style.display='none';
+      reloadBtn.style.display='none';
+    }
+  }
+  showToast('✅ 편집기 열림');
   document.body.style.overflow = 'hidden';
 }
 
@@ -1556,15 +1779,25 @@ function closeEditor() {
 function drawImage(){
   if(!edImg)return;
   const area=document.getElementById('canvasArea');
+  const dpr=window.devicePixelRatio||1;
   const maxW=area.clientWidth-20||800,maxH=area.clientHeight-20||600;
   const rad=edRotation*Math.PI/180;
   const sin=Math.abs(Math.sin(rad)),cos=Math.abs(Math.cos(rad));
   const rW=edImg.width*cos+edImg.height*sin,rH=edImg.width*sin+edImg.height*cos;
+  // CSS 픽셀 기준 스케일
   const sc=Math.min(maxW/rW,maxH/rH,1);
-  canvas.width=Math.round(rW*sc);canvas.height=Math.round(rH*sc);
-  canvasWrap.style.width=canvas.width+'px';canvasWrap.style.height=canvas.height+'px';
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rad);
+  // 캔버스 실제 픽셀은 dpr 배수로 설정 (레티나 선명도)
+  const cssW=Math.round(rW*sc), cssH=Math.round(rH*sc);
+  canvas.width=Math.round(cssW*dpr);
+  canvas.height=Math.round(cssH*dpr);
+  canvas.style.width=cssW+'px';
+  canvas.style.height=cssH+'px';
+  canvasWrap.style.width=cssW+'px';canvasWrap.style.height=cssH+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0); // dpr 스케일 적용
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.clearRect(0,0,cssW,cssH);
+  ctx.save();ctx.translate(cssW/2,cssH/2);ctx.rotate(rad);
   ctx.scale(edFlipX?-1:1,edFlipY?-1:1);
   ctx.drawImage(edImg,-edImg.width*sc/2,-edImg.height*sc/2,edImg.width*sc,edImg.height*sc);
   ctx.restore();applyCSS();
@@ -1740,7 +1973,6 @@ function setCropBoxSize() {
 
 cropBox.addEventListener('mousedown',startDrag);
 cropBox.addEventListener('touchstart',startDragTouch,{passive:false});
-cropBox.addEventListener('mousedown',startDrag);cropBox.addEventListener('touchstart',startDragTouch,{passive:false});
 
 
 function startDrag(e){const dir=e.target.dataset.dir;if(!dir&&e.target!==cropBox)return;e.preventDefault();e.stopPropagation();dragging={dir:dir||'move',x:e.clientX,y:e.clientY,l:cBoxL,t:cBoxT,r:cBoxR,b:cBoxB};window.addEventListener('mousemove',onDrag);window.addEventListener('mouseup',endDrag);}
@@ -2005,21 +2237,7 @@ checkAdCooldown();
   const lm = document.getElementById('loadMore');
   const observer = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{
-      if(e.isIntersecting && lm.style.display!=='none' && !isLoading){
-        loadMore();
-      }
-    });
-  },{rootMargin:'300px'});
-  observer.observe(lm);
-})();
-/* ── 무한 스크롤 ── */
-(function initInfiniteScroll(){
-  const lm = document.getElementById('loadMore');
-  const observer = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting && lm.style.display!=='none' && !isLoading){
-        loadMore();
-      }
+      if(e.isIntersecting && lm.style.display!=='none' && !isLoading) loadMore();
     });
   },{rootMargin:'300px'});
   observer.observe(lm);
@@ -2036,6 +2254,7 @@ window.addEventListener('scroll', () => {
 /* ── 설정 모달 ── */
 function openSettingsModal() {
   document.getElementById('settingsModal').classList.add('show');
+  applyLang(currentLang);
 }
 function closeSettingsModal() {
   document.getElementById('settingsModal').classList.remove('show');
@@ -2045,11 +2264,150 @@ function closeSettingsModal() {
 document.getElementById('settingsModal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
 });
+
+/* ══════════════════════════════════
+   다국어 지원 (한국어 / English / 日本語 / 中文)
+══════════════════════════════════ */
+const I18N = {
+  ko: {
+    searchPlaceholder: '이미지 검색어를 입력하세요',
+    settingsTitle: '설정',
+    settingsService: 'ℹ️ 서비스',
+    settingsAbout: '📖 캐치이미지란?',
+    settingsLink: '🔗 링크',
+    settingsCopyLink: '🔗 사이트 링크 복사',
+    settingsContact: '📞 문의',
+    settingsLang: '🌐 언어',
+    sortPopular: '인기순', sortLatest: '최신순', sortRandom: '🔀 랜덤',
+    srcAll: '전체', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 이미지', typeVideo: '🎬 동영상', typeMusic: '🎵 음악', typeSfx: '🔊 효과음',
+    loadMore: '더 보기 →', loadRandom: '🔀 더 불러오기',
+    editBtn: '✏️ 편집', dlBtn: '⬇ 저장', viewBtn: '▶ 재생',
+    editorTitle: '편집기 열림', copied: '링크 복사됨!',
+    copyright: '© 2026 Catch Image · 무료 이미지 통합 편집 서비스',
+  },
+  en: {
+    searchPlaceholder: 'Search images...',
+    settingsTitle: 'Settings',
+    settingsService: 'ℹ️ Service',
+    settingsAbout: '📖 About CatchImage',
+    settingsLink: '🔗 Link',
+    settingsCopyLink: '🔗 Copy site link',
+    settingsContact: '📞 Contact',
+    settingsLang: '🌐 Language',
+    sortPopular: 'Popular', sortLatest: 'Latest', sortRandom: '🔀 Random',
+    srcAll: 'All', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 Images', typeVideo: '🎬 Videos', typeMusic: '🎵 Music', typeSfx: '🔊 SFX',
+    loadMore: 'Load more →', loadRandom: '🔀 Shuffle more',
+    editBtn: '✏️ Edit', dlBtn: '⬇ Save', viewBtn: '▶ Play',
+    editorTitle: 'Editor opened', copied: 'Link copied!',
+    copyright: '© 2026 Catch Image · Free Image Search & Editor',
+  },
+  ja: {
+    searchPlaceholder: '画像を検索...',
+    settingsTitle: '設定',
+    settingsService: 'ℹ️ サービス',
+    settingsAbout: '📖 CatchImageとは？',
+    settingsLink: '🔗 リンク',
+    settingsCopyLink: '🔗 サイトリンクをコピー',
+    settingsContact: '📞 お問い合わせ',
+    settingsLang: '🌐 言語',
+    sortPopular: '人気順', sortLatest: '最新順', sortRandom: '🔀 ランダム',
+    srcAll: '全て', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 画像', typeVideo: '🎬 動画', typeMusic: '🎵 音楽', typeSfx: '🔊 効果音',
+    loadMore: 'もっと見る →', loadRandom: '🔀 シャッフル',
+    editBtn: '✏️ 編集', dlBtn: '⬇ 保存', viewBtn: '▶ 再生',
+    editorTitle: 'エディター起動', copied: 'コピーしました！',
+    copyright: '© 2026 Catch Image · 無料画像検索＆編集サービス',
+  },
+  zh: {
+    searchPlaceholder: '搜索图片...',
+    settingsTitle: '设置',
+    settingsService: 'ℹ️ 服务',
+    settingsAbout: '📖 关于CatchImage',
+    settingsLink: '🔗 链接',
+    settingsCopyLink: '🔗 复制网站链接',
+    settingsContact: '📞 联系我们',
+    settingsLang: '🌐 语言',
+    sortPopular: '热门', sortLatest: '最新', sortRandom: '🔀 随机',
+    srcAll: '全部', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 图片', typeVideo: '🎬 视频', typeMusic: '🎵 音乐', typeSfx: '🔊 音效',
+    loadMore: '加载更多 →', loadRandom: '🔀 随机加载',
+    editBtn: '✏️ 编辑', dlBtn: '⬇ 保存', viewBtn: '▶ 播放',
+    editorTitle: '编辑器已打开', copied: '链接已复制！',
+    copyright: '© 2026 Catch Image · 免费图片搜索与编辑服务',
+  }
+};
+
+let currentLang = localStorage.getItem('ciLang') || 'ko';
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('ciLang', lang);
+  const t = I18N[lang];
+  if(!t) return;
+
+  // 검색창
+  const sp = document.getElementById('mainSearchInput') || document.querySelector('.hero-search input');
+  if(sp) sp.placeholder = t.searchPlaceholder;
+
+  // 설정 모달
+  const stTitle = document.getElementById('settingsTitle');
+  if(stTitle) stTitle.textContent = t.settingsTitle;
+  const stAbout = document.getElementById('settingsAboutBtn');
+  if(stAbout) stAbout.innerHTML = t.settingsAbout + '<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span>';
+  const stCopy = document.getElementById('settingsCopyBtn');
+  if(stCopy) stCopy.textContent = t.settingsCopyLink;
+  const stService = document.getElementById('settingsServiceLabel');
+  if(stService) stService.textContent = t.settingsService;
+  const stLink = document.getElementById('settingsLinkLabel');
+  if(stLink) stLink.textContent = t.settingsLink;
+  const stContact = document.getElementById('settingsContactLabel');
+  if(stContact) stContact.textContent = t.settingsContact;
+  const stLangLabel = document.getElementById('settingsLangLabel');
+  if(stLangLabel) stLangLabel.textContent = t.settingsLang;
+  const stCopy2 = document.getElementById('settingsCopyright');
+  if(stCopy2) stCopy2.textContent = t.copyright;
+
+  // 정렬 버튼
+  const sortBtns = document.querySelectorAll('[data-sort]');
+  sortBtns.forEach(b => {
+    if(b.dataset.sort==='popular') b.textContent = t.sortPopular;
+    else if(b.dataset.sort==='latest') b.textContent = t.sortLatest;
+    else if(b.dataset.sort==='random') b.textContent = t.sortRandom;
+  });
+
+  // 소스 버튼
+  const srcBtns = document.querySelectorAll('[data-source]');
+  srcBtns.forEach(b => {
+    if(b.dataset.source==='all') b.textContent = t.srcAll;
+  });
+
+  // 미디어 타입 버튼
+  const mtBtns = document.querySelectorAll('[data-mt]');
+  mtBtns.forEach(b => {
+    if(b.dataset.mt==='image') b.textContent = t.typeImage;
+    else if(b.dataset.mt==='video') b.textContent = t.typeVideo;
+    else if(b.dataset.mt==='music') b.textContent = t.typeMusic;
+    else if(b.dataset.mt==='sfx') b.textContent = t.typeSfx;
+  });
+
+  // 더보기 버튼
+  const lmBtn = document.querySelector('#loadMore button');
+  if(lmBtn && currentSort!=='random') lmBtn.textContent = t.loadMore;
+
+  // 언어 버튼 활성화 표시
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.style.background = b.dataset.lang === lang ? 'var(--accent)' : 'var(--surface2)';
+    b.style.color = b.dataset.lang === lang ? '#000' : 'var(--text)';
+  });
+}
+
+// 페이지 로드 시 저장된 언어 적용
+document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
+
 /* ===== 추가 끝 ===== */
 
-</script>
-</body>
-</html>
 </script>
 <!-- 맨 위로 가기 버튼 -->
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
@@ -2058,12 +2416,21 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
 <div id="settingsModal" class="settings-modal">
   <div class="settings-panel">
     <div class="settings-header">
-      <span>설정</span>
+      <span id="settingsTitle">설정</span>
       <button class="settings-close" onclick="closeSettingsModal()">×</button>
     </div>
     <div class="settings-section">
-      <h4>ℹ️ 서비스</h4>
-      <button class="settings-btn" onclick="closeSettingsModal();openAboutModal()" style="
+      <h4 id="settingsLangLabel">🌐 언어</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="settings-btn lang-btn" data-lang="ko" onclick="applyLang('ko')" style="font-weight:700">🇰🇷 한국어</button>
+        <button class="settings-btn lang-btn" data-lang="en" onclick="applyLang('en')" style="font-weight:700">🇺🇸 English</button>
+        <button class="settings-btn lang-btn" data-lang="ja" onclick="applyLang('ja')" style="font-weight:700">🇯🇵 日本語</button>
+        <button class="settings-btn lang-btn" data-lang="zh" onclick="applyLang('zh')" style="font-weight:700">🇨🇳 中文</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h4 id="settingsServiceLabel">ℹ️ 서비스</h4>
+      <button id="settingsAboutBtn" class="settings-btn" onclick="closeSettingsModal();openAboutModal()" style="
         background:linear-gradient(135deg,rgba(232,255,71,.12),rgba(232,255,71,.06));
         border:1.5px solid var(--accent);
         color:var(--accent);
@@ -2073,11 +2440,11 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
       ">📖 캐치이미지란?<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span></button>
     </div>
     <div class="settings-section">
-      <h4>🔗 링크</h4>
-      <button class="settings-btn copy-link-btn" onclick="copyLink(); closeSettingsModal();">🔗 사이트 링크 복사</button>
+      <h4 id="settingsLinkLabel">🔗 링크</h4>
+      <button id="settingsCopyBtn" class="settings-btn copy-link-btn" onclick="copyLink(); closeSettingsModal();">🔗 사이트 링크 복사</button>
     </div>
     <div class="settings-section">
-      <h4>📞 문의</h4>
+      <h4 id="settingsContactLabel">📞 문의</h4>
       <div style="background: var(--surface2); padding: 10px; border-radius: 12px; text-align: center;">
         <a href="mailto:nhd7890@gmail.com" style="color: var(--accent);">nhd7890@gmail.com</a>
       </div>
@@ -2086,7 +2453,7 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
       Media by Pexels &amp; Pixabay
     </div>
     <div style="border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; text-align: center; font-size: 0.65rem; color: var(--muted);">
-      © 2026 Catch Image · 무료 이미지 통합 편집 서비스
+      <span id="settingsCopyright">© 2026 Catch Image · 무료 이미지 통합 편집 서비스</span>
     </div>
   </div>
 </div>
