@@ -691,11 +691,7 @@ footer {
       <div class="editor-dim" id="edDimInfo">—</div>
       <span id="edQualityBadge" style="display:none;font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px"></span>
     </div>
-    <div class="editor-top-right">
-      <button id="edReloadOrigBtn" onclick="reloadOriginalQuality()" style="display:none;background:rgba(232,255,71,.15);color:#e8ff47;border:1px solid rgba(232,255,71,.4);padding:5px 12px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px">🔍 원본 화질로</button>
-      <button class="editor-close" onclick="closeEditor()">×</button>
-    </div>
-  </div>
+      </div>
   <div class="editor-body">
     <div class="editor-canvas-area" id="canvasArea">
       <div id="zoomControls">
@@ -718,7 +714,7 @@ footer {
       </div>
     </div>
     <div class="editor-sidebar" id="editorSidebar">
-      <div class="mobile-preview-notice" id="mobilePreviewNotice">📱 미리보기는 성능 최적화로 저화질입니다<br>저장 시 원본 화질로 저장됩니다</div>
+      <div class="mobile-preview-notice" id="mobilePreviewNotice">모바일 미리보기는<br>성능 최적화로 저화질입니다<br>저장 시 원본 화질로<br>저장됩니다</div>
       <div class="ed-section">
         <div class="ed-section-title">📁 파일 열기</div>
         <label class="ed-file-label">🖼️ 내 이미지 선택<input type="file" id="localFileInput" accept="image/*" onchange="loadLocalFile(event)"></label>
@@ -1624,24 +1620,7 @@ function initEditor(name){
     },{passive:false});
   }
   drawImage();
-  // 화질 상태 표시 (저화질만 표시)
-  const badge=document.getElementById('edQualityBadge');
-  const reloadBtn=document.getElementById('edReloadOrigBtn');
-  if(badge && reloadBtn){
-    const w=edImg.naturalWidth||edImg.width;
-    if(w < 1000){
-      badge.textContent='⚠️ 저화질';
-      badge.style.background='rgba(255,160,0,.15)';
-      badge.style.color='#ffa500';
-      badge.style.display='inline-block';
-      reloadBtn.style.display='inline-block';
-      reloadBtn.textContent='🔍 원본 화질로';
-      reloadBtn.disabled=false;
-    } else {
-      badge.style.display='none';
-      reloadBtn.style.display='none';
-    }
-  }
+
   showToast('✅ 편집기 열림');
   document.body.style.overflow = 'hidden';
 }
