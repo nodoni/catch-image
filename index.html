@@ -846,8 +846,7 @@ footer {
 /* ═══════════════════════════════════════════════
    API KEYS
 ═══════════════════════════════════════════════ */
-const PEXELS_KEY  = 'CyPFyOXxFbr0NMAzwDCrfplwsXdM0fbvm8I466eyhXSz807E85UmBn1t';
-const PIXABAY_KEY = '55240646-e066fc8797e32f224e3416303';
+// API 키는 서버(api/pexels.js, api/pixabay.js)에서 환경변수로 관리됩니다
 
 /* ═══════════════════════════════════════════════
    광고 영상 목록 (sooplive VOD ID)
@@ -1155,15 +1154,23 @@ async function _cachedFetch(key,fetcher){
 }
 async function fPexelsImg(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page + pageOffset;
-  const key = _cacheKey('pexImg',q,actualPage,pp,currentSort,currentSource);
+  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page;
+  const safePerPage = Math.min(pp, 30);
+  const key = _cacheKey('pexImg',q,actualPage,safePerPage,currentSort,currentSource);
   return _cachedFetch(key, async()=>{
-    const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
-    if(!r.ok)throw new Error('Pexels '+r.status);
-    const d=await r.json();
-    let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
-    if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
-    return{p:photos, m:isRandom?false:(d.total_results>actualPage*pp)};
+    try {
+      const url = `/api/pexels?q=${encodeURIComponent(q)}&page=${actualPage}&per_page=${safePerPage}&type=image`;
+      const r = await fetch(url);
+      if(!r.ok) return {p:[], m:false};
+      const d = await r.json();
+      if(!d.photos) return {p:[], m:false};
+      let photos=(d.photos).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
+      if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
+      return{p:photos, m:isRandom?false:(d.total_results>actualPage*safePerPage)};
+    } catch(e) {
+      console.warn('Pexels 이미지 실패(무시):', e.message);
+      return {p:[], m:false};
+    }
   });
 }
 async function fPixabayImg(q, page, pp, forceRandom = false){
@@ -1192,15 +1199,23 @@ async function fPixabayImg(q, page, pp, forceRandom = false){
 /* ── API: 동영상 ── */
 async function fPexelsVid(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page + pageOffset;
-  const key = _cacheKey('pxVid',q,actualPage,pp,currentSort,currentSource);
+  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page;
+  const safePerPage = Math.min(pp, 30);
+  const key = _cacheKey('pxVid',q,actualPage,safePerPage,currentSort,currentSource);
   return _cachedFetch(key, async()=>{
-    const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
-    if(!r.ok)throw new Error('Pexels Video '+r.status);
-    const d=await r.json();
-    let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
-    if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
-    return{p:vids, m:isRandom?false:(d.total_results>actualPage*pp)};
+    try {
+      const url = `/api/pexels?q=${encodeURIComponent(q)}&page=${actualPage}&per_page=${safePerPage}&type=video`;
+      const r = await fetch(url);
+      if(!r.ok) return {p:[], m:false};
+      const d = await r.json();
+      if(!d.videos) return {p:[], m:false};
+      let vids=(d.videos).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
+      if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+      return{p:vids, m:isRandom?false:(d.total_results>actualPage*safePerPage)};
+    } catch(e) {
+      console.warn('Pexels 동영상 실패(무시):', e.message);
+      return {p:[], m:false};
+    }
   });
 }
 async function fPixabayVid(q, page, pp, forceRandom = false){
