@@ -1647,15 +1647,25 @@ function closeEditor() {
 function drawImage(){
   if(!edImg)return;
   const area=document.getElementById('canvasArea');
+  const dpr=window.devicePixelRatio||1;
   const maxW=area.clientWidth-20||800,maxH=area.clientHeight-20||600;
   const rad=edRotation*Math.PI/180;
   const sin=Math.abs(Math.sin(rad)),cos=Math.abs(Math.cos(rad));
   const rW=edImg.width*cos+edImg.height*sin,rH=edImg.width*sin+edImg.height*cos;
+  // CSS 픽셀 기준 스케일
   const sc=Math.min(maxW/rW,maxH/rH,1);
-  canvas.width=Math.round(rW*sc);canvas.height=Math.round(rH*sc);
-  canvasWrap.style.width=canvas.width+'px';canvasWrap.style.height=canvas.height+'px';
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rad);
+  // 캔버스 실제 픽셀은 dpr 배수로 설정 (레티나 선명도)
+  const cssW=Math.round(rW*sc), cssH=Math.round(rH*sc);
+  canvas.width=Math.round(cssW*dpr);
+  canvas.height=Math.round(cssH*dpr);
+  canvas.style.width=cssW+'px';
+  canvas.style.height=cssH+'px';
+  canvasWrap.style.width=cssW+'px';canvasWrap.style.height=cssH+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0); // dpr 스케일 적용
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.clearRect(0,0,cssW,cssH);
+  ctx.save();ctx.translate(cssW/2,cssH/2);ctx.rotate(rad);
   ctx.scale(edFlipX?-1:1,edFlipY?-1:1);
   ctx.drawImage(edImg,-edImg.width*sc/2,-edImg.height*sc/2,edImg.width*sc,edImg.height*sc);
   ctx.restore();applyCSS();
