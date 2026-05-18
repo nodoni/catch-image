@@ -1790,13 +1790,15 @@ function activateCrop(mode){
   cropActive = true;
   // 원형은 정사각형으로 초기화
   if(cropMode === 'circle'){
-    const size = Math.min(canvas.width, canvas.height);
-    const cx = canvas.width/2, cy = canvas.height/2;
+    const csW = parseFloat(canvas.style.width) || canvas.width;
+    const csH = parseFloat(canvas.style.height) || canvas.height;
+    const size = Math.min(csW, csH);
+    const cx = csW/2, cy = csH/2;
     const half = size * 0.4;
-    cBoxL = (cx - half) / canvas.width;
-    cBoxR = (cx + half) / canvas.width;
-    cBoxT = (cy - half) / canvas.height;
-    cBoxB = (cy + half) / canvas.height;
+    cBoxL = (cx - half) / csW;
+    cBoxR = (cx + half) / csW;
+    cBoxT = (cy - half) / csH;
+    cBoxB = (cy + half) / csH;
     cropBox.classList.add('circle-mode');
     circleBtn.classList.add('accent');
     rectBtn.classList.remove('accent');
@@ -1815,9 +1817,10 @@ function activateCrop(mode){
 }
 function showCropControls(show){document.getElementById('cropReadout').style.display=show?'block':'none';document.getElementById('applyCropBtn').style.display=show?'':'none';document.getElementById('resetCropBtn').style.display=show?'':'none';}
 function positionCropBox(){
-  const cw=canvas.width, ch=canvas.height;
+  // CSS 픽셀 기준으로 계산 (canvas.width는 DPR 적용값이라 모바일에서 2배)
+  const cw = parseFloat(canvas.style.width) || canvas.width;
+  const ch = parseFloat(canvas.style.height) || canvas.height;
   if(cropMode==='circle'){
-    // 픽셀 기준 정원: width px = height px
     const sizePx=Math.round((cBoxR-cBoxL)*cw);
     const cx=Math.round((cBoxL+cBoxR)/2*cw);
     const cy=Math.round((cBoxT+cBoxB)/2*ch);
@@ -1928,8 +1931,9 @@ function startDragTouch(e){const dir=e.target.dataset.dir;if(!dir&&e.target!==cr
 function onDragTouch(e){e.preventDefault();onDrag(e.touches[0]);}
 function onDrag(e){
   if(!dragging)return;
-  const cw=canvas.width, ch=canvas.height;
-  const dx=(e.clientX-dragging.x)/cw, dy=(e.clientY-dragging.y)/ch;
+  const cw = parseFloat(canvas.style.width) || canvas.width;
+  const ch = parseFloat(canvas.style.height) || canvas.height;
+  const dx=(e.clientX-dragging.x)/cw/edZoom, dy=(e.clientY-dragging.y)/ch/edZoom;
   const minPx=20, d=dragging.dir;
   let l=dragging.l, t=dragging.t, r=dragging.r, b=dragging.b;
 
@@ -1939,13 +1943,11 @@ function onDrag(e){
     r=l+(dragging.r-dragging.l);
     b=t+(dragging.b-dragging.t);
   } else if(cropMode==='circle'){
-    // 픽셀 단위로 계산 — 정원(pixel 기준 정사각형) 유지
-    const prevSizePx=(dragging.r-dragging.l)*cw; // 초기 원의 픽셀 너비
-    const cx=((dragging.l+dragging.r)/2)*cw;     // 중심 픽셀 X
-    const cy=((dragging.t+dragging.b)/2)*ch;     // 중심 픽셀 Y
-    const dxPx=e.clientX-dragging.x;
-    const dyPx=e.clientY-dragging.y;
-    // 핸들 방향에 따라 delta 결정
+    const prevSizePx=(dragging.r-dragging.l)*cw;
+    const cx=((dragging.l+dragging.r)/2)*cw;
+    const cy=((dragging.t+dragging.b)/2)*ch;
+    const dxPx=(e.clientX-dragging.x)/edZoom;
+    const dyPx=(e.clientY-dragging.y)/edZoom;
     let delta=0;
     if(d==='br'||d==='tr') delta= Math.abs(dxPx)>=Math.abs(dyPx)?dxPx:dyPx;
     else if(d==='bl'||d==='tl') delta= Math.abs(dxPx)>=Math.abs(dyPx)?-dxPx:-dyPx;
@@ -1958,7 +1960,6 @@ function onDrag(e){
     const halfH=newSizePx/2/ch;
     l=cx/cw-halfW; r=cx/cw+halfW;
     t=cy/ch-halfH; b=cy/ch+halfH;
-    // 경계 클램핑 (원형 유지하면서 밀어내기)
     if(l<0){r-=l;l=0;} if(r>1){l-=r-1;r=1;}
     if(t<0){b-=t;t=0;} if(b>1){t-=b-1;b=1;}
     l=Math.max(0,l); r=Math.min(1,r); t=Math.max(0,t); b=Math.min(1,b);
