@@ -1094,14 +1094,23 @@ async function fetchAll(q, page, clear, forceRandom = false){
     let items=[],hasMore=false;
     const mt=currentMediaType;
 
+    // 두 API 중 하나 실패해도 나머지 결과는 표시
+    function mergeSettled(results, h){
+      const [ra, rb] = results;
+      const a = ra.status==='fulfilled' ? ra.value : {p:[],m:false};
+      const b = rb.status==='fulfilled' ? rb.value : {p:[],m:false};
+      const ml=Math.max(a.p.length,b.p.length);
+      for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}
+      hasMore=a.m||b.m;
+    }
     if(mt==='image'){
-      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsImg(q,page,h, forceRandom), fPixabayImg(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
+      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else{const h=Math.floor(pp/2);mergeSettled(await Promise.allSettled([fPexelsImg(q,page,h,forceRandom),fPixabayImg(q,page,h,forceRandom)]),h);}
     } else if(mt==='video'){
-      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
-      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsVid(q,page,h, forceRandom), fPixabayVid(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
+      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
+      else{const h=Math.floor(pp/2);mergeSettled(await Promise.allSettled([fPexelsVid(q,page,h,forceRandom),fPixabayVid(q,page,h,forceRandom)]),h);}
 
     } else if(mt==='music'){
       const r=await fPixabayMusic(q,page,pp);items=r.p;hasMore=r.m;
@@ -1119,7 +1128,13 @@ async function fetchAll(q, page, clear, forceRandom = false){
       lm.style.display='flex';
       lm.querySelector('button').textContent=currentSort==='random'?'🔀 더 불러오기':'더 보기 →';
     }
-  }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
+  }catch(e){
+    const msg = e.message==='Failed to fetch'
+      ? '❌ 네트워크 오류 — 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.'
+      : '❌ '+e.message;
+    st.textContent=msg;st.className='status error';st.style.display='block';
+    document.getElementById('moreSpinner')?.remove();
+  }
   isLoading=false;
 }
 
