@@ -247,12 +247,12 @@ body.searched .gallery-section{margin-top:.3rem}
 .illus-badge{position:absolute;top:8px;left:8px;background:#7c6ff7;color:#fff;font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:4px}
 
 /* ── STATUS ── */
-.status{text-align:center;padding:4rem 1rem;color:var(--muted);font-size:.9rem}
+.status{text-align:center;padding:4rem 1rem;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .status.error{color:#ff6b6b}
-.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:3rem auto}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.load-more{display:flex;justify-content:center;padding:2.5rem 0 6rem}
+.load-more{display:flex;justify-content:center;align-items:center;padding:2.5rem 0 6rem;width:100%;clear:both}
 .load-more button{background:transparent;border:1px solid rgba(232,255,71,.4);color:var(--accent);padding:.75rem 3.5rem;border-radius:var(--radius);cursor:pointer;font-size:.88rem;font-family:'Noto Sans KR',sans-serif;font-weight:500;transition:background .15s}
 .load-more button:hover{background:rgba(232,255,71,.07)}
 
@@ -656,7 +656,7 @@ footer {
   <div id="gallery" class="gallery"></div>
   <div id="status" class="status"><div class="spinner"></div></div>
   <div id="loadMore" class="load-more" style="display:none">
-    <div class="spinner" id="moreSpinner" style="margin:0 auto"></div>
+    <div class="spinner" id="moreSpinner"></div>
   </div>
 </section>
 
