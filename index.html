@@ -302,13 +302,13 @@ body.searched .gallery-section{margin-top:.3rem}
 .editor-close{background:none;border:none;color:var(--muted);font-size:1.8rem;cursor:pointer;line-height:1}
 .editor-close:hover{color:var(--text)}
 .editor-body{display:flex;flex:1;min-height:0;overflow:hidden;position:relative}
-.editor-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:auto;min-width:0;position:relative;transition:flex .3s}
+.editor-canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#050508;overflow:hidden;min-width:0;position:relative;transition:flex .3s}
 #canvasWrap{position:relative;display:inline-block;line-height:0;transform-origin:center center;transition:transform .15s ease}
 #zoomControls{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:6px 12px;z-index:200;user-select:none}
 #zoomControls button{background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;transition:background .15s}
 #zoomControls button:hover{background:rgba(255,255,255,.15)}
 #zoomLabel{color:#e2ff43;font-size:.78rem;font-weight:700;min-width:38px;text-align:center}
-#editorCanvas{display:block;border-radius:6px;}
+#editorCanvas{display:block;border-radius:6px;max-width:100%;max-height:100%}
 #cropBox{position:absolute;top:0;left:0;right:0;bottom:0;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.55);display:none;cursor:move;touch-action:none}
 #cropBox.circle-mode{border-radius:50%;box-shadow:none}
 #cropBox.circle-mode::after{content:'';position:absolute;inset:-2px;border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none}
@@ -557,7 +557,6 @@ footer {
   background: transparent;
   color: var(--accent);
 }
-
 /* ===== 추가 끝 ===== */
 </style>
 
@@ -694,10 +693,8 @@ footer {
     <div class="editor-top-left">
       <div class="editor-logo"><span class="logo-catch">CATCH</span><span class="logo-image">IMAGE</span></div>
       <div class="editor-dim" id="edDimInfo">—</div>
-      <span id="edQualityBadge" style="display:none;font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px"></span>
     </div>
     <div class="editor-top-right">
-      <button id="edReloadOrigBtn" onclick="reloadOriginalQuality()" style="display:none;background:rgba(232,255,71,.15);color:#e8ff47;border:1px solid rgba(232,255,71,.4);padding:5px 12px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px">🔍 원본 화질로</button>
       <button class="editor-close" onclick="closeEditor()">×</button>
     </div>
   </div>
@@ -1097,23 +1094,14 @@ async function fetchAll(q, page, clear, forceRandom = false){
     let items=[],hasMore=false;
     const mt=currentMediaType;
 
-    // 두 API 중 하나 실패해도 나머지 결과는 표시
-    function mergeSettled(results, h){
-      const [ra, rb] = results;
-      const a = ra.status==='fulfilled' ? ra.value : {p:[],m:false};
-      const b = rb.status==='fulfilled' ? rb.value : {p:[],m:false};
-      const ml=Math.max(a.p.length,b.p.length);
-      for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}
-      hasMore=a.m||b.m;
-    }
     if(mt==='image'){
-      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
-      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
-      else{const h=Math.floor(pp/2);mergeSettled(await Promise.allSettled([fPexelsImg(q,page,h,forceRandom),fPixabayImg(q,page,h,forceRandom)]),h);}
+      if(currentSource==='pexels'){const r=await fPexelsImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else if(currentSource==='pixabay'){const r=await fPixabayImg(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsImg(q,page,h, forceRandom), fPixabayImg(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
     } else if(mt==='video'){
-      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
-      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp,forceRandom);items=r.p;hasMore=r.m;}
-      else{const h=Math.floor(pp/2);mergeSettled(await Promise.allSettled([fPexelsVid(q,page,h,forceRandom),fPixabayVid(q,page,h,forceRandom)]),h);}
+      if(currentSource==='pixabay'){const r=await fPixabayVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else if(currentSource==='pexels'){const r=await fPexelsVid(q,page,pp, forceRandom); items=r.p; hasMore=r.m;}
+      else{const h=Math.floor(pp/2); const[a,b]=await Promise.all([fPexelsVid(q,page,h, forceRandom), fPixabayVid(q,page,h, forceRandom)]);const ml=Math.max(a.p.length,b.p.length);for(let i=0;i<ml;i++){if(i<a.p.length)items.push(a.p[i]);if(i<b.p.length)items.push(b.p[i]);}hasMore=a.m||b.m;}
 
     } else if(mt==='music'){
       const r=await fPixabayMusic(q,page,pp);items=r.p;hasMore=r.m;
@@ -1131,13 +1119,7 @@ async function fetchAll(q, page, clear, forceRandom = false){
       lm.style.display='flex';
       lm.querySelector('button').textContent=currentSort==='random'?'🔀 더 불러오기':'더 보기 →';
     }
-  }catch(e){
-    const msg = e.message==='Failed to fetch'
-      ? '❌ 네트워크 오류 — 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.'
-      : '❌ '+e.message;
-    st.textContent=msg;st.className='status error';st.style.display='block';
-    document.getElementById('moreSpinner')?.remove();
-  }
+  }catch(e){st.textContent='❌ '+e.message;st.className='status error';st.style.display='block';document.getElementById('moreSpinner')?.remove();}
   isLoading=false;
 }
 
@@ -1522,7 +1504,7 @@ const canvas=document.getElementById('editorCanvas');
 const ctx=canvas.getContext('2d');
 const cropBox=document.getElementById('cropBox');
 const canvasWrap=document.getElementById('canvasWrap');
-let edImg=null,edHistory=[],edRedoStack=[],edRotation=0,edFlipX=false,edFlipY=false,edSaveQuality=1.0,edSaveFormat='jpg',_edOriginalUrl='';
+let edImg=null,edHistory=[],edRedoStack=[],edRotation=0,edFlipX=false,edFlipY=false,edSaveQuality=1.0,edSaveFormat='jpg';
 let enhBright=0,enhContrast=0,enhSat=0;
 let cropActive=false,cropMode='rect',cBoxL=.1,cBoxT=.1,cBoxR=.9,cBoxB=.9,dragging=null;
 let edSaveScale = 1.0;
@@ -1542,32 +1524,6 @@ function openLocalEditor(){
 
   document.getElementById('localFileInput').click();
 }
-function reloadOriginalQuality(){
-  if(!_edOriginalUrl){showToast('원본 URL 정보 없음');return;}
-  const btn=document.getElementById('edReloadOrigBtn');
-  btn.textContent='⏳ 로딩 중...';btn.disabled=true;
-  fetch(_edOriginalUrl)
-    .then(r=>r.blob())
-    .then(b=>{
-      const u=URL.createObjectURL(b);
-      const img=new Image();
-      img.onload=()=>{
-        pushHistory();
-        edImg=img;
-        drawImage();
-        btn.style.display='none';
-        const badge=document.getElementById('edQualityBadge');
-        badge.textContent='✅ 원본';
-        badge.style.background='rgba(232,255,71,.2)';
-        badge.style.color='#e8ff47';
-        badge.style.display='inline-block';
-        showToast('✅ 원본 화질로 로드 완료');
-      };
-      img.src=u;
-    })
-    .catch(()=>{btn.textContent='❌ 실패';btn.disabled=false;showToast('❌ 원본 로드 실패');});
-}
-
 function loadLocalFile(e){const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);const img=new Image();img.onload=()=>{edImg=img;initEditor(f.name.replace(/\.[^.]+$/,''));};img.src=u;e.target.value='';}
 let editorOpen = false;
 function initEditor(name){
@@ -1609,26 +1565,7 @@ function initEditor(name){
       if(e.touches.length===2&&_pd){e.preventDefault();const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);setZoom(_pz*(d/_pd));}
     },{passive:false});
   }
-  drawImage();
-  // 화질 상태 표시 (저화질만 표시)
-  const badge=document.getElementById('edQualityBadge');
-  const reloadBtn=document.getElementById('edReloadOrigBtn');
-  if(badge && reloadBtn){
-    const w=edImg.naturalWidth||edImg.width;
-    if(w < 1000){
-      badge.textContent='⚠️ 저화질';
-      badge.style.background='rgba(255,160,0,.15)';
-      badge.style.color='#ffa500';
-      badge.style.display='inline-block';
-      reloadBtn.style.display='inline-block';
-      reloadBtn.textContent='🔍 원본 화질로';
-      reloadBtn.disabled=false;
-    } else {
-      badge.style.display='none';
-      reloadBtn.style.display='none';
-    }
-  }
-  showToast('✅ 편집기 열림');
+  drawImage(); showToast('✅ 편집기 열림');
   document.body.style.overflow = 'hidden';
 }
 
@@ -1645,25 +1582,15 @@ function closeEditor() {
 function drawImage(){
   if(!edImg)return;
   const area=document.getElementById('canvasArea');
-  const dpr=window.devicePixelRatio||1;
   const maxW=area.clientWidth-20||800,maxH=area.clientHeight-20||600;
   const rad=edRotation*Math.PI/180;
   const sin=Math.abs(Math.sin(rad)),cos=Math.abs(Math.cos(rad));
   const rW=edImg.width*cos+edImg.height*sin,rH=edImg.width*sin+edImg.height*cos;
-  // CSS 픽셀 기준 스케일
   const sc=Math.min(maxW/rW,maxH/rH,1);
-  // 캔버스 실제 픽셀은 dpr 배수로 설정 (레티나 선명도)
-  const cssW=Math.round(rW*sc), cssH=Math.round(rH*sc);
-  canvas.width=Math.round(cssW*dpr);
-  canvas.height=Math.round(cssH*dpr);
-  canvas.style.width=cssW+'px';
-  canvas.style.height=cssH+'px';
-  canvasWrap.style.width=cssW+'px';canvasWrap.style.height=cssH+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0); // dpr 스케일 적용
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality='high';
-  ctx.clearRect(0,0,cssW,cssH);
-  ctx.save();ctx.translate(cssW/2,cssH/2);ctx.rotate(rad);
+  canvas.width=Math.round(rW*sc);canvas.height=Math.round(rH*sc);
+  canvasWrap.style.width=canvas.width+'px';canvasWrap.style.height=canvas.height+'px';
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rad);
   ctx.scale(edFlipX?-1:1,edFlipY?-1:1);
   ctx.drawImage(edImg,-edImg.width*sc/2,-edImg.height*sc/2,edImg.width*sc,edImg.height*sc);
   ctx.restore();applyCSS();
@@ -2129,7 +2056,6 @@ function closeSettingsModal() {
 document.getElementById('settingsModal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
 });
-
 /* ===== 추가 끝 ===== */
 
 </script>
@@ -2140,12 +2066,12 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
 <div id="settingsModal" class="settings-modal">
   <div class="settings-panel">
     <div class="settings-header">
-      <span id="settingsTitle">설정</span>
+      <span>설정</span>
       <button class="settings-close" onclick="closeSettingsModal()">×</button>
     </div>
     <div class="settings-section">
-      <h4 id="settingsServiceLabel">ℹ️ 서비스</h4>
-      <button id="settingsAboutBtn" class="settings-btn" onclick="closeSettingsModal();openAboutModal()" style="
+      <h4>ℹ️ 서비스</h4>
+      <button class="settings-btn" onclick="closeSettingsModal();openAboutModal()" style="
         background:linear-gradient(135deg,rgba(232,255,71,.12),rgba(232,255,71,.06));
         border:1.5px solid var(--accent);
         color:var(--accent);
@@ -2155,11 +2081,11 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
       ">📖 캐치이미지란?<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span></button>
     </div>
     <div class="settings-section">
-      <h4 id="settingsLinkLabel">🔗 링크</h4>
-      <button id="settingsCopyBtn" class="settings-btn copy-link-btn" onclick="copyLink(); closeSettingsModal();">🔗 사이트 링크 복사</button>
+      <h4>🔗 링크</h4>
+      <button class="settings-btn copy-link-btn" onclick="copyLink(); closeSettingsModal();">🔗 사이트 링크 복사</button>
     </div>
     <div class="settings-section">
-      <h4 id="settingsContactLabel">📞 문의</h4>
+      <h4>📞 문의</h4>
       <div style="background: var(--surface2); padding: 10px; border-radius: 12px; text-align: center;">
         <a href="mailto:nhd7890@gmail.com" style="color: var(--accent);">nhd7890@gmail.com</a>
       </div>
@@ -2168,7 +2094,7 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
       Media by Pexels &amp; Pixabay
     </div>
     <div style="border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; text-align: center; font-size: 0.65rem; color: var(--muted);">
-      <span id="settingsCopyright">© 2026 Catch Image · 무료 이미지 통합 편집 서비스</span>
+      © 2026 Catch Image · 무료 이미지 통합 편집 서비스
     </div>
   </div>
 </div>
