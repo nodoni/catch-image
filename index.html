@@ -634,6 +634,7 @@ const I18N = {
 
 let currentLang = localStorage.getItem('ciLang') || 'ko';
 
+function _set(id, text){ const el=document.getElementById(id); if(el) el.textContent=text; }
 function applyLang(lang) {
   currentLang = lang;
   localStorage.setItem('ciLang', lang);
@@ -641,58 +642,50 @@ function applyLang(lang) {
   if(!t) return;
 
   // 검색창
-  const sp = document.getElementById('heroSearch') || document.querySelector('.hero-search input');
+  const sp = document.getElementById('heroSearch');
   if(sp) sp.placeholder = t.searchPlaceholder;
 
   // 설정 모달
-  const stTitle = document.getElementById('settingsTitle');
-  if(stTitle) stTitle.textContent = t.settingsTitle;
+  _set('settingsTitle', t.settingsTitle);
+  _set('settingsServiceLabel', t.settingsService);
+  _set('settingsLinkLabel', t.settingsLink);
+  _set('settingsContactLabel', t.settingsContact);
+  _set('settingsLangLabel', t.settingsLang);
+  _set('settingsCopyBtn', t.settingsCopyLink);
+  _set('settingsCopyright', t.copyright);
   const stAbout = document.getElementById('settingsAboutBtn');
   if(stAbout) stAbout.innerHTML = t.settingsAbout + '<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span>';
-  const stCopy = document.getElementById('settingsCopyBtn');
-  if(stCopy) stCopy.textContent = t.settingsCopyLink;
-  const stService = document.getElementById('settingsServiceLabel');
-  if(stService) stService.textContent = t.settingsService;
-  const stLink = document.getElementById('settingsLinkLabel');
-  if(stLink) stLink.textContent = t.settingsLink;
-  const stContact = document.getElementById('settingsContactLabel');
-  if(stContact) stContact.textContent = t.settingsContact;
-  const stLangLabel = document.getElementById('settingsLangLabel');
-  if(stLangLabel) stLangLabel.textContent = t.settingsLang;
-  const stCopy2 = document.getElementById('settingsCopyright');
-  if(stCopy2) stCopy2.textContent = t.copyright;
 
-  // 정렬 버튼
-  const sortBtns = document.querySelectorAll('[data-sort]');
-  sortBtns.forEach(b => {
-    if(b.dataset.sort==='popular') b.textContent = t.sortPopular;
-    else if(b.dataset.sort==='latest') b.textContent = t.sortLatest;
-    else if(b.dataset.sort==='random') b.textContent = t.sortRandom;
-  });
+  // 소스 버튼 (id 기반)
+  _set('btn-all', t.srcAll);
 
-  // 소스 버튼
-  const srcBtns = document.querySelectorAll('[data-source]');
-  srcBtns.forEach(b => {
-    if(b.dataset.source==='all') b.textContent = t.srcAll;
-  });
+  // 미디어 타입 버튼 (id 기반)
+  const imgLabel = t.typeImage;
+  const vidLabel = t.typeVideo;
+  ['mt-image','mt-image-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = id.includes('-m') ? (lang==='ko'?'🖼️':'🖼') : imgLabel; });
+  ['mt-video','mt-video-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = id.includes('-m') ? (lang==='ko'?'🎬':'🎬') : vidLabel; });
 
-  // 미디어 타입 버튼
-  const mtBtns = document.querySelectorAll('[data-mt]');
-  mtBtns.forEach(b => {
-    if(b.dataset.mt==='image') b.textContent = t.typeImage;
-    else if(b.dataset.mt==='video') b.textContent = t.typeVideo;
-    else if(b.dataset.mt==='music') b.textContent = t.typeMusic;
-    else if(b.dataset.mt==='sfx') b.textContent = t.typeSfx;
-  });
+  // 정렬 select option
+  const sortSel = document.getElementById('sortOrder');
+  if(sortSel){
+    sortSel.options[0].text = (lang==='ko'?'🕐 최신순': lang==='en'?'🕐 Latest': lang==='ja'?'🕐 最新順':'🕐 最新');
+    sortSel.options[1].text = (lang==='ko'?'🔥 인기순': lang==='en'?'🔥 Popular': lang==='ja'?'🔥 人気順':'🔥 热门');
+  }
+
+  // 랜덤 버튼
+  const randBtn = document.querySelector('button[onclick="randomShuffle()"]');
+  if(randBtn) randBtn.textContent = t.sortRandom;
 
   // 더보기 버튼
   const lmBtn = document.querySelector('#loadMore button');
-  if(lmBtn && currentSort!=='random') lmBtn.textContent = t.loadMore;
+  if(lmBtn) lmBtn.textContent = currentSort==='random' ? t.loadRandom : t.loadMore;
 
   // 언어 버튼 활성화 표시
   document.querySelectorAll('.lang-btn').forEach(b => {
-    b.style.background = b.dataset.lang === lang ? 'var(--accent)' : 'var(--surface2)';
-    b.style.color = b.dataset.lang === lang ? '#000' : 'var(--text)';
+    const active = b.dataset.lang === lang;
+    b.style.background = active ? 'var(--accent)' : 'var(--surface2)';
+    b.style.color = active ? '#000' : 'var(--text)';
+    b.style.fontWeight = active ? '900' : '700';
   });
 }
 
@@ -1751,13 +1744,13 @@ function initEditor(name){
     },{passive:false});
   }
   drawImage();
-  // 화질 상태 표시
+  // 화질 상태 표시 (저화질만 표시)
   const badge=document.getElementById('edQualityBadge');
   const reloadBtn=document.getElementById('edReloadOrigBtn');
   if(badge && reloadBtn){
     const w=edImg.naturalWidth||edImg.width;
     if(w < 1000){
-      badge.textContent='⚠️ 저화질 미리보기';
+      badge.textContent='⚠️ 저화질';
       badge.style.background='rgba(255,160,0,.15)';
       badge.style.color='#ffa500';
       badge.style.display='inline-block';
@@ -1765,10 +1758,7 @@ function initEditor(name){
       reloadBtn.textContent='🔍 원본 화질로';
       reloadBtn.disabled=false;
     } else {
-      badge.textContent='HD';
-      badge.style.background='rgba(100,220,100,.15)';
-      badge.style.color='#6dc96d';
-      badge.style.display='inline-block';
+      badge.style.display='none';
       reloadBtn.style.display='none';
     }
   }
