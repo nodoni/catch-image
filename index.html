@@ -558,6 +558,140 @@ footer {
   color: var(--accent);
 }
 
+/* ══════════════════════════════════
+   다국어 지원 (한국어 / English / 日本語 / 中文)
+══════════════════════════════════ */
+const I18N = {
+  ko: {
+    searchPlaceholder: '이미지 검색어를 입력하세요',
+    settingsTitle: '설정',
+    settingsService: 'ℹ️ 서비스',
+    settingsAbout: '📖 캐치이미지란?',
+    settingsLink: '🔗 링크',
+    settingsCopyLink: '🔗 사이트 링크 복사',
+    settingsContact: '📞 문의',
+    settingsLang: '🌐 언어',
+    sortPopular: '인기순', sortLatest: '최신순', sortRandom: '🔀 랜덤',
+    srcAll: '전체', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 이미지', typeVideo: '🎬 동영상', typeMusic: '🎵 음악', typeSfx: '🔊 효과음',
+    loadMore: '더 보기 →', loadRandom: '🔀 더 불러오기',
+    editBtn: '✏️ 편집', dlBtn: '⬇ 저장', viewBtn: '▶ 재생',
+    editorTitle: '편집기 열림', copied: '링크 복사됨!',
+    copyright: '© 2026 Catch Image · 무료 이미지 통합 편집 서비스',
+  },
+  en: {
+    searchPlaceholder: 'Search images...',
+    settingsTitle: 'Settings',
+    settingsService: 'ℹ️ Service',
+    settingsAbout: '📖 About CatchImage',
+    settingsLink: '🔗 Link',
+    settingsCopyLink: '🔗 Copy site link',
+    settingsContact: '📞 Contact',
+    settingsLang: '🌐 Language',
+    sortPopular: 'Popular', sortLatest: 'Latest', sortRandom: '🔀 Random',
+    srcAll: 'All', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 Images', typeVideo: '🎬 Videos', typeMusic: '🎵 Music', typeSfx: '🔊 SFX',
+    loadMore: 'Load more →', loadRandom: '🔀 Shuffle more',
+    editBtn: '✏️ Edit', dlBtn: '⬇ Save', viewBtn: '▶ Play',
+    editorTitle: 'Editor opened', copied: 'Link copied!',
+    copyright: '© 2026 Catch Image · Free Image Search & Editor',
+  },
+  ja: {
+    searchPlaceholder: '画像を検索...',
+    settingsTitle: '設定',
+    settingsService: 'ℹ️ サービス',
+    settingsAbout: '📖 CatchImageとは？',
+    settingsLink: '🔗 リンク',
+    settingsCopyLink: '🔗 サイトリンクをコピー',
+    settingsContact: '📞 お問い合わせ',
+    settingsLang: '🌐 言語',
+    sortPopular: '人気順', sortLatest: '最新順', sortRandom: '🔀 ランダム',
+    srcAll: '全て', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 画像', typeVideo: '🎬 動画', typeMusic: '🎵 音楽', typeSfx: '🔊 効果音',
+    loadMore: 'もっと見る →', loadRandom: '🔀 シャッフル',
+    editBtn: '✏️ 編集', dlBtn: '⬇ 保存', viewBtn: '▶ 再生',
+    editorTitle: 'エディター起動', copied: 'コピーしました！',
+    copyright: '© 2026 Catch Image · 無料画像検索＆編集サービス',
+  },
+  zh: {
+    searchPlaceholder: '搜索图片...',
+    settingsTitle: '设置',
+    settingsService: 'ℹ️ 服务',
+    settingsAbout: '📖 关于CatchImage',
+    settingsLink: '🔗 链接',
+    settingsCopyLink: '🔗 复制网站链接',
+    settingsContact: '📞 联系我们',
+    settingsLang: '🌐 语言',
+    sortPopular: '热门', sortLatest: '最新', sortRandom: '🔀 随机',
+    srcAll: '全部', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 图片', typeVideo: '🎬 视频', typeMusic: '🎵 音乐', typeSfx: '🔊 音效',
+    loadMore: '加载更多 →', loadRandom: '🔀 随机加载',
+    editBtn: '✏️ 编辑', dlBtn: '⬇ 保存', viewBtn: '▶ 播放',
+    editorTitle: '编辑器已打开', copied: '链接已复制！',
+    copyright: '© 2026 Catch Image · 免费图片搜索与编辑服务',
+  }
+};
+
+let currentLang = localStorage.getItem('ciLang') || 'ko';
+
+function _set(id, text){ const el=document.getElementById(id); if(el) el.textContent=text; }
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('ciLang', lang);
+  const t = I18N[lang];
+  if(!t) return;
+
+  // 검색창
+  const sp = document.getElementById('heroSearch');
+  if(sp) sp.placeholder = t.searchPlaceholder;
+
+  // 설정 모달
+  _set('settingsTitle', t.settingsTitle);
+  _set('settingsServiceLabel', t.settingsService);
+  _set('settingsLinkLabel', t.settingsLink);
+  _set('settingsContactLabel', t.settingsContact);
+  _set('settingsLangLabel', t.settingsLang);
+  _set('settingsCopyBtn', t.settingsCopyLink);
+  _set('settingsCopyright', t.copyright);
+  const stAbout = document.getElementById('settingsAboutBtn');
+  if(stAbout) stAbout.innerHTML = t.settingsAbout + '<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span>';
+
+  // 소스 버튼 (id 기반)
+  _set('btn-all', t.srcAll);
+
+  // 미디어 타입 버튼 (id 기반)
+  const imgLabel = t.typeImage;
+  const vidLabel = t.typeVideo;
+  ['mt-image','mt-image-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = id.includes('-m') ? (lang==='ko'?'🖼️':'🖼') : imgLabel; });
+  ['mt-video','mt-video-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = id.includes('-m') ? (lang==='ko'?'🎬':'🎬') : vidLabel; });
+
+  // 정렬 select option
+  const sortSel = document.getElementById('sortOrder');
+  if(sortSel){
+    sortSel.options[0].text = (lang==='ko'?'🕐 최신순': lang==='en'?'🕐 Latest': lang==='ja'?'🕐 最新順':'🕐 最新');
+    sortSel.options[1].text = (lang==='ko'?'🔥 인기순': lang==='en'?'🔥 Popular': lang==='ja'?'🔥 人気順':'🔥 热门');
+  }
+
+  // 랜덤 버튼
+  const randBtn = document.querySelector('button[onclick="randomShuffle()"]');
+  if(randBtn) randBtn.textContent = t.sortRandom;
+
+  // 더보기 버튼
+  const lmBtn = document.querySelector('#loadMore button');
+  if(lmBtn) lmBtn.textContent = currentSort==='random' ? t.loadRandom : t.loadMore;
+
+  // 언어 버튼 활성화 표시
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    const active = b.dataset.lang === lang;
+    b.style.background = active ? 'var(--accent)' : 'var(--surface2)';
+    b.style.color = active ? '#000' : 'var(--text)';
+    b.style.fontWeight = active ? '900' : '700';
+  });
+}
+
+// 페이지 로드 시 저장된 언어 적용
+document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
+
 /* ===== 추가 끝 ===== */
 </style>
 
@@ -570,11 +704,16 @@ footer {
   <div class="logo" onclick="resetHome()">
     <span class="logo-catch">CATCH</span><span class="logo-image">IMAGE</span>
   </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+  <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
     <button class="hdr-btn main" onclick="openLocalEditor()">🖼️ 내 이미지 편집</button>
     <div class="mobile-btn-group" style="display:flex;gap:8px">
-      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙</button>
-      <button class="hdr-btn small" onclick="openSettingsModal()" id="settingsBtn" title="설정">⚙️</button>
+      <button class="hdr-btn small" onclick="toggleTheme()" id="themeToggleBtn">🌙</button> 
+       <button class="hdr-btn small" onclick="openSettingsModal()" id="settingsBtn" title="설정">⚙️</button>
+    </div>
+    <div class="source-toggle" id="sourceToggle">
+      <button class="src-btn active" id="btn-all"     onclick="setSource('all')">전체</button>
+      <button class="src-btn"        id="btn-pexels"  onclick="setSource('pexels')">Pexels</button>
+      <button class="src-btn"        id="btn-pixabay" onclick="setSource('pixabay')">Pixabay</button>
     </div>
   </div>
 </header>
@@ -655,7 +794,7 @@ footer {
   <div id="gallery" class="gallery"></div>
   <div id="status" class="status"><div class="spinner"></div></div>
   <div id="loadMore" class="load-more" style="display:none">
-    <div class="spinner" id="moreSpinner" style="margin:0 auto"></div>
+    <button onclick="loadMore()">더 보기 →</button>
   </div>
 </section>
 
@@ -691,7 +830,11 @@ footer {
       <div class="editor-dim" id="edDimInfo">—</div>
       <span id="edQualityBadge" style="display:none;font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px"></span>
     </div>
-      </div>
+    <div class="editor-top-right">
+      <button id="edReloadOrigBtn" onclick="reloadOriginalQuality()" style="display:none;background:rgba(232,255,71,.15);color:#e8ff47;border:1px solid rgba(232,255,71,.4);padding:5px 12px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px">🔍 원본 화질로</button>
+      <button class="editor-close" onclick="closeEditor()">×</button>
+    </div>
+  </div>
   <div class="editor-body">
     <div class="editor-canvas-area" id="canvasArea">
       <div id="zoomControls">
@@ -714,7 +857,7 @@ footer {
       </div>
     </div>
     <div class="editor-sidebar" id="editorSidebar">
-      <div class="mobile-preview-notice" id="mobilePreviewNotice">모바일 미리보기는<br>최적화로 저화질입니다<br>저장 시 원본 화질로<br>저장됩니다</div>
+      <div class="mobile-preview-notice" id="mobilePreviewNotice">📱 미리보기는 성능 최적화로 저화질입니다<br>저장 시 원본 화질로 저장됩니다</div>
       <div class="ed-section">
         <div class="ed-section-title">📁 파일 열기</div>
         <label class="ed-file-label">🖼️ 내 이미지 선택<input type="file" id="localFileInput" accept="image/*" onchange="loadLocalFile(event)"></label>
@@ -837,7 +980,8 @@ footer {
 /* ═══════════════════════════════════════════════
    API KEYS
 ═══════════════════════════════════════════════ */
-// API 키는 서버(api/pexels.js, api/pixabay.js)에서 환경변수로 관리됩니다
+const PEXELS_KEY  = 'CyPFyOXxFbr0NMAzwDCrfplwsXdM0fbvm8I466eyhXSz807E85UmBn1t';
+const PIXABAY_KEY = '55240646-e066fc8797e32f224e3416303';
 
 /* ═══════════════════════════════════════════════
    광고 영상 목록 (sooplive VOD ID)
@@ -892,7 +1036,19 @@ function setMediaType(type) {
     const mBtn = document.getElementById('mt-' + t + '-m');
     if (mBtn) mBtn.classList.toggle('active', t === type);
   });
-  currentSource = 'all';
+  // 소스 토글: GIF/일러스트는 Pixabay only
+  const srcToggle = document.getElementById('sourceToggle');
+  const pixabayOnly = ['illustration'];
+  if (pixabayOnly.includes(type)) {
+    srcToggle.style.opacity = '.35';
+    srcToggle.style.pointerEvents = 'none';
+    currentSource = 'pixabay';
+    ['all','pexels','pixabay'].forEach(k =>
+      document.getElementById('btn-' + k).className = 'src-btn' + (k === 'pixabay' ? ' active' : ''));
+  } else {
+    srcToggle.style.opacity = '';
+    srcToggle.style.pointerEvents = '';
+  }
   reSearch();
 }
 
@@ -900,7 +1056,7 @@ function setMediaType(type) {
    SEARCH STATE
 ═══════════════════════════════════════════════ */
 const randomTags = ['food','nature','city','ocean','mountain','animal','technology','travel','flower','architecture'];
-let currentQuery = 'food', currentPage = 1, isLoading = false, currentSource = 'all', currentSort = 'popular';
+let currentQuery = 'food', currentPage = 1, isLoading = false, currentSource = 'all', currentSort = 'popular', pageOffset = 0;
 let currentPhotos = [], currentPhotoIndex = -1, lightboxOpen = false, touchStartX = 0;
 
 function copyLink(){
@@ -1013,7 +1169,7 @@ function closeAd() {
 }
 
 /* ── SEARCH ── */
-function setSource(s){currentSource=s;reSearch();}
+function setSource(s){currentSource=s;['all','pexels','pixabay'].forEach(k=>document.getElementById('btn-'+k).className='src-btn'+(k===s?' active':''));reSearch();}
 document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch('hero');});
 
 function quickSearch(q){
@@ -1038,16 +1194,20 @@ function resetHome(){
   document.getElementById('ad-widget').style.display='';
   startAd(true);
   const randomTag=randomTags[Math.floor(Math.random()*randomTags.length)];
-  currentMediaType='image'; currentSource='all';
+  currentMediaType='image';
   ALL_TYPES.forEach(t=>document.getElementById('mt-'+t).classList.toggle('active',t==='image'));
   const mBtn0=document.getElementById('mt-image-m');if(mBtn0)mBtn0.classList.add('active');
   const mBtn1=document.getElementById('mt-video-m');if(mBtn1)mBtn1.classList.remove('active');
+  const srcToggle=document.getElementById('sourceToggle');
+  srcToggle.style.opacity='';srcToggle.style.pointerEvents='';
   startSearch(randomTag);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function startSearch(q){
-  currentQuery=q; currentPage=1; currentSort=document.getElementById('sortOrder')?.value||'popular';
-  currentPhotos=[]; currentPhotoIndex=-1;
+  currentQuery=q;currentPage=1;currentSort=document.getElementById('sortOrder')?.value||'popular';
+  // 인기순/최신순도 검색마다 시작 페이지를 랜덤으로 → 첫 이미지 고정 방지
+  pageOffset = currentSort==='random' ? 0 : Math.floor(Math.random()*8)+1;
+  currentPhotos = []; currentPhotoIndex = -1;
   document.body.classList.add('searched');
   document.getElementById('gallery').innerHTML='';
   document.getElementById('loadMore').style.display='none';
@@ -1062,11 +1222,11 @@ function loadMore(){
 
 /* ── 통합 Fetch ── */
 async function fetchAll(q, page, clear, forceRandom = false){
-  if(isLoading)return; isLoading=true;
-  const pp = Math.min(parseInt(document.getElementById('perPage').value)||20, 30);
+  if(isLoading)return;isLoading=true;
+  const pp=parseInt(document.getElementById('perPage').value);
   const st=document.getElementById('status');const lm=document.getElementById('loadMore');
-  if(clear){st.innerHTML='<div class="spinner"></div>';st.className='status';st.style.display='block';lm.style.display='none';}
-  else{lm.style.display='flex';}
+  if(clear){st.innerHTML='<div class="spinner"></div>';st.className='status';st.style.display='block';}
+  else{lm.style.display='none';const sp=document.createElement('div');sp.className='spinner';sp.id='moreSpinner';document.querySelector('.gallery-section').appendChild(sp);}
   try{
     let items=[],hasMore=false;
     const mt=currentMediaType;
@@ -1096,25 +1256,21 @@ async function fetchAll(q, page, clear, forceRandom = false){
 
     }
 
-    lm.style.display='none';
+    document.getElementById('moreSpinner')?.remove();
     if(!items.length){st.textContent='"'+q+'" 검색 결과가 없습니다.';st.style.display='block';isLoading=false;return;}
     st.style.display='none';
     if(clear){currentPhotos=[...items];renderItems(currentPhotos,false,mt);}
     else{currentPhotos.push(...items);renderItems(items,true,mt);}
     if(hasMore||currentSort==='random'){
-      lm.style.display='flex'; // 스피너 다시 보여줄 위치 확보 (IntersectionObserver가 감지)
+      lm.style.display='flex';
+      lm.querySelector('button').textContent=currentSort==='random'?'🔀 더 불러오기':'더 보기 →';
     }
   }catch(e){
-    const m = e.message || '';
-    const msg = m.includes('Failed to fetch') || m.includes('NetworkError')
+    const msg = e.message==='Failed to fetch'
       ? '❌ 네트워크 오류 — 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.'
-      : m.includes('502') || m.includes('CORS')
-        ? '❌ 서버 오류 — 잠시 후 다시 시도해주세요. (프록시 연결 실패)'
-        : m.includes('403')
-          ? '❌ 요청이 너무 많습니다 — 잠시 후 다시 시도해주세요.'
-          : '❌ ' + m;
-    st.textContent=msg; st.className='status error'; st.style.display='block';
-    lm.style.display='none';
+      : '❌ '+e.message;
+    st.textContent=msg;st.className='status error';st.style.display='block';
+    document.getElementById('moreSpinner')?.remove();
   }
   isLoading=false;
 }
@@ -1130,90 +1286,58 @@ async function _cachedFetch(key,fetcher){
 }
 async function fPexelsImg(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page;
-  const safePerPage = Math.min(pp, 30);
-  const key = _cacheKey('pexImg',q,actualPage,safePerPage,currentSort,currentSource);
+  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page + pageOffset;
+  const key = _cacheKey('pexImg',q,actualPage,pp,currentSort,currentSource);
   return _cachedFetch(key, async()=>{
-    try {
-      const url = `/api/pexels?q=${encodeURIComponent(q)}&page=${actualPage}&per_page=${safePerPage}&type=image`;
-      const r = await fetch(url);
-      if(!r.ok) return {p:[], m:false};
-      const d = await r.json();
-      if(!d.photos) return {p:[], m:false};
-      let photos=(d.photos).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
-      if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
-      return{p:photos, m:isRandom?false:(d.total_results>actualPage*safePerPage)};
-    } catch(e) {
-      console.warn('Pexels 이미지 실패(무시):', e.message);
-      return {p:[], m:false};
-    }
+    const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+    if(!r.ok)throw new Error('Pexels '+r.status);
+    const d=await r.json();
+    let photos=(d.photos||[]).map(p=>({kind:'image',s:'pexels',th:p.src.large,or:p.src.original,dl:p.src.original,ph:p.photographer,alt:p.alt||q}));
+    if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
+    return{p:photos, m:isRandom?false:(d.total_results>actualPage*pp)};
   });
 }
 async function fPixabayImg(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
   const order = currentSort==='latest' ? 'latest' : 'popular';
-  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page;
-  const safePerPage = Math.min(pp, 30);
-  const key = _cacheKey('pbImg',q,actualPage,safePerPage,currentSort,currentSource);
+  const actualPage = isRandom ? Math.floor(Math.random()*20)+1 : page + pageOffset;
+  const key = _cacheKey('pbImg',q,actualPage,pp,currentSort,currentSource);
   return _cachedFetch(key, async()=>{
-    try {
-      const url = `/api/pixabay?q=${encodeURIComponent(q)}&page=${actualPage}&per_page=${safePerPage}&order=${order}&type=image`;
-      const r = await fetch(url);
-      if(!r.ok) return {p:[], m:false};
-      const d = await r.json();
-      if(d.error || !d.hits) return {p:[], m:false};
-      let photos=(d.hits).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
-      if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
-      return{p:photos, m:isRandom?false:(d.totalHits>actualPage*safePerPage)};
-    } catch(e) {
-      console.warn('Pixabay 이미지 실패(무시):', e.message);
-      return {p:[], m:false};
-    }
+    const r=await fetch('https://pixabay.com/api/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&image_type=photo&safesearch=true&order='+order);
+    if(!r.ok)throw new Error('Pixabay '+r.status);
+    const d=await r.json();
+    let photos=(d.hits||[]).map(p=>({kind:'image',s:'pixabay',th:p.webformatURL,or:p.largeImageURL,dl:p.largeImageURL,ph:p.user,alt:q}));
+    if(isRandom) photos=photos.sort(()=>Math.random()-0.5);
+    return{p:photos, m:isRandom?false:(d.totalHits>actualPage*pp)};
   });
 }
 
 /* ── API: 동영상 ── */
 async function fPexelsVid(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
-  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page;
-  const safePerPage = Math.min(pp, 30);
-  const key = _cacheKey('pxVid',q,actualPage,safePerPage,currentSort,currentSource);
+  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page + pageOffset;
+  const key = _cacheKey('pxVid',q,actualPage,pp,currentSort,currentSource);
   return _cachedFetch(key, async()=>{
-    try {
-      const url = `/api/pexels?q=${encodeURIComponent(q)}&page=${actualPage}&per_page=${safePerPage}&type=video`;
-      const r = await fetch(url);
-      if(!r.ok) return {p:[], m:false};
-      const d = await r.json();
-      if(!d.videos) return {p:[], m:false};
-      let vids=(d.videos).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
-      if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
-      return{p:vids, m:isRandom?false:(d.total_results>actualPage*safePerPage)};
-    } catch(e) {
-      console.warn('Pexels 동영상 실패(무시):', e.message);
-      return {p:[], m:false};
-    }
+    const r=await fetch('https://api.pexels.com/videos/search?query='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage,{headers:{Authorization:PEXELS_KEY}});
+    if(!r.ok)throw new Error('Pexels Video '+r.status);
+    const d=await r.json();
+    let vids=(d.videos||[]).map(v=>{const best=v.video_files.sort((a,b)=>b.width-a.width)[0];const thumb=v.image||'';return{kind:'video',s:'pexels',th:thumb,videoUrl:best?.link||'',dl:best?.link||'',ph:v.user?.name||'Pexels',alt:q,duration:v.duration};});
+    if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+    return{p:vids, m:isRandom?false:(d.total_results>actualPage*pp)};
   });
 }
 async function fPixabayVid(q, page, pp, forceRandom = false){
   const isRandom = forceRandom || currentSort==='random';
   const order = currentSort==='latest' ? 'latest' : 'popular';
-  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page;
-  const safePerPage = Math.min(pp, 30);
-  const key = _cacheKey('pbVid',q,actualPage,safePerPage,currentSort,currentSource);
+  const actualPage = isRandom ? Math.floor(Math.random()*10)+1 : page + pageOffset;
+  const key = _cacheKey('pbVid',q,actualPage,pp,currentSort,currentSource);
   return _cachedFetch(key, async()=>{
-    try {
-      const url = `/api/pixabay?q=${encodeURIComponent(q)}&page=${actualPage}&per_page=${safePerPage}&order=${order}&type=video`;
-      const r = await fetch(url);
-      if(!r.ok) return {p:[], m:false};
-      const d = await r.json();
-      if(d.error || !d.hits) return {p:[], m:false};
-      let vids=(d.hits).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
-      if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
-      return{p:vids, m:isRandom?false:(d.totalHits>actualPage*safePerPage)};
-    } catch(e) {
-      console.warn('Pixabay 동영상 실패(무시):', e.message);
-      return {p:[], m:false};
-    }
+    const r=await fetch('https://pixabay.com/api/videos/?key='+PIXABAY_KEY+'&q='+encodeURIComponent(q)+'&per_page='+pp+'&page='+actualPage+'&safesearch=true&order='+order);
+    if(!r.ok)throw new Error('Pixabay Video '+r.status);
+    const d=await r.json();
+    let vids=(d.hits||[]).map(v=>{const medium=v.videos?.medium||v.videos?.small||{};return{kind:'video',s:'pixabay',th:v.videos?.small?.thumbnail||'',videoUrl:medium.url||'',dl:medium.url||'',ph:v.user||'Pixabay',alt:q,duration:v.duration};});
+    if(isRandom) vids=vids.sort(()=>Math.random()-0.5);
+    return{p:vids, m:isRandom?false:(d.totalHits>actualPage*pp)};
   });
 }
 
@@ -1620,7 +1744,24 @@ function initEditor(name){
     },{passive:false});
   }
   drawImage();
-
+  // 화질 상태 표시 (저화질만 표시)
+  const badge=document.getElementById('edQualityBadge');
+  const reloadBtn=document.getElementById('edReloadOrigBtn');
+  if(badge && reloadBtn){
+    const w=edImg.naturalWidth||edImg.width;
+    if(w < 1000){
+      badge.textContent='⚠️ 저화질';
+      badge.style.background='rgba(255,160,0,.15)';
+      badge.style.color='#ffa500';
+      badge.style.display='inline-block';
+      reloadBtn.style.display='inline-block';
+      reloadBtn.textContent='🔍 원본 화질로';
+      reloadBtn.disabled=false;
+    } else {
+      badge.style.display='none';
+      reloadBtn.style.display='none';
+    }
+  }
   showToast('✅ 편집기 열림');
   document.body.style.overflow = 'hidden';
 }
@@ -2113,6 +2254,7 @@ window.addEventListener('scroll', () => {
 /* ── 설정 모달 ── */
 function openSettingsModal() {
   document.getElementById('settingsModal').classList.add('show');
+  applyLang(currentLang);
 }
 function closeSettingsModal() {
   document.getElementById('settingsModal').classList.remove('show');
@@ -2122,6 +2264,147 @@ function closeSettingsModal() {
 document.getElementById('settingsModal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
 });
+
+/* ══════════════════════════════════
+   다국어 지원 (한국어 / English / 日本語 / 中文)
+══════════════════════════════════ */
+const I18N = {
+  ko: {
+    searchPlaceholder: '이미지 검색어를 입력하세요',
+    settingsTitle: '설정',
+    settingsService: 'ℹ️ 서비스',
+    settingsAbout: '📖 캐치이미지란?',
+    settingsLink: '🔗 링크',
+    settingsCopyLink: '🔗 사이트 링크 복사',
+    settingsContact: '📞 문의',
+    settingsLang: '🌐 언어',
+    sortPopular: '인기순', sortLatest: '최신순', sortRandom: '🔀 랜덤',
+    srcAll: '전체', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 이미지', typeVideo: '🎬 동영상', typeMusic: '🎵 음악', typeSfx: '🔊 효과음',
+    loadMore: '더 보기 →', loadRandom: '🔀 더 불러오기',
+    editBtn: '✏️ 편집', dlBtn: '⬇ 저장', viewBtn: '▶ 재생',
+    editorTitle: '편집기 열림', copied: '링크 복사됨!',
+    copyright: '© 2026 Catch Image · 무료 이미지 통합 편집 서비스',
+  },
+  en: {
+    searchPlaceholder: 'Search images...',
+    settingsTitle: 'Settings',
+    settingsService: 'ℹ️ Service',
+    settingsAbout: '📖 About CatchImage',
+    settingsLink: '🔗 Link',
+    settingsCopyLink: '🔗 Copy site link',
+    settingsContact: '📞 Contact',
+    settingsLang: '🌐 Language',
+    sortPopular: 'Popular', sortLatest: 'Latest', sortRandom: '🔀 Random',
+    srcAll: 'All', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 Images', typeVideo: '🎬 Videos', typeMusic: '🎵 Music', typeSfx: '🔊 SFX',
+    loadMore: 'Load more →', loadRandom: '🔀 Shuffle more',
+    editBtn: '✏️ Edit', dlBtn: '⬇ Save', viewBtn: '▶ Play',
+    editorTitle: 'Editor opened', copied: 'Link copied!',
+    copyright: '© 2026 Catch Image · Free Image Search & Editor',
+  },
+  ja: {
+    searchPlaceholder: '画像を検索...',
+    settingsTitle: '設定',
+    settingsService: 'ℹ️ サービス',
+    settingsAbout: '📖 CatchImageとは？',
+    settingsLink: '🔗 リンク',
+    settingsCopyLink: '🔗 サイトリンクをコピー',
+    settingsContact: '📞 お問い合わせ',
+    settingsLang: '🌐 言語',
+    sortPopular: '人気順', sortLatest: '最新順', sortRandom: '🔀 ランダム',
+    srcAll: '全て', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 画像', typeVideo: '🎬 動画', typeMusic: '🎵 音楽', typeSfx: '🔊 効果音',
+    loadMore: 'もっと見る →', loadRandom: '🔀 シャッフル',
+    editBtn: '✏️ 編集', dlBtn: '⬇ 保存', viewBtn: '▶ 再生',
+    editorTitle: 'エディター起動', copied: 'コピーしました！',
+    copyright: '© 2026 Catch Image · 無料画像検索＆編集サービス',
+  },
+  zh: {
+    searchPlaceholder: '搜索图片...',
+    settingsTitle: '设置',
+    settingsService: 'ℹ️ 服务',
+    settingsAbout: '📖 关于CatchImage',
+    settingsLink: '🔗 链接',
+    settingsCopyLink: '🔗 复制网站链接',
+    settingsContact: '📞 联系我们',
+    settingsLang: '🌐 语言',
+    sortPopular: '热门', sortLatest: '最新', sortRandom: '🔀 随机',
+    srcAll: '全部', srcPexels: 'Pexels', srcPixabay: 'Pixabay',
+    typeImage: '🖼 图片', typeVideo: '🎬 视频', typeMusic: '🎵 音乐', typeSfx: '🔊 音效',
+    loadMore: '加载更多 →', loadRandom: '🔀 随机加载',
+    editBtn: '✏️ 编辑', dlBtn: '⬇ 保存', viewBtn: '▶ 播放',
+    editorTitle: '编辑器已打开', copied: '链接已复制！',
+    copyright: '© 2026 Catch Image · 免费图片搜索与编辑服务',
+  }
+};
+
+let currentLang = localStorage.getItem('ciLang') || 'ko';
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('ciLang', lang);
+  const t = I18N[lang];
+  if(!t) return;
+
+  // 검색창
+  const sp = document.getElementById('mainSearchInput') || document.querySelector('.hero-search input');
+  if(sp) sp.placeholder = t.searchPlaceholder;
+
+  // 설정 모달
+  const stTitle = document.getElementById('settingsTitle');
+  if(stTitle) stTitle.textContent = t.settingsTitle;
+  const stAbout = document.getElementById('settingsAboutBtn');
+  if(stAbout) stAbout.innerHTML = t.settingsAbout + '<span style="margin-left:auto;font-size:.75rem;opacity:.7">→</span>';
+  const stCopy = document.getElementById('settingsCopyBtn');
+  if(stCopy) stCopy.textContent = t.settingsCopyLink;
+  const stService = document.getElementById('settingsServiceLabel');
+  if(stService) stService.textContent = t.settingsService;
+  const stLink = document.getElementById('settingsLinkLabel');
+  if(stLink) stLink.textContent = t.settingsLink;
+  const stContact = document.getElementById('settingsContactLabel');
+  if(stContact) stContact.textContent = t.settingsContact;
+  const stLangLabel = document.getElementById('settingsLangLabel');
+  if(stLangLabel) stLangLabel.textContent = t.settingsLang;
+  const stCopy2 = document.getElementById('settingsCopyright');
+  if(stCopy2) stCopy2.textContent = t.copyright;
+
+  // 정렬 버튼
+  const sortBtns = document.querySelectorAll('[data-sort]');
+  sortBtns.forEach(b => {
+    if(b.dataset.sort==='popular') b.textContent = t.sortPopular;
+    else if(b.dataset.sort==='latest') b.textContent = t.sortLatest;
+    else if(b.dataset.sort==='random') b.textContent = t.sortRandom;
+  });
+
+  // 소스 버튼
+  const srcBtns = document.querySelectorAll('[data-source]');
+  srcBtns.forEach(b => {
+    if(b.dataset.source==='all') b.textContent = t.srcAll;
+  });
+
+  // 미디어 타입 버튼
+  const mtBtns = document.querySelectorAll('[data-mt]');
+  mtBtns.forEach(b => {
+    if(b.dataset.mt==='image') b.textContent = t.typeImage;
+    else if(b.dataset.mt==='video') b.textContent = t.typeVideo;
+    else if(b.dataset.mt==='music') b.textContent = t.typeMusic;
+    else if(b.dataset.mt==='sfx') b.textContent = t.typeSfx;
+  });
+
+  // 더보기 버튼
+  const lmBtn = document.querySelector('#loadMore button');
+  if(lmBtn && currentSort!=='random') lmBtn.textContent = t.loadMore;
+
+  // 언어 버튼 활성화 표시
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.style.background = b.dataset.lang === lang ? 'var(--accent)' : 'var(--surface2)';
+    b.style.color = b.dataset.lang === lang ? '#000' : 'var(--text)';
+  });
+}
+
+// 페이지 로드 시 저장된 언어 적용
+document.addEventListener('DOMContentLoaded', () => applyLang(currentLang));
 
 /* ===== 추가 끝 ===== */
 
@@ -2135,6 +2418,15 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
     <div class="settings-header">
       <span id="settingsTitle">설정</span>
       <button class="settings-close" onclick="closeSettingsModal()">×</button>
+    </div>
+    <div class="settings-section">
+      <h4 id="settingsLangLabel">🌐 언어</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="settings-btn lang-btn" data-lang="ko" onclick="applyLang('ko')" style="font-weight:700">🇰🇷 한국어</button>
+        <button class="settings-btn lang-btn" data-lang="en" onclick="applyLang('en')" style="font-weight:700">🇺🇸 English</button>
+        <button class="settings-btn lang-btn" data-lang="ja" onclick="applyLang('ja')" style="font-weight:700">🇯🇵 日本語</button>
+        <button class="settings-btn lang-btn" data-lang="zh" onclick="applyLang('zh')" style="font-weight:700">🇨🇳 中文</button>
+      </div>
     </div>
     <div class="settings-section">
       <h4 id="settingsServiceLabel">ℹ️ 서비스</h4>
