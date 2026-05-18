@@ -660,7 +660,7 @@ footer {
   <div id="gallery" class="gallery"></div>
   <div id="status" class="status"><div class="spinner"></div></div>
   <div id="loadMore" class="load-more" style="display:none">
-    <button onclick="loadMore()">더 보기 →</button>
+    <div class="spinner" id="moreSpinner" style="margin:0 auto"></div>
   </div>
 </section>
 
@@ -1088,8 +1088,8 @@ async function fetchAll(q, page, clear, forceRandom = false){
   if(isLoading)return; isLoading=true;
   const pp = Math.min(parseInt(document.getElementById('perPage').value)||20, 30);
   const st=document.getElementById('status');const lm=document.getElementById('loadMore');
-  if(clear){st.innerHTML='<div class="spinner"></div>';st.className='status';st.style.display='block';}
-  else{lm.style.display='none';const sp=document.createElement('div');sp.className='spinner';sp.id='moreSpinner';document.querySelector('.gallery-section').appendChild(sp);}
+  if(clear){st.innerHTML='<div class="spinner"></div>';st.className='status';st.style.display='block';lm.style.display='none';}
+  else{lm.style.display='flex';}
   try{
     let items=[],hasMore=false;
     const mt=currentMediaType;
@@ -1119,26 +1119,25 @@ async function fetchAll(q, page, clear, forceRandom = false){
 
     }
 
-    document.getElementById('moreSpinner')?.remove();
+    lm.style.display='none';
     if(!items.length){st.textContent='"'+q+'" 검색 결과가 없습니다.';st.style.display='block';isLoading=false;return;}
     st.style.display='none';
     if(clear){currentPhotos=[...items];renderItems(currentPhotos,false,mt);}
     else{currentPhotos.push(...items);renderItems(items,true,mt);}
     if(hasMore||currentSort==='random'){
-      lm.style.display='flex';
-      lm.querySelector('button').textContent=currentSort==='random'?'🔀 더 불러오기':'더 보기 →';
+      lm.style.display='flex'; // 스피너 다시 보여줄 위치 확보 (IntersectionObserver가 감지)
     }
   }catch(e){
     const m = e.message || '';
     const msg = m.includes('Failed to fetch') || m.includes('NetworkError')
       ? '❌ 네트워크 오류 — 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.'
       : m.includes('502') || m.includes('CORS')
-        ? '❌ 서버 오류 — 잠시 후 다시 시도해주세요. (Pixabay 프록시 연결 실패)'
+        ? '❌ 서버 오류 — 잠시 후 다시 시도해주세요. (프록시 연결 실패)'
         : m.includes('403')
           ? '❌ 요청이 너무 많습니다 — 잠시 후 다시 시도해주세요.'
           : '❌ ' + m;
     st.textContent=msg; st.className='status error'; st.style.display='block';
-    document.getElementById('moreSpinner')?.remove();
+    lm.style.display='none';
   }
   isLoading=false;
 }
