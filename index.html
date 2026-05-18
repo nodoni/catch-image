@@ -693,8 +693,10 @@ footer {
     <div class="editor-top-left">
       <div class="editor-logo"><span class="logo-catch">CATCH</span><span class="logo-image">IMAGE</span></div>
       <div class="editor-dim" id="edDimInfo">—</div>
+      <span id="edQualityBadge" style="display:none;font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px"></span>
     </div>
     <div class="editor-top-right">
+      <button id="edReloadOrigBtn" onclick="reloadOriginalQuality()" style="display:none;background:rgba(232,255,71,.15);color:#e8ff47;border:1px solid rgba(232,255,71,.4);padding:5px 12px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;margin-right:8px">🔍 원본 화질로</button>
       <button class="editor-close" onclick="closeEditor()">×</button>
     </div>
   </div>
@@ -1519,7 +1521,7 @@ const canvas=document.getElementById('editorCanvas');
 const ctx=canvas.getContext('2d');
 const cropBox=document.getElementById('cropBox');
 const canvasWrap=document.getElementById('canvasWrap');
-let edImg=null,edHistory=[],edRedoStack=[],edRotation=0,edFlipX=false,edFlipY=false,edSaveQuality=1.0,edSaveFormat='jpg';
+let edImg=null,edHistory=[],edRedoStack=[],edRotation=0,edFlipX=false,edFlipY=false,edSaveQuality=1.0,edSaveFormat='jpg',_edOriginalUrl='';
 let enhBright=0,enhContrast=0,enhSat=0;
 let cropActive=false,cropMode='rect',cBoxL=.1,cBoxT=.1,cBoxR=.9,cBoxB=.9,dragging=null;
 let edSaveScale = 1.0;
@@ -1539,6 +1541,32 @@ function openLocalEditor(){
 
   document.getElementById('localFileInput').click();
 }
+function reloadOriginalQuality(){
+  if(!_edOriginalUrl){showToast('원본 URL 정보 없음');return;}
+  const btn=document.getElementById('edReloadOrigBtn');
+  btn.textContent='⏳ 로딩 중...';btn.disabled=true;
+  fetch(_edOriginalUrl)
+    .then(r=>r.blob())
+    .then(b=>{
+      const u=URL.createObjectURL(b);
+      const img=new Image();
+      img.onload=()=>{
+        pushHistory();
+        edImg=img;
+        drawImage();
+        btn.style.display='none';
+        const badge=document.getElementById('edQualityBadge');
+        badge.textContent='✅ 원본';
+        badge.style.background='rgba(232,255,71,.2)';
+        badge.style.color='#e8ff47';
+        badge.style.display='inline-block';
+        showToast('✅ 원본 화질로 로드 완료');
+      };
+      img.src=u;
+    })
+    .catch(()=>{btn.textContent='❌ 실패';btn.disabled=false;showToast('❌ 원본 로드 실패');});
+}
+
 function loadLocalFile(e){const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);const img=new Image();img.onload=()=>{edImg=img;initEditor(f.name.replace(/\.[^.]+$/,''));};img.src=u;e.target.value='';}
 let editorOpen = false;
 function initEditor(name){
@@ -1580,7 +1608,29 @@ function initEditor(name){
       if(e.touches.length===2&&_pd){e.preventDefault();const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);setZoom(_pz*(d/_pd));}
     },{passive:false});
   }
-  drawImage(); showToast('✅ 편집기 열림');
+  drawImage();
+  // 화질 상태 표시
+  const badge=document.getElementById('edQualityBadge');
+  const reloadBtn=document.getElementById('edReloadOrigBtn');
+  if(badge && reloadBtn){
+    const w=edImg.naturalWidth||edImg.width;
+    if(w < 1000){
+      badge.textContent='⚠️ 저화질 미리보기';
+      badge.style.background='rgba(255,160,0,.15)';
+      badge.style.color='#ffa500';
+      badge.style.display='inline-block';
+      reloadBtn.style.display='inline-block';
+      reloadBtn.textContent='🔍 원본 화질로';
+      reloadBtn.disabled=false;
+    } else {
+      badge.textContent='HD';
+      badge.style.background='rgba(100,220,100,.15)';
+      badge.style.color='#6dc96d';
+      badge.style.display='inline-block';
+      reloadBtn.style.display='none';
+    }
+  }
+  showToast('✅ 편집기 열림');
   document.body.style.overflow = 'hidden';
 }
 
