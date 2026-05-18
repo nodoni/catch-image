@@ -558,7 +558,229 @@ footer {
   background: transparent;
   color: var(--accent);
 }
+/* ════════ 검색 전 초기 화면 깔끔하게 숨기기 ════════ */
+/* ═══════════════════════════════════════════════════════
+   초기 화면(검색 전) – 전체 형식 유지 + 잔상 방지 패치 완료
+   ═══════════════════════════════════════════════════════ */
+body:not(.searched) .hero {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  margin: 0 auto;
+  overflow-x: visible;
+}
 
+/* 로고에 position relative 필수 (글리치 효과용) */
+body:not(.searched) .hero-logo {
+  position: relative;  /* ✅ 이 줄이 없으면 가상요소가 기준을 못 잡음 */
+  font-size: clamp(3.2rem, 12vw, 7rem);
+  margin-bottom: 1.8rem;
+  transition: transform 0.2s ease;
+  cursor: default;
+  display: inline-block;
+}
+
+body:not(.searched) .hero-logo:hover {
+  transform: translateY(-4px);
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+}
+
+/* 글리치 효과 – 가로로 번지는 스파크 (Saber 느낌) */
+body:not(.searched) .hero-logo::before,
+body:not(.searched) .hero-logo::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2), opacity 0.2s;
+}
+body:not(.searched) .hero-logo::before {
+  top: 20%;
+  transform: translateY(-50%) scaleX(0);
+}
+body:not(.searched) .hero-logo::after {
+  top: 80%;
+  transform: translateY(-50%) scaleX(0);
+}
+/* 호버 시 스파크 번짐 */
+body:not(.searched) .hero-logo:hover::before,
+body:not(.searched) .hero-logo:hover::after {
+  transform: translateY(-50%) scaleX(1);
+  opacity: 0.9;
+}
+/* 주기적인 자동 글리치 (4초마다) */
+@keyframes glitchAutoLine {
+  0%, 97% { transform: translateY(-50%) scaleX(0); opacity: 0; }
+  98% { transform: translateY(-50%) scaleX(1); opacity: 0.8; }
+  99% { transform: translateY(-50%) scaleX(0.7); opacity: 0.5; }
+  100% { transform: translateY(-50%) scaleX(0); opacity: 0; }
+}
+body:not(.searched) .hero-logo::before {
+  animation: glitchAutoLine 4s infinite;
+}
+body:not(.searched) .hero-logo::after {
+  animation: glitchAutoLine 4s infinite 0.2s;
+}
+
+/* ★잔상 차단 패치: 검색 완료 시 로고와 설명글이 좌측 상단으로 튀지 않고 제자리에서 투명하게 사라짐 */
+body.searched .hero-logo,
+body.searched .hero-desc {
+  position: absolute !important; /* 원래 레이아웃을 무너뜨리지 않게 붕 띄움 */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s ease, visibility 0.2s !important;
+}
+
+/* 설명 문구 */
+body:not(.searched) .hero-desc {
+  font-size: 1.05rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  color: #d0d5ff;
+  background: rgba(16,16,28,0.65);
+  backdrop-filter: blur(8px);
+  padding: 0.8rem 1.6rem;
+  border-radius: 48px;
+  border: 1px solid rgba(232,255,71,0.25);
+  text-align: center;
+}
+
+/* 검색창 – 좌우 길이 늘리기 */
+body:not(.searched) .hero-search {
+  max-width: 860px;  /* ✅ 기존 720 → 860으로 확장 */
+  width: 100%;
+  background: rgba(10,10,20,0.8);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(232,255,71,0.4);
+  border-radius: 60px;
+  padding: 6px 6px 6px 28px;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+body:not(.searched) .hero-search:hover {
+  border-color: var(--accent);
+  transform: scale(1.01);
+}
+body:not(.searched) .hero-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232,255,71,0.3);
+}
+body:not(.searched) .hero-search input {
+  font-size: 1.15rem;
+  padding: 15px 0;
+  color: white;
+  width: 100%;
+}
+body:not(.searched) .hero-search button {
+  background: var(--accent);
+  padding: 10px 34px;
+  border-radius: 50px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+body:not(.searched) .hero-search button:hover {
+  transform: scale(1.02);
+  background: #f4ff8a;
+}
+
+/* 태그 – 중앙 유지, 사라질 때 쏠림 및 눈부심 방지 */
+body:not(.searched) .tags {
+  margin-top: 2.8rem;
+  gap: 12px;
+  max-width: 1000px;
+  justify-content: center;
+  overflow: visible;
+}
+body.searched .tags {
+  position: absolute !important; /* 튐 방지 고정 */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s ease, visibility 0.2s !important;
+}
+
+/* ── [기본 / 다크 모드] 태그 스타일 ── */
+body:not(.searched) .tag {
+  background: rgba(24,24,42,0.75);
+  backdrop-filter: blur(4px);
+  padding: 8px 22px;
+  font-size: 0.85rem;
+  border-radius: 40px;
+  border: 1px solid rgba(232,255,71,0.3);
+  color: #f0f0ff;
+  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+}
+body:not(.searched) .tag:hover {
+  background: rgba(232,255,71,0.15);
+  color: var(--accent);
+  transform: translateY(-6px) scale(1.04);
+  border-color: var(--accent);
+  box-shadow: 0 12px 20px -8px rgba(0,0,0,0.4);
+}
+
+/* ── [라이트 모드] 태그 시인성 개선 패치 ── */
+body.light-mode:not(.searched) .tag {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid rgba(16, 16, 28, 0.15) !important;
+  color: #10101c !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+body.light-mode:not(.searched) .tag:hover {
+  background: #10101c !important;
+  color: #e8ff47 !important;
+  border-color: #10101c !important;
+  box-shadow: 0 10px 16px -6px rgba(0, 0, 0, 0.15);
+}
+
+/* 헤더 초기화면만 살짝 블러 */
+body:not(.searched) header {
+  background: rgba(8,8,16,0.7);
+  backdrop-filter: blur(16px);
+  border-bottom-color: rgba(232,255,71,0.2);
+}
+
+/* 검색 전 갤러리 숨김 */
+body:not(.searched) .gallery-section {
+  display: none !important;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  body:not(.searched) .hero {
+    padding: 1rem;
+  }
+  body:not(.searched) .hero-logo {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    margin-bottom: 1rem;
+  }
+  body:not(.searched) .hero-desc {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  body:not(.searched) .hero-search {
+    max-width: 100%;
+    padding: 4px 4px 4px 18px;
+  }
+  body:not(.searched) .hero-search input {
+    font-size: 0.95rem;
+    padding: 10px 0;
+  }
+  body:not(.searched) .hero-search button {
+    padding: 6px 20px;
+  }
+  body:not(.searched) .tag {
+    padding: 5px 14px;
+    font-size: 0.7rem;
+  }
+}
 /* ===== 추가 끝 ===== */
 </style>
 
@@ -601,7 +823,10 @@ footer {
   <div class="hero-logo" id="heroLogo">
     <span class="hero-logo-catch">CATCH</span><span class="hero-logo-img">IMAGE</span>
   </div>
-  <p class="hero-desc" id="heroDesc">Pexels + Pixabay = "캐치이미지" <br>무료이미지+내 이미지 편집+화질보정 편하게 이용하세요</p>
+  <p class="hero-desc" id="heroDesc">
+  내 이미지 편집 · 화질 보정 · 간편 편집 기능<br>
+  저작권 걱정 X 상업적 이용 가능한 무료 이미지 · 영상까지
+</p>
   <div class="hero-search-wrap">
     <div class="hero-search">
       <input type="text" id="heroSearch" placeholder="검색">
@@ -1038,15 +1263,21 @@ function reSearch(){
 }
 function resetHome(){
   document.getElementById('heroSearch').value='';
-  document.body.classList.remove('searched');
+  document.body.classList.remove('searched'); // 검색 전(거대한 로고) 화면으로 되돌림
   document.getElementById('ad-widget').style.display='';
   startAd(true);
-  const randomTag=randomTags[Math.floor(Math.random()*randomTags.length)];
+  
   currentMediaType='image'; currentSource='all';
   ALL_TYPES.forEach(t=>document.getElementById('mt-'+t).classList.toggle('active',t==='image'));
   const mBtn0=document.getElementById('mt-image-m');if(mBtn0)mBtn0.classList.add('active');
   const mBtn1=document.getElementById('mt-video-m');if(mBtn1)mBtn1.classList.remove('active');
-  startSearch(randomTag);
+  
+  // 자동 검색(startSearch)을 지우고, 대신 갤러리에 남아있던 이미지를 깨끗하게 비워줍니다.
+  currentQuery = '';
+  document.getElementById('gallery').innerHTML = '';
+  document.getElementById('loadMore').style.display = 'none';
+  document.getElementById('galleryTitle').textContent = '';
+  
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function startSearch(q){
@@ -2363,6 +2594,7 @@ document.getElementById('settingsModal').addEventListener('click', (e) => {
     direction:ltr!important;
   }
 }
+
 </style>
 
 <script>
